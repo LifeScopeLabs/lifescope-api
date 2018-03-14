@@ -1,0 +1,796 @@
+{
+  "{\"filename\":\"/app/server.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
+    "metadata": {
+      "usedHelpers": [
+        "interopRequireDefault"
+      ],
+      "marked": [],
+      "modules": {
+        "imports": [
+          {
+            "source": "express",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "express"
+              }
+            ]
+          },
+          {
+            "source": "apollo-server-express",
+            "imported": [
+              "graphqlExpress",
+              "graphiqlExpress"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "graphqlExpress",
+                "local": "graphqlExpress"
+              },
+              {
+                "kind": "named",
+                "imported": "graphiqlExpress",
+                "local": "graphiqlExpress"
+              }
+            ]
+          },
+          {
+            "source": "body-parser",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "bodyParser"
+              }
+            ]
+          },
+          {
+            "source": "./data/schema",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "schema"
+              }
+            ]
+          }
+        ],
+        "exports": {
+          "exported": [],
+          "specifiers": []
+        }
+      }
+    },
+    "options": {
+      "filename": "/app/server.js",
+      "filenameRelative": "/app/server.js",
+      "env": {},
+      "retainLines": false,
+      "highlightCode": true,
+      "suppressDeprecationMessages": false,
+      "presets": [],
+      "plugins": [
+        [
+          [],
+          {
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ]
+      ],
+      "ignore": [],
+      "code": true,
+      "metadata": true,
+      "ast": false,
+      "comments": true,
+      "compact": "auto",
+      "minified": false,
+      "sourceMaps": "both",
+      "sourceMapTarget": "server.js",
+      "sourceFileName": "server.js",
+      "sourceRoot": "/app",
+      "babelrc": false,
+      "sourceType": "module",
+      "moduleRoot": "/app",
+      "moduleIds": false,
+      "passPerPreset": false,
+      "parserOpts": false,
+      "generatorOpts": false,
+      "basename": "server"
+    },
+    "ignored": false,
+    "code": "'use strict';\n\nvar _express = require('express');\n\nvar _express2 = _interopRequireDefault(_express);\n\nvar _apolloServerExpress = require('apollo-server-express');\n\nvar _bodyParser = require('body-parser');\n\nvar _bodyParser2 = _interopRequireDefault(_bodyParser);\n\nvar _schema = require('./data/schema');\n\nvar _schema2 = _interopRequireDefault(_schema);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nvar GRAPHQL_PORT = 3000;\n\nvar graphQLServer = (0, _express2.default)();\n\ngraphQLServer.use('/graphql', _bodyParser2.default.json(), (0, _apolloServerExpress.graphqlExpress)({ schema: _schema2.default }));\ngraphQLServer.use('/graphiql', (0, _apolloServerExpress.graphiqlExpress)({ endpointURL: '/graphql' }));\n\ngraphQLServer.listen(GRAPHQL_PORT, function () {\n  return console.log('GraphiQL is now running on http://localhost:' + GRAPHQL_PORT + '/graphiql');\n});\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlcnZlci5qcyJdLCJuYW1lcyI6WyJHUkFQSFFMX1BPUlQiLCJncmFwaFFMU2VydmVyIiwidXNlIiwianNvbiIsInNjaGVtYSIsImVuZHBvaW50VVJMIiwibGlzdGVuIiwiY29uc29sZSIsImxvZyJdLCJtYXBwaW5ncyI6Ijs7QUFBQTs7OztBQUNBOztBQUNBOzs7O0FBQ0E7Ozs7OztBQUVBLElBQU1BLGVBQWUsSUFBckI7O0FBRUEsSUFBTUMsZ0JBQWdCLHdCQUF0Qjs7QUFFQUEsY0FBY0MsR0FBZCxDQUFrQixVQUFsQixFQUE4QixxQkFBV0MsSUFBWCxFQUE5QixFQUFpRCx5Q0FBZSxFQUFFQyx3QkFBRixFQUFmLENBQWpEO0FBQ0FILGNBQWNDLEdBQWQsQ0FBa0IsV0FBbEIsRUFBK0IsMENBQWdCLEVBQUVHLGFBQWEsVUFBZixFQUFoQixDQUEvQjs7QUFFQUosY0FBY0ssTUFBZCxDQUFxQk4sWUFBckIsRUFBbUM7QUFBQSxTQUNqQ08sUUFBUUMsR0FBUixrREFDaURSLFlBRGpELGVBRGlDO0FBQUEsQ0FBbkMiLCJmaWxlIjoic2VydmVyLmpzIiwic291cmNlUm9vdCI6Ii9hcHAiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgZXhwcmVzcyBmcm9tICdleHByZXNzJztcbmltcG9ydCB7IGdyYXBocWxFeHByZXNzLCBncmFwaGlxbEV4cHJlc3MgfSBmcm9tICdhcG9sbG8tc2VydmVyLWV4cHJlc3MnO1xuaW1wb3J0IGJvZHlQYXJzZXIgZnJvbSAnYm9keS1wYXJzZXInO1xuaW1wb3J0IHNjaGVtYSBmcm9tICcuL2RhdGEvc2NoZW1hJztcblxuY29uc3QgR1JBUEhRTF9QT1JUID0gMzAwMDtcblxuY29uc3QgZ3JhcGhRTFNlcnZlciA9IGV4cHJlc3MoKTtcblxuZ3JhcGhRTFNlcnZlci51c2UoJy9ncmFwaHFsJywgYm9keVBhcnNlci5qc29uKCksIGdyYXBocWxFeHByZXNzKHsgc2NoZW1hIH0pKTtcbmdyYXBoUUxTZXJ2ZXIudXNlKCcvZ3JhcGhpcWwnLCBncmFwaGlxbEV4cHJlc3MoeyBlbmRwb2ludFVSTDogJy9ncmFwaHFsJyB9KSk7XG5cbmdyYXBoUUxTZXJ2ZXIubGlzdGVuKEdSQVBIUUxfUE9SVCwgKCkgPT5cbiAgY29uc29sZS5sb2coXG4gICAgYEdyYXBoaVFMIGlzIG5vdyBydW5uaW5nIG9uIGh0dHA6Ly9sb2NhbGhvc3Q6JHtHUkFQSFFMX1BPUlR9L2dyYXBoaXFsYFxuICApXG4pO1xuIl19",
+    "ast": null,
+    "map": {
+      "version": 3,
+      "sources": [
+        "server.js"
+      ],
+      "names": [
+        "GRAPHQL_PORT",
+        "graphQLServer",
+        "use",
+        "json",
+        "schema",
+        "endpointURL",
+        "listen",
+        "console",
+        "log"
+      ],
+      "mappings": ";;AAAA;;;;AACA;;AACA;;;;AACA;;;;;;AAEA,IAAMA,eAAe,IAArB;;AAEA,IAAMC,gBAAgB,wBAAtB;;AAEAA,cAAcC,GAAd,CAAkB,UAAlB,EAA8B,qBAAWC,IAAX,EAA9B,EAAiD,yCAAe,EAAEC,wBAAF,EAAf,CAAjD;AACAH,cAAcC,GAAd,CAAkB,WAAlB,EAA+B,0CAAgB,EAAEG,aAAa,UAAf,EAAhB,CAA/B;;AAEAJ,cAAcK,MAAd,CAAqBN,YAArB,EAAmC;AAAA,SACjCO,QAAQC,GAAR,kDACiDR,YADjD,eADiC;AAAA,CAAnC",
+      "file": "server.js",
+      "sourceRoot": "/app",
+      "sourcesContent": [
+        "import express from 'express';\nimport { graphqlExpress, graphiqlExpress } from 'apollo-server-express';\nimport bodyParser from 'body-parser';\nimport schema from './data/schema';\n\nconst GRAPHQL_PORT = 3000;\n\nconst graphQLServer = express();\n\ngraphQLServer.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));\ngraphQLServer.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));\n\ngraphQLServer.listen(GRAPHQL_PORT, () =>\n  console.log(\n    `GraphiQL is now running on http://localhost:${GRAPHQL_PORT}/graphiql`\n  )\n);\n"
+      ]
+    },
+    "mtime": 1521004562073
+  },
+  "{\"filename\":\"/app/data/schema.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app/data\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
+    "metadata": {
+      "usedHelpers": [
+        "interopRequireDefault"
+      ],
+      "marked": [],
+      "modules": {
+        "imports": [
+          {
+            "source": "graphql-tools",
+            "imported": [
+              "makeExecutableSchema",
+              "addMockFunctionsToSchema"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "makeExecutableSchema",
+                "local": "makeExecutableSchema"
+              },
+              {
+                "kind": "named",
+                "imported": "addMockFunctionsToSchema",
+                "local": "addMockFunctionsToSchema"
+              }
+            ]
+          },
+          {
+            "source": "./mocks",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "mocks"
+              }
+            ]
+          }
+        ],
+        "exports": {
+          "exported": [],
+          "specifiers": []
+        }
+      }
+    },
+    "options": {
+      "filename": "/app/data/schema.js",
+      "filenameRelative": "/app/data/schema.js",
+      "env": {},
+      "retainLines": false,
+      "highlightCode": true,
+      "suppressDeprecationMessages": false,
+      "presets": [],
+      "plugins": [
+        [
+          [],
+          {
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ]
+      ],
+      "ignore": [],
+      "code": true,
+      "metadata": true,
+      "ast": false,
+      "comments": true,
+      "compact": "auto",
+      "minified": false,
+      "sourceMaps": "both",
+      "sourceMapTarget": "schema.js",
+      "sourceFileName": "schema.js",
+      "sourceRoot": "/app/data",
+      "babelrc": false,
+      "sourceType": "module",
+      "moduleRoot": "/app/data",
+      "moduleIds": false,
+      "passPerPreset": false,
+      "parserOpts": false,
+      "generatorOpts": false,
+      "basename": "schema"
+    },
+    "ignored": false,
+    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _graphqlTools = require('graphql-tools');\n\nvar _mocks = require('./mocks');\n\nvar _mocks2 = _interopRequireDefault(_mocks);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nvar typeDefs = '\\ntype Query {\\n  testString: String\\n}\\n';\n\nvar schema = (0, _graphqlTools.makeExecutableSchema)({ typeDefs: typeDefs });\n\n(0, _graphqlTools.addMockFunctionsToSchema)({ schema: schema, mocks: _mocks2.default });\n\nexports.default = schema;\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNjaGVtYS5qcyJdLCJuYW1lcyI6WyJ0eXBlRGVmcyIsInNjaGVtYSIsIm1vY2tzIl0sIm1hcHBpbmdzIjoiOzs7Ozs7QUFBQTs7QUFDQTs7Ozs7O0FBRUEsSUFBTUEsc0RBQU47O0FBTUEsSUFBTUMsU0FBUyx3Q0FBcUIsRUFBRUQsa0JBQUYsRUFBckIsQ0FBZjs7QUFFQSw0Q0FBeUIsRUFBRUMsY0FBRixFQUFVQyxzQkFBVixFQUF6Qjs7a0JBRWVELE0iLCJmaWxlIjoic2NoZW1hLmpzIiwic291cmNlUm9vdCI6Ii9hcHAvZGF0YSIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IG1ha2VFeGVjdXRhYmxlU2NoZW1hLCBhZGRNb2NrRnVuY3Rpb25zVG9TY2hlbWEgfSBmcm9tICdncmFwaHFsLXRvb2xzJztcbmltcG9ydCBtb2NrcyBmcm9tICcuL21vY2tzJztcblxuY29uc3QgdHlwZURlZnMgPSBgXG50eXBlIFF1ZXJ5IHtcbiAgdGVzdFN0cmluZzogU3RyaW5nXG59XG5gO1xuXG5jb25zdCBzY2hlbWEgPSBtYWtlRXhlY3V0YWJsZVNjaGVtYSh7IHR5cGVEZWZzIH0pO1xuXG5hZGRNb2NrRnVuY3Rpb25zVG9TY2hlbWEoeyBzY2hlbWEsIG1vY2tzIH0pO1xuXG5leHBvcnQgZGVmYXVsdCBzY2hlbWE7XG4iXX0=",
+    "ast": null,
+    "map": {
+      "version": 3,
+      "sources": [
+        "schema.js"
+      ],
+      "names": [
+        "typeDefs",
+        "schema",
+        "mocks"
+      ],
+      "mappings": ";;;;;;AAAA;;AACA;;;;;;AAEA,IAAMA,sDAAN;;AAMA,IAAMC,SAAS,wCAAqB,EAAED,kBAAF,EAArB,CAAf;;AAEA,4CAAyB,EAAEC,cAAF,EAAUC,sBAAV,EAAzB;;kBAEeD,M",
+      "file": "schema.js",
+      "sourceRoot": "/app/data",
+      "sourcesContent": [
+        "import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';\nimport mocks from './mocks';\n\nconst typeDefs = `\ntype Query {\n  testString: String\n}\n`;\n\nconst schema = makeExecutableSchema({ typeDefs });\n\naddMockFunctionsToSchema({ schema, mocks });\n\nexport default schema;\n"
+      ]
+    },
+    "mtime": 1521004562057
+  },
+  "{\"filename\":\"/app/data/mocks.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app/data\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
+    "metadata": {
+      "usedHelpers": [],
+      "marked": [],
+      "modules": {
+        "imports": [],
+        "exports": {
+          "exported": [],
+          "specifiers": []
+        }
+      }
+    },
+    "options": {
+      "filename": "/app/data/mocks.js",
+      "filenameRelative": "/app/data/mocks.js",
+      "env": {},
+      "retainLines": false,
+      "highlightCode": true,
+      "suppressDeprecationMessages": false,
+      "presets": [],
+      "plugins": [
+        [
+          [],
+          {
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ]
+      ],
+      "ignore": [],
+      "code": true,
+      "metadata": true,
+      "ast": false,
+      "comments": true,
+      "compact": "auto",
+      "minified": false,
+      "sourceMaps": "both",
+      "sourceMapTarget": "mocks.js",
+      "sourceFileName": "mocks.js",
+      "sourceRoot": "/app/data",
+      "babelrc": false,
+      "sourceType": "module",
+      "moduleRoot": "/app/data",
+      "moduleIds": false,
+      "passPerPreset": false,
+      "parserOpts": false,
+      "generatorOpts": false,
+      "basename": "mocks"
+    },
+    "ignored": false,
+    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nvar mocks = {\n  String: function String() {\n    return 'It works!';\n  }\n};\n\nexports.default = mocks;\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm1vY2tzLmpzIl0sIm5hbWVzIjpbIm1vY2tzIiwiU3RyaW5nIl0sIm1hcHBpbmdzIjoiOzs7OztBQUFBLElBQU1BLFFBQVE7QUFDWkMsVUFBUTtBQUFBLFdBQU0sV0FBTjtBQUFBO0FBREksQ0FBZDs7a0JBSWVELEsiLCJmaWxlIjoibW9ja3MuanMiLCJzb3VyY2VSb290IjoiL2FwcC9kYXRhIiwic291cmNlc0NvbnRlbnQiOlsiY29uc3QgbW9ja3MgPSB7XG4gIFN0cmluZzogKCkgPT4gJ0l0IHdvcmtzISdcbn07XG5cbmV4cG9ydCBkZWZhdWx0IG1vY2tzO1xuIl19",
+    "ast": null,
+    "map": {
+      "version": 3,
+      "sources": [
+        "mocks.js"
+      ],
+      "names": [
+        "mocks",
+        "String"
+      ],
+      "mappings": ";;;;;AAAA,IAAMA,QAAQ;AACZC,UAAQ;AAAA,WAAM,WAAN;AAAA;AADI,CAAd;;kBAIeD,K",
+      "file": "mocks.js",
+      "sourceRoot": "/app/data",
+      "sourcesContent": [
+        "const mocks = {\n  String: () => 'It works!'\n};\n\nexport default mocks;\n"
+      ]
+    },
+    "mtime": 1521004562053
+  }
+}
