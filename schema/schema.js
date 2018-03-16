@@ -19,7 +19,6 @@ GQC.rootQuery().addFields({
   userConnection: UserTC.getResolver('connection'),
   userPagination: UserTC.getResolver('pagination'),
 });
-
 // For debug purposes you may display resolver internals in the following manner:
 // console.log(UserTC.getResolver('findMany').toString());
 

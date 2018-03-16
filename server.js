@@ -4,7 +4,7 @@ import graphqlHTTP from 'express-graphql';
 import expressPlayground from 'graphql-playground-middleware-express';
 import mongoose from 'mongoose';
 
-import lifescopeSchema from './schema/lifescope'
+import lifescopeSchema from './schema'
 
 const MONGODB_URI = process.env.MONGODB_URI;
 

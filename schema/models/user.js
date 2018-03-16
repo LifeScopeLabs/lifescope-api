@@ -3,16 +3,16 @@
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose';
 
-const LanguagesSchema = new mongoose.Schema(
+const AccountTypeSchema = new mongoose.Schema(
   {
     language: String,
     skill: {
       type: String,
-      enum: ['basic', 'fluent', 'native'],
+      enum: ['free', 'plus', 'pro'],
     },
   },
   {
-    _id: false, // disable `_id` field for `Language` schema
+    _id: false,
   }
 );
 
@@ -30,14 +30,18 @@ export const UserSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
+    is_active: {
+      type: Boolean,
+      index: true,
+    },
     age: {
       type: Number,
       index: true,
     },
-    languages: {
-      type: [LanguagesSchema], // you may include other schemas (also as array of embedded documents)
+    accountType: {
+      type: [AccountTypeSchema],
       default: [],
-    },
+    }, 
     contacts: {
       // another mongoose way for providing embedded documents
       email: String,
@@ -51,13 +55,13 @@ export const UserSchema = new mongoose.Schema(
     address: {
       type: AddressSchema,
     },
-    someMixed: {
+    otherData: {
       type: mongoose.Schema.Types.Mixed,
       description: 'Some dynamic data',
     },
   },
   {
-    collection: 'user_users',
+    collection: 'users',
   }
 );
 
