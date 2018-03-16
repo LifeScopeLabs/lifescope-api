@@ -1,32 +1,48 @@
-import {graphqlExpress, graphiqlExpress} from 'graphql-server-express'
-import {makeExecutableSchema} from 'graphql-tools'
+import express from 'express';
+import cors from 'cors';
+import graphqlHTTP from 'express-graphql';
+import expressPlayground from 'graphql-playground-middleware-express';
+import mongoose from 'mongoose';
 
-import express from 'express'
-import bodyParser from 'body-parser'
-import cors from 'cors'
+import lifescopeSchema from './schema/lifescope'
 
-import schema from './data/schema';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-const URL = process.env.PROJECT_DOMAIN
-const PORT = process.env.PORT;
-const MONGO_URL = 'mongodb://localhost:27017/blog'
+const server = express();
+server.use(cors());
 
+mongoose.Promise = Promise;
 
-const mongoose = require('./config/mongoose');
+const opts = {
+  autoReconnect: true,
+  reconnectTries: Number.MAX_VALUE,
+  reconnectInterval: 1000,
+};
 
-const db = mongoose();
-const app = express();
+mongoose.connect(MONGODB_URI, opts);
 
-app.use('*', cors());
+const mongoConnection = mongoose;
 
-const userSchema = require('./graphql/index').userSchema;
-app.use('/graphql', cors(), graphqlExpress({
-  schema: userSchema,
-  rootValue: global,
-  graphiql: true
-}));
-
-// Up and Running at Port 4000
-app.listen(process.env.PORT || 4000, () => {
-  console.log('A GraphQL API running at port 4000');
+mongoConnection.on('error', e => {
+  if (e.message.code === 'ETIMEDOUT') {
+    console.log(e);
+    mongoose.connect(MONGODB_URI, opts);
+  }
+  console.log(e);
 });
+
+mongoConnection.once('open', () => {
+  console.log(`MongoDB successfully connected to ${MONGODB_URI}`);
+});
+
+server.use(
+    lifescopeSchema.uri,
+    graphqlHTTP(() => ({
+      schema: lifescopeSchema.schema,
+      graphiql: true,
+      formatError: error => ({
+        message: error.message,
+        stack: !error.message.match(/for security reason/i) ? error.stack.split('\n') : null,
+      }),
+    }))
+);
