@@ -33,4 +33,7 @@ GQC.rootMutation().addFields({
 });
 
 const graphqlSchema = GQC.buildSchema();
+
+graphqlSchema.uri = '/user';
+
 export default graphqlSchema;

@@ -2,7 +2,7 @@
   "name": "lifescope-api",
   "version": "0.1.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "/server.js",
   "engines": {
     "node": "9.8.0",
     "yarn": "1.5.1"
@@ -13,9 +13,9 @@
   "scripts": {
     "build": "npm run buildSchema",
     "seed": "./node_modules/.bin/babel-node ./scripts/seed.js",
-    "start-seed": "npm run seed && babel-node index.js",
-    "start": "babel-node index.js",
-    "start:watch": "nodemon index.js -e js --exec babel-node",
+    "start-seed": "npm run seed && babel-node server.js",
+    "start": "babel-node server.js",
+    "start:watch": "nodemon server.js -e js --exec babel-node",
     "watch": "jest --watch",
     "coverage": "jest --coverage --maxWorkers 2",
     "lint": "eslint --ext .js ./",

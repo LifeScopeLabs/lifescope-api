@@ -1,17 +1,16 @@
-import express from 'express';
-import cors from 'cors';
-import graphqlHTTP from 'express-graphql';
-import expressPlayground from 'graphql-playground-middleware-express';
-import mongoose from 'mongoose';
+const express = require('express');
 
-import lifescopeSchema from './schema'
+const cors = require('cors');
+const graphqlHTTP = require('express-graphql');
+const expressPlayground = require('graphql-playground-middleware-express');
+const mongoose = require('mongoose');
+
+const lifescopeSchema = require('./schema');
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 const server = express();
 server.use(cors());
-
-mongoose.Promise = Promise;
 
 const opts = {
   autoReconnect: true,
@@ -21,9 +20,9 @@ const opts = {
 
 mongoose.connect(MONGODB_URI, opts);
 
-const mongoConnection = mongoose;
+const mongooseConnect = mongoose.connection;
 
-mongoConnection.on('error', e => {
+mongooseConnect.on('error', e => {
   if (e.message.code === 'ETIMEDOUT') {
     console.log(e);
     mongoose.connect(MONGODB_URI, opts);
@@ -31,12 +30,12 @@ mongoConnection.on('error', e => {
   console.log(e);
 });
 
-mongoConnection.once('open', () => {
+mongooseConnect.once('open', () => {
   console.log(`MongoDB successfully connected to ${MONGODB_URI}`);
 });
 
 server.use(
-    lifescopeSchema.uri,
+    lifescopeSchema.default.uri,
     graphqlHTTP(() => ({
       schema: lifescopeSchema.schema,
       graphiql: true,
