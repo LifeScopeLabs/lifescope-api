@@ -2,26 +2,43 @@
   "{\"filename\":\"/app/server.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
     "metadata": {
       "usedHelpers": [
+        "asyncToGenerator",
         "interopRequireDefault"
       ],
       "marked": [],
       "modules": {
         "imports": [
           {
-            "source": "express",
+            "source": "babel-core/register",
+            "imported": [],
+            "specifiers": []
+          },
+          {
+            "source": "babel-polyfill",
+            "imported": [],
+            "specifiers": []
+          },
+          {
+            "source": "mongodb",
             "imported": [
-              "default"
+              "MongoClient",
+              "ObjectId"
             ],
             "specifiers": [
               {
                 "kind": "named",
-                "imported": "default",
-                "local": "express"
+                "imported": "MongoClient",
+                "local": "MongoClient"
+              },
+              {
+                "kind": "named",
+                "imported": "ObjectId",
+                "local": "ObjectId"
               }
             ]
           },
           {
-            "source": "apollo-server-express",
+            "source": "graphql-server-express",
             "imported": [
               "graphqlExpress",
               "graphiqlExpress"
@@ -40,6 +57,32 @@
             ]
           },
           {
+            "source": "graphql-tools",
+            "imported": [
+              "makeExecutableSchema"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "makeExecutableSchema",
+                "local": "makeExecutableSchema"
+              }
+            ]
+          },
+          {
+            "source": "express",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "express"
+              }
+            ]
+          },
+          {
             "source": "body-parser",
             "imported": [
               "default"
@@ -49,6 +92,19 @@
                 "kind": "named",
                 "imported": "default",
                 "local": "bodyParser"
+              }
+            ]
+          },
+          {
+            "source": "cors",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "cors"
               }
             ]
           },
@@ -67,8 +123,16 @@
           }
         ],
         "exports": {
-          "exported": [],
-          "specifiers": []
+          "exported": [
+            "start"
+          ],
+          "specifiers": [
+            {
+              "kind": "local",
+              "local": "start",
+              "exported": "start"
+            }
+          ]
         }
       }
     },
@@ -270,7 +334,7 @@
       "basename": "server"
     },
     "ignored": false,
-    "code": "'use strict';\n\nvar _express = require('express');\n\nvar _express2 = _interopRequireDefault(_express);\n\nvar _apolloServerExpress = require('apollo-server-express');\n\nvar _bodyParser = require('body-parser');\n\nvar _bodyParser2 = _interopRequireDefault(_bodyParser);\n\nvar _schema = require('./data/schema');\n\nvar _schema2 = _interopRequireDefault(_schema);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nvar GRAPHQL_PORT = 3000;\n\nvar graphQLServer = (0, _express2.default)();\n\ngraphQLServer.use('/graphql', _bodyParser2.default.json(), (0, _apolloServerExpress.graphqlExpress)({ schema: _schema2.default }));\ngraphQLServer.use('/graphiql', (0, _apolloServerExpress.graphiqlExpress)({ endpointURL: '/graphql' }));\n\ngraphQLServer.listen(GRAPHQL_PORT, function () {\n  return console.log('GraphiQL is now running on http://localhost:' + GRAPHQL_PORT + '/graphiql');\n});\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlcnZlci5qcyJdLCJuYW1lcyI6WyJHUkFQSFFMX1BPUlQiLCJncmFwaFFMU2VydmVyIiwidXNlIiwianNvbiIsInNjaGVtYSIsImVuZHBvaW50VVJMIiwibGlzdGVuIiwiY29uc29sZSIsImxvZyJdLCJtYXBwaW5ncyI6Ijs7QUFBQTs7OztBQUNBOztBQUNBOzs7O0FBQ0E7Ozs7OztBQUVBLElBQU1BLGVBQWUsSUFBckI7O0FBRUEsSUFBTUMsZ0JBQWdCLHdCQUF0Qjs7QUFFQUEsY0FBY0MsR0FBZCxDQUFrQixVQUFsQixFQUE4QixxQkFBV0MsSUFBWCxFQUE5QixFQUFpRCx5Q0FBZSxFQUFFQyx3QkFBRixFQUFmLENBQWpEO0FBQ0FILGNBQWNDLEdBQWQsQ0FBa0IsV0FBbEIsRUFBK0IsMENBQWdCLEVBQUVHLGFBQWEsVUFBZixFQUFoQixDQUEvQjs7QUFFQUosY0FBY0ssTUFBZCxDQUFxQk4sWUFBckIsRUFBbUM7QUFBQSxTQUNqQ08sUUFBUUMsR0FBUixrREFDaURSLFlBRGpELGVBRGlDO0FBQUEsQ0FBbkMiLCJmaWxlIjoic2VydmVyLmpzIiwic291cmNlUm9vdCI6Ii9hcHAiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgZXhwcmVzcyBmcm9tICdleHByZXNzJztcbmltcG9ydCB7IGdyYXBocWxFeHByZXNzLCBncmFwaGlxbEV4cHJlc3MgfSBmcm9tICdhcG9sbG8tc2VydmVyLWV4cHJlc3MnO1xuaW1wb3J0IGJvZHlQYXJzZXIgZnJvbSAnYm9keS1wYXJzZXInO1xuaW1wb3J0IHNjaGVtYSBmcm9tICcuL2RhdGEvc2NoZW1hJztcblxuY29uc3QgR1JBUEhRTF9QT1JUID0gMzAwMDtcblxuY29uc3QgZ3JhcGhRTFNlcnZlciA9IGV4cHJlc3MoKTtcblxuZ3JhcGhRTFNlcnZlci51c2UoJy9ncmFwaHFsJywgYm9keVBhcnNlci5qc29uKCksIGdyYXBocWxFeHByZXNzKHsgc2NoZW1hIH0pKTtcbmdyYXBoUUxTZXJ2ZXIudXNlKCcvZ3JhcGhpcWwnLCBncmFwaGlxbEV4cHJlc3MoeyBlbmRwb2ludFVSTDogJy9ncmFwaHFsJyB9KSk7XG5cbmdyYXBoUUxTZXJ2ZXIubGlzdGVuKEdSQVBIUUxfUE9SVCwgKCkgPT5cbiAgY29uc29sZS5sb2coXG4gICAgYEdyYXBoaVFMIGlzIG5vdyBydW5uaW5nIG9uIGh0dHA6Ly9sb2NhbGhvc3Q6JHtHUkFQSFFMX1BPUlR9L2dyYXBoaXFsYFxuICApXG4pO1xuIl19",
+    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.start = undefined;\n\nrequire('babel-core/register');\n\nrequire('babel-polyfill');\n\nvar _mongodb = require('mongodb');\n\nvar _graphqlServerExpress = require('graphql-server-express');\n\nvar _graphqlTools = require('graphql-tools');\n\nvar _express = require('express');\n\nvar _express2 = _interopRequireDefault(_express);\n\nvar _bodyParser = require('body-parser');\n\nvar _bodyParser2 = _interopRequireDefault(_bodyParser);\n\nvar _cors = require('cors');\n\nvar _cors2 = _interopRequireDefault(_cors);\n\nvar _schema2 = require('./data/schema');\n\nvar _schema3 = _interopRequireDefault(_schema2);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nfunction _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step(\"next\", value); }, function (err) { step(\"throw\", err); }); } } return step(\"next\"); }); }; }\n\nvar URL = process.env.PROJECT_DOMAIN;\nvar PORT = process.env.PORT;\nvar MONGO_URL = 'mongodb://localhost:27017/blog';\n\nconsole.log(\"GRAPHQL_PORT: \" + PORT);\n\nvar graphQLServer = (0, _express2.default)();\n\nvar prepare = function prepare(o) {\n  o._id = o._id.toString();\n  return o;\n};\n\nvar start = exports.start = function () {\n  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {\n    var db, Posts, Comments, typeDefs, resolvers, _schema, app, homePath;\n\n    return regeneratorRuntime.wrap(function _callee8$(_context8) {\n      while (1) {\n        switch (_context8.prev = _context8.next) {\n          case 0:\n            _context8.prev = 0;\n            _context8.next = 3;\n            return _mongodb.MongoClient.connect(MONGO_URL);\n\n          case 3:\n            db = _context8.sent;\n            Posts = db.collection('posts');\n            Comments = db.collection('comments');\n            typeDefs = ['\\n      type Query {\\n        post(_id: String): Post\\n        posts: [Post]\\n        comment(_id: String): Comment\\n      }\\n      type Post {\\n        _id: String\\n        title: String\\n        content: String\\n        comments: [Comment]\\n      }\\n      type Comment {\\n        _id: String\\n        postId: String\\n        content: String\\n        post: Post\\n      }\\n      type Mutation {\\n        createPost(title: String, content: String): Post\\n        createComment(postId: String, content: String): Comment\\n      }\\n      schema {\\n        query: Query\\n        mutation: Mutation\\n      }\\n    '];\n            resolvers = {\n              Query: {\n                post: function () {\n                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(root, _ref2) {\n                    var _id = _ref2._id;\n                    return regeneratorRuntime.wrap(function _callee$(_context) {\n                      while (1) {\n                        switch (_context.prev = _context.next) {\n                          case 0:\n                            _context.t0 = prepare;\n                            _context.next = 3;\n                            return Posts.findOne((0, _mongodb.ObjectId)(_id));\n\n                          case 3:\n                            _context.t1 = _context.sent;\n                            return _context.abrupt('return', (0, _context.t0)(_context.t1));\n\n                          case 5:\n                          case 'end':\n                            return _context.stop();\n                        }\n                      }\n                    }, _callee, undefined);\n                  }));\n\n                  function post(_x, _x2) {\n                    return _ref3.apply(this, arguments);\n                  }\n\n                  return post;\n                }(),\n                posts: function () {\n                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {\n                    return regeneratorRuntime.wrap(function _callee2$(_context2) {\n                      while (1) {\n                        switch (_context2.prev = _context2.next) {\n                          case 0:\n                            _context2.next = 2;\n                            return Posts.find({}).toArray();\n\n                          case 2:\n                            _context2.t0 = prepare;\n                            return _context2.abrupt('return', _context2.sent.map(_context2.t0));\n\n                          case 4:\n                          case 'end':\n                            return _context2.stop();\n                        }\n                      }\n                    }, _callee2, undefined);\n                  }));\n\n                  function posts() {\n                    return _ref4.apply(this, arguments);\n                  }\n\n                  return posts;\n                }(),\n                comment: function () {\n                  var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(root, _ref5) {\n                    var _id = _ref5._id;\n                    return regeneratorRuntime.wrap(function _callee3$(_context3) {\n                      while (1) {\n                        switch (_context3.prev = _context3.next) {\n                          case 0:\n                            _context3.t0 = prepare;\n                            _context3.next = 3;\n                            return Comments.findOne((0, _mongodb.ObjectId)(_id));\n\n                          case 3:\n                            _context3.t1 = _context3.sent;\n                            return _context3.abrupt('return', (0, _context3.t0)(_context3.t1));\n\n                          case 5:\n                          case 'end':\n                            return _context3.stop();\n                        }\n                      }\n                    }, _callee3, undefined);\n                  }));\n\n                  function comment(_x3, _x4) {\n                    return _ref6.apply(this, arguments);\n                  }\n\n                  return comment;\n                }()\n              },\n              Post: {\n                comments: function () {\n                  var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(_ref7) {\n                    var _id = _ref7._id;\n                    return regeneratorRuntime.wrap(function _callee4$(_context4) {\n                      while (1) {\n                        switch (_context4.prev = _context4.next) {\n                          case 0:\n                            _context4.next = 2;\n                            return Comments.find({ postId: _id }).toArray();\n\n                          case 2:\n                            _context4.t0 = prepare;\n                            return _context4.abrupt('return', _context4.sent.map(_context4.t0));\n\n                          case 4:\n                          case 'end':\n                            return _context4.stop();\n                        }\n                      }\n                    }, _callee4, undefined);\n                  }));\n\n                  function comments(_x5) {\n                    return _ref8.apply(this, arguments);\n                  }\n\n                  return comments;\n                }()\n              },\n              Comment: {\n                post: function () {\n                  var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(_ref9) {\n                    var postId = _ref9.postId;\n                    return regeneratorRuntime.wrap(function _callee5$(_context5) {\n                      while (1) {\n                        switch (_context5.prev = _context5.next) {\n                          case 0:\n                            _context5.t0 = prepare;\n                            _context5.next = 3;\n                            return Posts.findOne((0, _mongodb.ObjectId)(postId));\n\n                          case 3:\n                            _context5.t1 = _context5.sent;\n                            return _context5.abrupt('return', (0, _context5.t0)(_context5.t1));\n\n                          case 5:\n                          case 'end':\n                            return _context5.stop();\n                        }\n                      }\n                    }, _callee5, undefined);\n                  }));\n\n                  function post(_x6) {\n                    return _ref10.apply(this, arguments);\n                  }\n\n                  return post;\n                }()\n              },\n              Mutation: {\n                createPost: function () {\n                  var _ref11 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(root, args, context, info) {\n                    var res;\n                    return regeneratorRuntime.wrap(function _callee6$(_context6) {\n                      while (1) {\n                        switch (_context6.prev = _context6.next) {\n                          case 0:\n                            _context6.next = 2;\n                            return Posts.insert(args);\n\n                          case 2:\n                            res = _context6.sent;\n                            _context6.t0 = prepare;\n                            _context6.next = 6;\n                            return Posts.findOne({ _id: res.insertedIds[1] });\n\n                          case 6:\n                            _context6.t1 = _context6.sent;\n                            return _context6.abrupt('return', (0, _context6.t0)(_context6.t1));\n\n                          case 8:\n                          case 'end':\n                            return _context6.stop();\n                        }\n                      }\n                    }, _callee6, undefined);\n                  }));\n\n                  function createPost(_x7, _x8, _x9, _x10) {\n                    return _ref11.apply(this, arguments);\n                  }\n\n                  return createPost;\n                }(),\n                createComment: function () {\n                  var _ref12 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(root, args) {\n                    var res;\n                    return regeneratorRuntime.wrap(function _callee7$(_context7) {\n                      while (1) {\n                        switch (_context7.prev = _context7.next) {\n                          case 0:\n                            _context7.next = 2;\n                            return Comments.insert(args);\n\n                          case 2:\n                            res = _context7.sent;\n                            _context7.t0 = prepare;\n                            _context7.next = 6;\n                            return Comments.findOne({ _id: res.insertedIds[1] });\n\n                          case 6:\n                            _context7.t1 = _context7.sent;\n                            return _context7.abrupt('return', (0, _context7.t0)(_context7.t1));\n\n                          case 8:\n                          case 'end':\n                            return _context7.stop();\n                        }\n                      }\n                    }, _callee7, undefined);\n                  }));\n\n                  function createComment(_x11, _x12) {\n                    return _ref12.apply(this, arguments);\n                  }\n\n                  return createComment;\n                }()\n              }\n            };\n            _schema = (0, _graphqlTools.makeExecutableSchema)({\n              typeDefs: typeDefs,\n              resolvers: resolvers\n            });\n            app = (0, _express2.default)();\n\n\n            app.use((0, _cors2.default)());\n\n            app.use('/graphql', _bodyParser2.default.json(), (0, _graphqlServerExpress.graphqlExpress)({ schema: _schema }));\n\n            homePath = '/graphiql';\n\n\n            app.use(homePath, (0, _graphqlServerExpress.graphiqlExpress)({\n              endpointURL: '/graphql'\n            }));\n\n            app.listen(PORT, function () {\n              console.log('Visit ' + URL + ':' + PORT + homePath);\n            });\n\n            _context8.next = 20;\n            break;\n\n          case 17:\n            _context8.prev = 17;\n            _context8.t0 = _context8['catch'](0);\n\n            console.log(_context8.t0);\n\n          case 20:\n          case 'end':\n            return _context8.stop();\n        }\n      }\n    }, _callee8, undefined, [[0, 17]]);\n  }));\n\n  return function start() {\n    return _ref.apply(this, arguments);\n  };\n}();\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlcnZlci5qcyJdLCJuYW1lcyI6WyJVUkwiLCJwcm9jZXNzIiwiZW52IiwiUFJPSkVDVF9ET01BSU4iLCJQT1JUIiwiTU9OR09fVVJMIiwiY29uc29sZSIsImxvZyIsImdyYXBoUUxTZXJ2ZXIiLCJwcmVwYXJlIiwibyIsIl9pZCIsInRvU3RyaW5nIiwic3RhcnQiLCJjb25uZWN0IiwiZGIiLCJQb3N0cyIsImNvbGxlY3Rpb24iLCJDb21tZW50cyIsInR5cGVEZWZzIiwicmVzb2x2ZXJzIiwiUXVlcnkiLCJwb3N0Iiwicm9vdCIsImZpbmRPbmUiLCJwb3N0cyIsImZpbmQiLCJ0b0FycmF5IiwibWFwIiwiY29tbWVudCIsIlBvc3QiLCJjb21tZW50cyIsInBvc3RJZCIsIkNvbW1lbnQiLCJNdXRhdGlvbiIsImNyZWF0ZVBvc3QiLCJhcmdzIiwiY29udGV4dCIsImluZm8iLCJpbnNlcnQiLCJyZXMiLCJpbnNlcnRlZElkcyIsImNyZWF0ZUNvbW1lbnQiLCJzY2hlbWEiLCJhcHAiLCJ1c2UiLCJqc29uIiwiaG9tZVBhdGgiLCJlbmRwb2ludFVSTCIsImxpc3RlbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7OztBQUFBOztBQUNBOztBQUVBOztBQUNBOztBQUNBOztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUVBOzs7Ozs7OztBQUVBLElBQU1BLE1BQU1DLFFBQVFDLEdBQVIsQ0FBWUMsY0FBeEI7QUFDQSxJQUFNQyxPQUFPSCxRQUFRQyxHQUFSLENBQVlFLElBQXpCO0FBQ0EsSUFBTUMsWUFBWSxnQ0FBbEI7O0FBRUFDLFFBQVFDLEdBQVIsQ0FBWSxtQkFBbUJILElBQS9COztBQUVBLElBQU1JLGdCQUFnQix3QkFBdEI7O0FBR0EsSUFBTUMsVUFBVSxTQUFWQSxPQUFVLENBQUNDLENBQUQsRUFBTztBQUNyQkEsSUFBRUMsR0FBRixHQUFRRCxFQUFFQyxHQUFGLENBQU1DLFFBQU4sRUFBUjtBQUNBLFNBQU9GLENBQVA7QUFDRCxDQUhEOztBQUtPLElBQU1HO0FBQUEs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QUE7QUFBQTtBQUFBO0FBQUEsR0FBTiIsImZpbGUiOiJzZXJ2ZXIuanMiLCJzb3VyY2VSb290IjoiL2FwcCIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCAnYmFiZWwtY29yZS9yZWdpc3RlcidcbmltcG9ydCAnYmFiZWwtcG9seWZpbGwnXG5cbmltcG9ydCB7TW9uZ29DbGllbnQsIE9iamVjdElkfSBmcm9tICdtb25nb2RiJ1xuaW1wb3J0IHtncmFwaHFsRXhwcmVzcywgZ3JhcGhpcWxFeHByZXNzfSBmcm9tICdncmFwaHFsLXNlcnZlci1leHByZXNzJ1xuaW1wb3J0IHttYWtlRXhlY3V0YWJsZVNjaGVtYX0gZnJvbSAnZ3JhcGhxbC10b29scydcblxuaW1wb3J0IGV4cHJlc3MgZnJvbSAnZXhwcmVzcydcbmltcG9ydCBib2R5UGFyc2VyIGZyb20gJ2JvZHktcGFyc2VyJ1xuaW1wb3J0IGNvcnMgZnJvbSAnY29ycydcblxuaW1wb3J0IHNjaGVtYSBmcm9tICcuL2RhdGEvc2NoZW1hJztcblxuY29uc3QgVVJMID0gcHJvY2Vzcy5lbnYuUFJPSkVDVF9ET01BSU5cbmNvbnN0IFBPUlQgPSBwcm9jZXNzLmVudi5QT1JUO1xuY29uc3QgTU9OR09fVVJMID0gJ21vbmdvZGI6Ly9sb2NhbGhvc3Q6MjcwMTcvYmxvZydcblxuY29uc29sZS5sb2coXCJHUkFQSFFMX1BPUlQ6IFwiICsgUE9SVCk7XG5cbmNvbnN0IGdyYXBoUUxTZXJ2ZXIgPSBleHByZXNzKCk7XG5cblxuY29uc3QgcHJlcGFyZSA9IChvKSA9PiB7XG4gIG8uX2lkID0gby5faWQudG9TdHJpbmcoKVxuICByZXR1cm4gb1xufVxuXG5leHBvcnQgY29uc3Qgc3RhcnQgPSBhc3luYyAoKSA9PiB7XG4gIHRyeSB7XG4gICAgY29uc3QgZGIgPSBhd2FpdCBNb25nb0NsaWVudC5jb25uZWN0KE1PTkdPX1VSTClcblxuICAgIGNvbnN0IFBvc3RzID0gZGIuY29sbGVjdGlvbigncG9zdHMnKVxuICAgIGNvbnN0IENvbW1lbnRzID0gZGIuY29sbGVjdGlvbignY29tbWVudHMnKVxuXG4gICAgY29uc3QgdHlwZURlZnMgPSBbYFxuICAgICAgdHlwZSBRdWVyeSB7XG4gICAgICAgIHBvc3QoX2lkOiBTdHJpbmcpOiBQb3N0XG4gICAgICAgIHBvc3RzOiBbUG9zdF1cbiAgICAgICAgY29tbWVudChfaWQ6IFN0cmluZyk6IENvbW1lbnRcbiAgICAgIH1cbiAgICAgIHR5cGUgUG9zdCB7XG4gICAgICAgIF9pZDogU3RyaW5nXG4gICAgICAgIHRpdGxlOiBTdHJpbmdcbiAgICAgICAgY29udGVudDogU3RyaW5nXG4gICAgICAgIGNvbW1lbnRzOiBbQ29tbWVudF1cbiAgICAgIH1cbiAgICAgIHR5cGUgQ29tbWVudCB7XG4gICAgICAgIF9pZDogU3RyaW5nXG4gICAgICAgIHBvc3RJZDogU3RyaW5nXG4gICAgICAgIGNvbnRlbnQ6IFN0cmluZ1xuICAgICAgICBwb3N0OiBQb3N0XG4gICAgICB9XG4gICAgICB0eXBlIE11dGF0aW9uIHtcbiAgICAgICAgY3JlYXRlUG9zdCh0aXRsZTogU3RyaW5nLCBjb250ZW50OiBTdHJpbmcpOiBQb3N0XG4gICAgICAgIGNyZWF0ZUNvbW1lbnQocG9zdElkOiBTdHJpbmcsIGNvbnRlbnQ6IFN0cmluZyk6IENvbW1lbnRcbiAgICAgIH1cbiAgICAgIHNjaGVtYSB7XG4gICAgICAgIHF1ZXJ5OiBRdWVyeVxuICAgICAgICBtdXRhdGlvbjogTXV0YXRpb25cbiAgICAgIH1cbiAgICBgXTtcblxuICAgIGNvbnN0IHJlc29sdmVycyA9IHtcbiAgICAgIFF1ZXJ5OiB7XG4gICAgICAgIHBvc3Q6IGFzeW5jIChyb290LCB7X2lkfSkgPT4ge1xuICAgICAgICAgIHJldHVybiBwcmVwYXJlKGF3YWl0IFBvc3RzLmZpbmRPbmUoT2JqZWN0SWQoX2lkKSkpXG4gICAgICAgIH0sXG4gICAgICAgIHBvc3RzOiBhc3luYyAoKSA9PiB7XG4gICAgICAgICAgcmV0dXJuIChhd2FpdCBQb3N0cy5maW5kKHt9KS50b0FycmF5KCkpLm1hcChwcmVwYXJlKVxuICAgICAgICB9LFxuICAgICAgICBjb21tZW50OiBhc3luYyAocm9vdCwge19pZH0pID0+IHtcbiAgICAgICAgICByZXR1cm4gcHJlcGFyZShhd2FpdCBDb21tZW50cy5maW5kT25lKE9iamVjdElkKF9pZCkpKVxuICAgICAgICB9LFxuICAgICAgfSxcbiAgICAgIFBvc3Q6IHtcbiAgICAgICAgY29tbWVudHM6IGFzeW5jICh7X2lkfSkgPT4ge1xuICAgICAgICAgIHJldHVybiAoYXdhaXQgQ29tbWVudHMuZmluZCh7cG9zdElkOiBfaWR9KS50b0FycmF5KCkpLm1hcChwcmVwYXJlKVxuICAgICAgICB9XG4gICAgICB9LFxuICAgICAgQ29tbWVudDoge1xuICAgICAgICBwb3N0OiBhc3luYyAoe3Bvc3RJZH0pID0+IHtcbiAgICAgICAgICByZXR1cm4gcHJlcGFyZShhd2FpdCBQb3N0cy5maW5kT25lKE9iamVjdElkKHBvc3RJZCkpKVxuICAgICAgICB9XG4gICAgICB9LFxuICAgICAgTXV0YXRpb246IHtcbiAgICAgICAgY3JlYXRlUG9zdDogYXN5bmMgKHJvb3QsIGFyZ3MsIGNvbnRleHQsIGluZm8pID0+IHtcbiAgICAgICAgICBjb25zdCByZXMgPSBhd2FpdCBQb3N0cy5pbnNlcnQoYXJncylcbiAgICAgICAgICByZXR1cm4gcHJlcGFyZShhd2FpdCBQb3N0cy5maW5kT25lKHtfaWQ6IHJlcy5pbnNlcnRlZElkc1sxXX0pKVxuICAgICAgICB9LFxuICAgICAgICBjcmVhdGVDb21tZW50OiBhc3luYyAocm9vdCwgYXJncykgPT4ge1xuICAgICAgICAgIGNvbnN0IHJlcyA9IGF3YWl0IENvbW1lbnRzLmluc2VydChhcmdzKVxuICAgICAgICAgIHJldHVybiBwcmVwYXJlKGF3YWl0IENvbW1lbnRzLmZpbmRPbmUoe19pZDogcmVzLmluc2VydGVkSWRzWzFdfSkpXG4gICAgICAgIH0sXG4gICAgICB9LFxuICAgIH1cblxuICAgIGNvbnN0IHNjaGVtYSA9IG1ha2VFeGVjdXRhYmxlU2NoZW1hKHtcbiAgICAgIHR5cGVEZWZzLFxuICAgICAgcmVzb2x2ZXJzXG4gICAgfSlcblxuICAgIGNvbnN0IGFwcCA9IGV4cHJlc3MoKVxuXG4gICAgYXBwLnVzZShjb3JzKCkpXG5cbiAgICBhcHAudXNlKCcvZ3JhcGhxbCcsIGJvZHlQYXJzZXIuanNvbigpLCBncmFwaHFsRXhwcmVzcyh7c2NoZW1hfSkpXG5cbiAgICBjb25zdCBob21lUGF0aCA9ICcvZ3JhcGhpcWwnXG5cbiAgICBhcHAudXNlKGhvbWVQYXRoLCBncmFwaGlxbEV4cHJlc3Moe1xuICAgICAgZW5kcG9pbnRVUkw6ICcvZ3JhcGhxbCdcbiAgICB9KSlcblxuICAgIGFwcC5saXN0ZW4oUE9SVCwgKCkgPT4ge1xuICAgICAgY29uc29sZS5sb2coYFZpc2l0ICR7VVJMfToke1BPUlR9JHtob21lUGF0aH1gKVxuICAgIH0pXG5cbiAgfSBjYXRjaCAoZSkge1xuICAgIGNvbnNvbGUubG9nKGUpXG4gIH1cblxufSJdfQ==",
     "ast": null,
     "map": {
       "version": 3,
@@ -278,24 +342,65 @@
         "server.js"
       ],
       "names": [
-        "GRAPHQL_PORT",
+        "URL",
+        "process",
+        "env",
+        "PROJECT_DOMAIN",
+        "PORT",
+        "MONGO_URL",
+        "console",
+        "log",
         "graphQLServer",
+        "prepare",
+        "o",
+        "_id",
+        "toString",
+        "start",
+        "connect",
+        "db",
+        "Posts",
+        "collection",
+        "Comments",
+        "typeDefs",
+        "resolvers",
+        "Query",
+        "post",
+        "root",
+        "findOne",
+        "posts",
+        "find",
+        "toArray",
+        "map",
+        "comment",
+        "Post",
+        "comments",
+        "postId",
+        "Comment",
+        "Mutation",
+        "createPost",
+        "args",
+        "context",
+        "info",
+        "insert",
+        "res",
+        "insertedIds",
+        "createComment",
+        "schema",
+        "app",
         "use",
         "json",
-        "schema",
+        "homePath",
         "endpointURL",
-        "listen",
-        "console",
-        "log"
+        "listen"
       ],
-      "mappings": ";;AAAA;;;;AACA;;AACA;;;;AACA;;;;;;AAEA,IAAMA,eAAe,IAArB;;AAEA,IAAMC,gBAAgB,wBAAtB;;AAEAA,cAAcC,GAAd,CAAkB,UAAlB,EAA8B,qBAAWC,IAAX,EAA9B,EAAiD,yCAAe,EAAEC,wBAAF,EAAf,CAAjD;AACAH,cAAcC,GAAd,CAAkB,WAAlB,EAA+B,0CAAgB,EAAEG,aAAa,UAAf,EAAhB,CAA/B;;AAEAJ,cAAcK,MAAd,CAAqBN,YAArB,EAAmC;AAAA,SACjCO,QAAQC,GAAR,kDACiDR,YADjD,eADiC;AAAA,CAAnC",
+      "mappings": "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",
       "file": "server.js",
       "sourceRoot": "/app",
       "sourcesContent": [
-        "import express from 'express';\nimport { graphqlExpress, graphiqlExpress } from 'apollo-server-express';\nimport bodyParser from 'body-parser';\nimport schema from './data/schema';\n\nconst GRAPHQL_PORT = 3000;\n\nconst graphQLServer = express();\n\ngraphQLServer.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));\ngraphQLServer.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));\n\ngraphQLServer.listen(GRAPHQL_PORT, () =>\n  console.log(\n    `GraphiQL is now running on http://localhost:${GRAPHQL_PORT}/graphiql`\n  )\n);\n"
+        "import 'babel-core/register'\nimport 'babel-polyfill'\n\nimport {MongoClient, ObjectId} from 'mongodb'\nimport {graphqlExpress, graphiqlExpress} from 'graphql-server-express'\nimport {makeExecutableSchema} from 'graphql-tools'\n\nimport express from 'express'\nimport bodyParser from 'body-parser'\nimport cors from 'cors'\n\nimport schema from './data/schema';\n\nconst URL = process.env.PROJECT_DOMAIN\nconst PORT = process.env.PORT;\nconst MONGO_URL = 'mongodb://localhost:27017/blog'\n\nconsole.log(\"GRAPHQL_PORT: \" + PORT);\n\nconst graphQLServer = express();\n\n\nconst prepare = (o) => {\n  o._id = o._id.toString()\n  return o\n}\n\nexport const start = async () => {\n  try {\n    const db = await MongoClient.connect(MONGO_URL)\n\n    const Posts = db.collection('posts')\n    const Comments = db.collection('comments')\n\n    const typeDefs = [`\n      type Query {\n        post(_id: String): Post\n        posts: [Post]\n        comment(_id: String): Comment\n      }\n      type Post {\n        _id: String\n        title: String\n        content: String\n        comments: [Comment]\n      }\n      type Comment {\n        _id: String\n        postId: String\n        content: String\n        post: Post\n      }\n      type Mutation {\n        createPost(title: String, content: String): Post\n        createComment(postId: String, content: String): Comment\n      }\n      schema {\n        query: Query\n        mutation: Mutation\n      }\n    `];\n\n    const resolvers = {\n      Query: {\n        post: async (root, {_id}) => {\n          return prepare(await Posts.findOne(ObjectId(_id)))\n        },\n        posts: async () => {\n          return (await Posts.find({}).toArray()).map(prepare)\n        },\n        comment: async (root, {_id}) => {\n          return prepare(await Comments.findOne(ObjectId(_id)))\n        },\n      },\n      Post: {\n        comments: async ({_id}) => {\n          return (await Comments.find({postId: _id}).toArray()).map(prepare)\n        }\n      },\n      Comment: {\n        post: async ({postId}) => {\n          return prepare(await Posts.findOne(ObjectId(postId)))\n        }\n      },\n      Mutation: {\n        createPost: async (root, args, context, info) => {\n          const res = await Posts.insert(args)\n          return prepare(await Posts.findOne({_id: res.insertedIds[1]}))\n        },\n        createComment: async (root, args) => {\n          const res = await Comments.insert(args)\n          return prepare(await Comments.findOne({_id: res.insertedIds[1]}))\n        },\n      },\n    }\n\n    const schema = makeExecutableSchema({\n      typeDefs,\n      resolvers\n    })\n\n    const app = express()\n\n    app.use(cors())\n\n    app.use('/graphql', bodyParser.json(), graphqlExpress({schema}))\n\n    const homePath = '/graphiql'\n\n    app.use(homePath, graphiqlExpress({\n      endpointURL: '/graphql'\n    }))\n\n    app.listen(PORT, () => {\n      console.log(`Visit ${URL}:${PORT}${homePath}`)\n    })\n\n  } catch (e) {\n    console.log(e)\n  }\n\n}"
       ]
     },
-    "mtime": 1521004562073
+    "mtime": 1521162394557
   },
   "{\"filename\":\"/app/data/schema.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app/data\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
     "metadata": {
