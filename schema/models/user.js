@@ -1,7 +1,7 @@
 /* @flow */
 
 import mongoose from 'mongoose';
-import composeWithMongoose from 'graphql-compose-mongoose';
+import composeWithMongoose from 'graphql-compose-mongoose/node8';
 
 const AccountTypeSchema = new mongoose.Schema(
   {
@@ -26,6 +26,12 @@ const AddressSchema = new mongoose.Schema({
 
 export const UserSchema = new mongoose.Schema(
   {
+    meta: {
+      type: Object
+    },
+    _id:{
+      type: Buffer,
+    },
     name: {
       type: String,
       index: true,
@@ -33,6 +39,30 @@ export const UserSchema = new mongoose.Schema(
     is_active: {
       type: Boolean,
       index: true,
+    },
+    joined: {
+      type: Date,
+      index: false
+    },
+    last_login: {
+      type: Date,
+      index: false
+    },
+    settings: {
+      explorer: {
+        initial_searches: {
+          type: Boolean,
+          index: false
+        }
+      }
+    },
+    social_accounts: {
+      type: Array,
+      index: false
+    },
+    subscriptions: {
+      type: Array,
+      index: false
     },
     age: {
       type: Number,
@@ -50,7 +80,7 @@ export const UserSchema = new mongoose.Schema(
     gender: {
       // enum field with values
       type: String,
-      enum: ['male', 'female', 'ladyboy'],
+      enum: ['male', 'female', 'ladyboy', 'ai', 'animal', 'mineral', 'other'],
     },
     address: {
       type: AddressSchema,
@@ -70,6 +100,20 @@ UserSchema.index({ gender: 1, age: -1 });
 export const User = mongoose.model('User', UserSchema);
 
 export const UserTC = composeWithMongoose(User);
+
+// TODO: Buffer to Base64 encoding fix.
+
+// UserTC.addFields({
+//   id: { // extended
+//     type: 'String', // String, Int, Float, Boolean, ID, Json, array []
+//     description: 'uuid4 id',
+//     resolve: (source, args, context, info) => {
+//         console.log(source._id.buffer);
+//         // console.log(Buffer.from(source._id.buffer, 'base64').toString());
+//         // Buffer.from(source._id.buffer, 'base64').toString();
+//       },
+//     },
+// });
 
 UserTC.setResolver(
   'findMany',

@@ -1,15 +1,12 @@
 /* @flow */
-// SINGLE SCHEMA ON SERVER
-// import { GQC } from 'graphql-compose';
 
-// MULTI SCHEMA MODE IN ONE SERVER
-// create new GQC from SchemaComposer
 import { SchemaComposer } from 'graphql-compose';
 import { UserTC } from './models/user';
+import { SessionTC } from './models/session';
 
 const GQC = new SchemaComposer();
 
-// create GraphQL Schema with all available resolvers for User Type
+// create GraphQL Schema with all available resolvers
 GQC.rootQuery().addFields({
   userById: UserTC.getResolver('findById'),
   userByIds: UserTC.getResolver('findByIds'),
@@ -18,6 +15,8 @@ GQC.rootQuery().addFields({
   userTotal: UserTC.getResolver('count'),
   userConnection: UserTC.getResolver('connection'),
   userPagination: UserTC.getResolver('pagination'),
+  
+  sessionMany: SessionTC.getResolver('findMany')
 });
 // For debug purposes you may display resolver internals in the following manner:
 // console.log(UserTC.getResolver('findMany').toString());
@@ -33,7 +32,5 @@ GQC.rootMutation().addFields({
 });
 
 const graphqlSchema = GQC.buildSchema();
-
-graphqlSchema.uri = '/user';
 
 export default graphqlSchema;

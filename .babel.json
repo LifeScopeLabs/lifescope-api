@@ -364,10 +364,123 @@
   },
   "{\"filename\":\"/app/server.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],null],[[],null],[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
     "metadata": {
-      "usedHelpers": [],
+      "usedHelpers": [
+        "interopRequireDefault"
+      ],
       "marked": [],
       "modules": {
-        "imports": [],
+        "imports": [
+          {
+            "source": "body-parser",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "bodyParser"
+              }
+            ]
+          },
+          {
+            "source": "cors",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "cors"
+              }
+            ]
+          },
+          {
+            "source": "cookie-parser",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "cookieParser"
+              }
+            ]
+          },
+          {
+            "source": "express",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "express"
+              }
+            ]
+          },
+          {
+            "source": "graphql-playground-middleware-express",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "expressPlayground"
+              }
+            ]
+          },
+          {
+            "source": "apollo-server-express",
+            "imported": [
+              "graphqlExpress",
+              "graphiqlExpress"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "graphqlExpress",
+                "local": "graphqlExpress"
+              },
+              {
+                "kind": "named",
+                "imported": "graphiqlExpress",
+                "local": "graphiqlExpress"
+              }
+            ]
+          },
+          {
+            "source": "mongoose",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "mongoose"
+              }
+            ]
+          },
+          {
+            "source": "./schema",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "lifescopeSchema"
+              }
+            ]
+          }
+        ],
         "exports": {
           "exported": [],
           "specifiers": []
@@ -461,7 +574,7 @@
       "basename": "server"
     },
     "ignored": false,
-    "code": "'use strict';\n\nconst express = require('express');\n\nconst cors = require('cors');\nconst graphqlHTTP = require('express-graphql');\nconst expressPlayground = require('graphql-playground-middleware-express');\nconst mongoose = require('mongoose');\n\nconst lifescopeSchema = require('./schema');\n\nconst MONGODB_URI = process.env.MONGODB_URI;\n\nconst server = express();\nserver.use(cors());\n\nconst opts = {\n  autoReconnect: true,\n  reconnectTries: Number.MAX_VALUE,\n  reconnectInterval: 1000\n};\n\nmongoose.connect(MONGODB_URI, opts);\n\nconst mongooseConnect = mongoose.connection;\n\nmongooseConnect.on('error', e => {\n  if (e.message.code === 'ETIMEDOUT') {\n    console.log(e);\n    mongoose.connect(MONGODB_URI, opts);\n  }\n  console.log(e);\n});\n\nmongooseConnect.once('open', () => {\n  console.log(`MongoDB successfully connected to ${MONGODB_URI}`);\n});\n\nserver.use(lifescopeSchema.default.uri, graphqlHTTP(() => ({\n  schema: lifescopeSchema.schema,\n  graphiql: true,\n  formatError: error => ({\n    message: error.message,\n    stack: !error.message.match(/for security reason/i) ? error.stack.split('\\n') : null\n  })\n})));\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlcnZlci5qcyJdLCJuYW1lcyI6WyJleHByZXNzIiwicmVxdWlyZSIsImNvcnMiLCJncmFwaHFsSFRUUCIsImV4cHJlc3NQbGF5Z3JvdW5kIiwibW9uZ29vc2UiLCJsaWZlc2NvcGVTY2hlbWEiLCJNT05HT0RCX1VSSSIsInByb2Nlc3MiLCJlbnYiLCJzZXJ2ZXIiLCJ1c2UiLCJvcHRzIiwiYXV0b1JlY29ubmVjdCIsInJlY29ubmVjdFRyaWVzIiwiTnVtYmVyIiwiTUFYX1ZBTFVFIiwicmVjb25uZWN0SW50ZXJ2YWwiLCJjb25uZWN0IiwibW9uZ29vc2VDb25uZWN0IiwiY29ubmVjdGlvbiIsIm9uIiwiZSIsIm1lc3NhZ2UiLCJjb2RlIiwiY29uc29sZSIsImxvZyIsIm9uY2UiLCJkZWZhdWx0IiwidXJpIiwic2NoZW1hIiwiZ3JhcGhpcWwiLCJmb3JtYXRFcnJvciIsImVycm9yIiwic3RhY2siLCJtYXRjaCIsInNwbGl0Il0sIm1hcHBpbmdzIjoiOztBQUFBLE1BQU1BLFVBQVVDLFFBQVEsU0FBUixDQUFoQjs7QUFFQSxNQUFNQyxPQUFPRCxRQUFRLE1BQVIsQ0FBYjtBQUNBLE1BQU1FLGNBQWNGLFFBQVEsaUJBQVIsQ0FBcEI7QUFDQSxNQUFNRyxvQkFBb0JILFFBQVEsdUNBQVIsQ0FBMUI7QUFDQSxNQUFNSSxXQUFXSixRQUFRLFVBQVIsQ0FBakI7O0FBRUEsTUFBTUssa0JBQWtCTCxRQUFRLFVBQVIsQ0FBeEI7O0FBRUEsTUFBTU0sY0FBY0MsUUFBUUMsR0FBUixDQUFZRixXQUFoQzs7QUFFQSxNQUFNRyxTQUFTVixTQUFmO0FBQ0FVLE9BQU9DLEdBQVAsQ0FBV1QsTUFBWDs7QUFFQSxNQUFNVSxPQUFPO0FBQ1hDLGlCQUFlLElBREo7QUFFWEMsa0JBQWdCQyxPQUFPQyxTQUZaO0FBR1hDLHFCQUFtQjtBQUhSLENBQWI7O0FBTUFaLFNBQVNhLE9BQVQsQ0FBaUJYLFdBQWpCLEVBQThCSyxJQUE5Qjs7QUFFQSxNQUFNTyxrQkFBa0JkLFNBQVNlLFVBQWpDOztBQUVBRCxnQkFBZ0JFLEVBQWhCLENBQW1CLE9BQW5CLEVBQTRCQyxLQUFLO0FBQy9CLE1BQUlBLEVBQUVDLE9BQUYsQ0FBVUMsSUFBVixLQUFtQixXQUF2QixFQUFvQztBQUNsQ0MsWUFBUUMsR0FBUixDQUFZSixDQUFaO0FBQ0FqQixhQUFTYSxPQUFULENBQWlCWCxXQUFqQixFQUE4QkssSUFBOUI7QUFDRDtBQUNEYSxVQUFRQyxHQUFSLENBQVlKLENBQVo7QUFDRCxDQU5EOztBQVFBSCxnQkFBZ0JRLElBQWhCLENBQXFCLE1BQXJCLEVBQTZCLE1BQU07QUFDakNGLFVBQVFDLEdBQVIsQ0FBYSxxQ0FBb0NuQixXQUFZLEVBQTdEO0FBQ0QsQ0FGRDs7QUFJQUcsT0FBT0MsR0FBUCxDQUNJTCxnQkFBZ0JzQixPQUFoQixDQUF3QkMsR0FENUIsRUFFSTFCLFlBQVksT0FBTztBQUNqQjJCLFVBQVF4QixnQkFBZ0J3QixNQURQO0FBRWpCQyxZQUFVLElBRk87QUFHakJDLGVBQWFDLFVBQVU7QUFDckJWLGFBQVNVLE1BQU1WLE9BRE07QUFFckJXLFdBQU8sQ0FBQ0QsTUFBTVYsT0FBTixDQUFjWSxLQUFkLENBQW9CLHNCQUFwQixDQUFELEdBQStDRixNQUFNQyxLQUFOLENBQVlFLEtBQVosQ0FBa0IsSUFBbEIsQ0FBL0MsR0FBeUU7QUFGM0QsR0FBVjtBQUhJLENBQVAsQ0FBWixDQUZKIiwiZmlsZSI6InNlcnZlci5qcyIsInNvdXJjZVJvb3QiOiIvYXBwIiwic291cmNlc0NvbnRlbnQiOlsiY29uc3QgZXhwcmVzcyA9IHJlcXVpcmUoJ2V4cHJlc3MnKTtcblxuY29uc3QgY29ycyA9IHJlcXVpcmUoJ2NvcnMnKTtcbmNvbnN0IGdyYXBocWxIVFRQID0gcmVxdWlyZSgnZXhwcmVzcy1ncmFwaHFsJyk7XG5jb25zdCBleHByZXNzUGxheWdyb3VuZCA9IHJlcXVpcmUoJ2dyYXBocWwtcGxheWdyb3VuZC1taWRkbGV3YXJlLWV4cHJlc3MnKTtcbmNvbnN0IG1vbmdvb3NlID0gcmVxdWlyZSgnbW9uZ29vc2UnKTtcblxuY29uc3QgbGlmZXNjb3BlU2NoZW1hID0gcmVxdWlyZSgnLi9zY2hlbWEnKTtcblxuY29uc3QgTU9OR09EQl9VUkkgPSBwcm9jZXNzLmVudi5NT05HT0RCX1VSSTtcblxuY29uc3Qgc2VydmVyID0gZXhwcmVzcygpO1xuc2VydmVyLnVzZShjb3JzKCkpO1xuXG5jb25zdCBvcHRzID0ge1xuICBhdXRvUmVjb25uZWN0OiB0cnVlLFxuICByZWNvbm5lY3RUcmllczogTnVtYmVyLk1BWF9WQUxVRSxcbiAgcmVjb25uZWN0SW50ZXJ2YWw6IDEwMDAsXG59O1xuXG5tb25nb29zZS5jb25uZWN0KE1PTkdPREJfVVJJLCBvcHRzKTtcblxuY29uc3QgbW9uZ29vc2VDb25uZWN0ID0gbW9uZ29vc2UuY29ubmVjdGlvbjtcblxubW9uZ29vc2VDb25uZWN0Lm9uKCdlcnJvcicsIGUgPT4ge1xuICBpZiAoZS5tZXNzYWdlLmNvZGUgPT09ICdFVElNRURPVVQnKSB7XG4gICAgY29uc29sZS5sb2coZSk7XG4gICAgbW9uZ29vc2UuY29ubmVjdChNT05HT0RCX1VSSSwgb3B0cyk7XG4gIH1cbiAgY29uc29sZS5sb2coZSk7XG59KTtcblxubW9uZ29vc2VDb25uZWN0Lm9uY2UoJ29wZW4nLCAoKSA9PiB7XG4gIGNvbnNvbGUubG9nKGBNb25nb0RCIHN1Y2Nlc3NmdWxseSBjb25uZWN0ZWQgdG8gJHtNT05HT0RCX1VSSX1gKTtcbn0pO1xuXG5zZXJ2ZXIudXNlKFxuICAgIGxpZmVzY29wZVNjaGVtYS5kZWZhdWx0LnVyaSxcbiAgICBncmFwaHFsSFRUUCgoKSA9PiAoe1xuICAgICAgc2NoZW1hOiBsaWZlc2NvcGVTY2hlbWEuc2NoZW1hLFxuICAgICAgZ3JhcGhpcWw6IHRydWUsXG4gICAgICBmb3JtYXRFcnJvcjogZXJyb3IgPT4gKHtcbiAgICAgICAgbWVzc2FnZTogZXJyb3IubWVzc2FnZSxcbiAgICAgICAgc3RhY2s6ICFlcnJvci5tZXNzYWdlLm1hdGNoKC9mb3Igc2VjdXJpdHkgcmVhc29uL2kpID8gZXJyb3Iuc3RhY2suc3BsaXQoJ1xcbicpIDogbnVsbCxcbiAgICAgIH0pLFxuICAgIH0pKVxuKTtcbiJdfQ==",
+    "code": "'use strict';\n\nvar _bodyParser = require('body-parser');\n\nvar _bodyParser2 = _interopRequireDefault(_bodyParser);\n\nvar _cors = require('cors');\n\nvar _cors2 = _interopRequireDefault(_cors);\n\nvar _cookieParser = require('cookie-parser');\n\nvar _cookieParser2 = _interopRequireDefault(_cookieParser);\n\nvar _express = require('express');\n\nvar _express2 = _interopRequireDefault(_express);\n\nvar _graphqlPlaygroundMiddlewareExpress = require('graphql-playground-middleware-express');\n\nvar _graphqlPlaygroundMiddlewareExpress2 = _interopRequireDefault(_graphqlPlaygroundMiddlewareExpress);\n\nvar _apolloServerExpress = require('apollo-server-express');\n\nvar _mongoose = require('mongoose');\n\nvar _mongoose2 = _interopRequireDefault(_mongoose);\n\nvar _schema = require('./schema');\n\nvar _schema2 = _interopRequireDefault(_schema);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nconst MONGODB_URI = process.env.MONGODB_URI;\n\nconst server = (0, _express2.default)();\nconst opts = {\n  autoReconnect: true,\n  reconnectTries: Number.MAX_VALUE,\n  reconnectInterval: 1000\n};\n\nserver.use((0, _cors2.default)());\n\n_mongoose2.default.connect(MONGODB_URI, opts);\n\nconst mongooseConnect = _mongoose2.default.connection;\n\nmongooseConnect.on('error', e => {\n  if (e.message.code === 'ETIMEDOUT') {\n    console.log(e);\n    _mongoose2.default.connect(MONGODB_URI, opts);\n  }\n  console.log(e);\n});\n\nmongooseConnect.once('open', () => {\n  console.log(`MongoDB successfully connected to ${MONGODB_URI}`);\n});\n\nserver.use(_schema2.default.uri, _bodyParser2.default.json(), (0, _apolloServerExpress.graphqlExpress)({\n  schema: _schema2.default.schema,\n  tracing: true,\n  // formatError: error => ({\n  //   message: error.message,\n  //   stack: !error.message.match(/for security reason/i) ? error.stack.split('\\n') : null,\n  // }),\n  formatError: error => ({\n    message: error.message,\n    locations: error.locations,\n    stack: error.stack ? error.stack.split('\\n') : [],\n    path: error.path\n  })\n}));\n\n// http://localhost:3000/gql-i/\nserver.get(`${_schema2.default.uri}-i`, (0, _apolloServerExpress.graphiqlExpress)({ endpointURL: _schema2.default.uri }));\n\n// http://localhost:3000/gql-p/\nserver.get(`${_schema2.default.uri}-p`, (0, _graphqlPlaygroundMiddlewareExpress2.default)({ endpoint: _schema2.default.uri }));\n\n// http://localhost:3000/user/\nserver.listen(process.env.PORT);\n\nconsole.log('PORT: ' + process.env.PORT);\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlcnZlci5qcyJdLCJuYW1lcyI6WyJNT05HT0RCX1VSSSIsInByb2Nlc3MiLCJlbnYiLCJzZXJ2ZXIiLCJvcHRzIiwiYXV0b1JlY29ubmVjdCIsInJlY29ubmVjdFRyaWVzIiwiTnVtYmVyIiwiTUFYX1ZBTFVFIiwicmVjb25uZWN0SW50ZXJ2YWwiLCJ1c2UiLCJjb25uZWN0IiwibW9uZ29vc2VDb25uZWN0IiwiY29ubmVjdGlvbiIsIm9uIiwiZSIsIm1lc3NhZ2UiLCJjb2RlIiwiY29uc29sZSIsImxvZyIsIm9uY2UiLCJ1cmkiLCJqc29uIiwic2NoZW1hIiwidHJhY2luZyIsImZvcm1hdEVycm9yIiwiZXJyb3IiLCJsb2NhdGlvbnMiLCJzdGFjayIsInNwbGl0IiwicGF0aCIsImdldCIsImVuZHBvaW50VVJMIiwiZW5kcG9pbnQiLCJsaXN0ZW4iLCJQT1JUIl0sIm1hcHBpbmdzIjoiOztBQUFBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7QUFDQTs7OztBQUVBOzs7Ozs7QUFFQSxNQUFNQSxjQUFjQyxRQUFRQyxHQUFSLENBQVlGLFdBQWhDOztBQUVBLE1BQU1HLFNBQVMsd0JBQWY7QUFDQSxNQUFNQyxPQUFPO0FBQ1hDLGlCQUFlLElBREo7QUFFWEMsa0JBQWdCQyxPQUFPQyxTQUZaO0FBR1hDLHFCQUFtQjtBQUhSLENBQWI7O0FBTUFOLE9BQU9PLEdBQVAsQ0FBVyxxQkFBWDs7QUFFQSxtQkFBU0MsT0FBVCxDQUFpQlgsV0FBakIsRUFBOEJJLElBQTlCOztBQUVBLE1BQU1RLGtCQUFrQixtQkFBU0MsVUFBakM7O0FBRUFELGdCQUFnQkUsRUFBaEIsQ0FBbUIsT0FBbkIsRUFBNEJDLEtBQUs7QUFDL0IsTUFBSUEsRUFBRUMsT0FBRixDQUFVQyxJQUFWLEtBQW1CLFdBQXZCLEVBQW9DO0FBQ2xDQyxZQUFRQyxHQUFSLENBQVlKLENBQVo7QUFDQSx1QkFBU0osT0FBVCxDQUFpQlgsV0FBakIsRUFBOEJJLElBQTlCO0FBQ0Q7QUFDRGMsVUFBUUMsR0FBUixDQUFZSixDQUFaO0FBQ0QsQ0FORDs7QUFRQUgsZ0JBQWdCUSxJQUFoQixDQUFxQixNQUFyQixFQUE2QixNQUFNO0FBQ2pDRixVQUFRQyxHQUFSLENBQWEscUNBQW9DbkIsV0FBWSxFQUE3RDtBQUNELENBRkQ7O0FBSUFHLE9BQU9PLEdBQVAsQ0FDRSxpQkFBZ0JXLEdBRGxCLEVBRUUscUJBQVdDLElBQVgsRUFGRixFQUdFLHlDQUFlO0FBQ2JDLFVBQVEsaUJBQWdCQSxNQURYO0FBRWJDLFdBQVMsSUFGSTtBQUdiO0FBQ0E7QUFDQTtBQUNBO0FBQ0FDLGVBQWFDLFVBQVU7QUFDckJWLGFBQVNVLE1BQU1WLE9BRE07QUFFckJXLGVBQVdELE1BQU1DLFNBRkk7QUFHckJDLFdBQU9GLE1BQU1FLEtBQU4sR0FBY0YsTUFBTUUsS0FBTixDQUFZQyxLQUFaLENBQWtCLElBQWxCLENBQWQsR0FBd0MsRUFIMUI7QUFJckJDLFVBQU1KLE1BQU1JO0FBSlMsR0FBVjtBQVBBLENBQWYsQ0FIRjs7QUFrQkE7QUFDQTNCLE9BQU80QixHQUFQLENBQVksR0FBRSxpQkFBZ0JWLEdBQUksSUFBbEMsRUFBdUMsMENBQWdCLEVBQUVXLGFBQWEsaUJBQWdCWCxHQUEvQixFQUFoQixDQUF2Qzs7QUFFQTtBQUNBbEIsT0FBTzRCLEdBQVAsQ0FBWSxHQUFFLGlCQUFnQlYsR0FBSSxJQUFsQyxFQUF1QyxrREFBa0IsRUFBRVksVUFBVSxpQkFBZ0JaLEdBQTVCLEVBQWxCLENBQXZDOztBQUVBO0FBQ0FsQixPQUFPK0IsTUFBUCxDQUFjakMsUUFBUUMsR0FBUixDQUFZaUMsSUFBMUI7O0FBRUFqQixRQUFRQyxHQUFSLENBQVksV0FBV2xCLFFBQVFDLEdBQVIsQ0FBWWlDLElBQW5DIiwiZmlsZSI6InNlcnZlci5qcyIsInNvdXJjZVJvb3QiOiIvYXBwIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IGJvZHlQYXJzZXIgZnJvbSAnYm9keS1wYXJzZXInO1xuaW1wb3J0IGNvcnMgZnJvbSAnY29ycyc7XG5pbXBvcnQgY29va2llUGFyc2VyIGZyb20gJ2Nvb2tpZS1wYXJzZXInO1xuaW1wb3J0IGV4cHJlc3MgZnJvbSAnZXhwcmVzcyc7XG5pbXBvcnQgZXhwcmVzc1BsYXlncm91bmQgZnJvbSAnZ3JhcGhxbC1wbGF5Z3JvdW5kLW1pZGRsZXdhcmUtZXhwcmVzcyc7XG5pbXBvcnQgeyBncmFwaHFsRXhwcmVzcywgZ3JhcGhpcWxFeHByZXNzIH0gZnJvbSAnYXBvbGxvLXNlcnZlci1leHByZXNzJztcbmltcG9ydCBtb25nb29zZSBmcm9tICdtb25nb29zZSc7XG5cbmltcG9ydCBsaWZlc2NvcGVTY2hlbWEgZnJvbSAnLi9zY2hlbWEnO1xuXG5jb25zdCBNT05HT0RCX1VSSSA9IHByb2Nlc3MuZW52Lk1PTkdPREJfVVJJO1xuXG5jb25zdCBzZXJ2ZXIgPSBleHByZXNzKCk7XG5jb25zdCBvcHRzID0ge1xuICBhdXRvUmVjb25uZWN0OiB0cnVlLFxuICByZWNvbm5lY3RUcmllczogTnVtYmVyLk1BWF9WQUxVRSxcbiAgcmVjb25uZWN0SW50ZXJ2YWw6IDEwMDAsXG59O1xuXG5zZXJ2ZXIudXNlKGNvcnMoKSk7XG5cbm1vbmdvb3NlLmNvbm5lY3QoTU9OR09EQl9VUkksIG9wdHMpO1xuXG5jb25zdCBtb25nb29zZUNvbm5lY3QgPSBtb25nb29zZS5jb25uZWN0aW9uO1xuXG5tb25nb29zZUNvbm5lY3Qub24oJ2Vycm9yJywgZSA9PiB7XG4gIGlmIChlLm1lc3NhZ2UuY29kZSA9PT0gJ0VUSU1FRE9VVCcpIHtcbiAgICBjb25zb2xlLmxvZyhlKTtcbiAgICBtb25nb29zZS5jb25uZWN0KE1PTkdPREJfVVJJLCBvcHRzKTtcbiAgfVxuICBjb25zb2xlLmxvZyhlKTtcbn0pO1xuXG5tb25nb29zZUNvbm5lY3Qub25jZSgnb3BlbicsICgpID0+IHtcbiAgY29uc29sZS5sb2coYE1vbmdvREIgc3VjY2Vzc2Z1bGx5IGNvbm5lY3RlZCB0byAke01PTkdPREJfVVJJfWApO1xufSk7XG5cbnNlcnZlci51c2UoXG4gIGxpZmVzY29wZVNjaGVtYS51cmksIFxuICBib2R5UGFyc2VyLmpzb24oKSwgXG4gIGdyYXBocWxFeHByZXNzKHsgXG4gICAgc2NoZW1hOiBsaWZlc2NvcGVTY2hlbWEuc2NoZW1hLCBcbiAgICB0cmFjaW5nOiB0cnVlLFxuICAgIC8vIGZvcm1hdEVycm9yOiBlcnJvciA9PiAoe1xuICAgIC8vICAgbWVzc2FnZTogZXJyb3IubWVzc2FnZSxcbiAgICAvLyAgIHN0YWNrOiAhZXJyb3IubWVzc2FnZS5tYXRjaCgvZm9yIHNlY3VyaXR5IHJlYXNvbi9pKSA/IGVycm9yLnN0YWNrLnNwbGl0KCdcXG4nKSA6IG51bGwsXG4gICAgLy8gfSksXG4gICAgZm9ybWF0RXJyb3I6IGVycm9yID0+ICh7XG4gICAgICBtZXNzYWdlOiBlcnJvci5tZXNzYWdlLFxuICAgICAgbG9jYXRpb25zOiBlcnJvci5sb2NhdGlvbnMsXG4gICAgICBzdGFjazogZXJyb3Iuc3RhY2sgPyBlcnJvci5zdGFjay5zcGxpdCgnXFxuJykgOiBbXSxcbiAgICAgIHBhdGg6IGVycm9yLnBhdGhcbiAgICB9KVxuICB9KSk7XG5cbi8vIGh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9ncWwtaS9cbnNlcnZlci5nZXQoYCR7bGlmZXNjb3BlU2NoZW1hLnVyaX0taWAsIGdyYXBoaXFsRXhwcmVzcyh7IGVuZHBvaW50VVJMOiBsaWZlc2NvcGVTY2hlbWEudXJpIH0pKTtcblxuLy8gaHR0cDovL2xvY2FsaG9zdDozMDAwL2dxbC1wL1xuc2VydmVyLmdldChgJHtsaWZlc2NvcGVTY2hlbWEudXJpfS1wYCwgZXhwcmVzc1BsYXlncm91bmQoeyBlbmRwb2ludDogbGlmZXNjb3BlU2NoZW1hLnVyaSB9KSk7XG5cbi8vIGh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC91c2VyL1xuc2VydmVyLmxpc3Rlbihwcm9jZXNzLmVudi5QT1JUKTtcblxuY29uc29sZS5sb2coJ1BPUlQ6ICcgKyBwcm9jZXNzLmVudi5QT1JUKTtcbiJdfQ==",
     "ast": null,
     "map": {
       "version": 3,
@@ -469,24 +582,17 @@
         "server.js"
       ],
       "names": [
-        "express",
-        "require",
-        "cors",
-        "graphqlHTTP",
-        "expressPlayground",
-        "mongoose",
-        "lifescopeSchema",
         "MONGODB_URI",
         "process",
         "env",
         "server",
-        "use",
         "opts",
         "autoReconnect",
         "reconnectTries",
         "Number",
         "MAX_VALUE",
         "reconnectInterval",
+        "use",
         "connect",
         "mongooseConnect",
         "connection",
@@ -497,24 +603,30 @@
         "console",
         "log",
         "once",
-        "default",
         "uri",
+        "json",
         "schema",
-        "graphiql",
+        "tracing",
         "formatError",
         "error",
+        "locations",
         "stack",
-        "match",
-        "split"
+        "split",
+        "path",
+        "get",
+        "endpointURL",
+        "endpoint",
+        "listen",
+        "PORT"
       ],
-      "mappings": ";;AAAA,MAAMA,UAAUC,QAAQ,SAAR,CAAhB;;AAEA,MAAMC,OAAOD,QAAQ,MAAR,CAAb;AACA,MAAME,cAAcF,QAAQ,iBAAR,CAApB;AACA,MAAMG,oBAAoBH,QAAQ,uCAAR,CAA1B;AACA,MAAMI,WAAWJ,QAAQ,UAAR,CAAjB;;AAEA,MAAMK,kBAAkBL,QAAQ,UAAR,CAAxB;;AAEA,MAAMM,cAAcC,QAAQC,GAAR,CAAYF,WAAhC;;AAEA,MAAMG,SAASV,SAAf;AACAU,OAAOC,GAAP,CAAWT,MAAX;;AAEA,MAAMU,OAAO;AACXC,iBAAe,IADJ;AAEXC,kBAAgBC,OAAOC,SAFZ;AAGXC,qBAAmB;AAHR,CAAb;;AAMAZ,SAASa,OAAT,CAAiBX,WAAjB,EAA8BK,IAA9B;;AAEA,MAAMO,kBAAkBd,SAASe,UAAjC;;AAEAD,gBAAgBE,EAAhB,CAAmB,OAAnB,EAA4BC,KAAK;AAC/B,MAAIA,EAAEC,OAAF,CAAUC,IAAV,KAAmB,WAAvB,EAAoC;AAClCC,YAAQC,GAAR,CAAYJ,CAAZ;AACAjB,aAASa,OAAT,CAAiBX,WAAjB,EAA8BK,IAA9B;AACD;AACDa,UAAQC,GAAR,CAAYJ,CAAZ;AACD,CAND;;AAQAH,gBAAgBQ,IAAhB,CAAqB,MAArB,EAA6B,MAAM;AACjCF,UAAQC,GAAR,CAAa,qCAAoCnB,WAAY,EAA7D;AACD,CAFD;;AAIAG,OAAOC,GAAP,CACIL,gBAAgBsB,OAAhB,CAAwBC,GAD5B,EAEI1B,YAAY,OAAO;AACjB2B,UAAQxB,gBAAgBwB,MADP;AAEjBC,YAAU,IAFO;AAGjBC,eAAaC,UAAU;AACrBV,aAASU,MAAMV,OADM;AAErBW,WAAO,CAACD,MAAMV,OAAN,CAAcY,KAAd,CAAoB,sBAApB,CAAD,GAA+CF,MAAMC,KAAN,CAAYE,KAAZ,CAAkB,IAAlB,CAA/C,GAAyE;AAF3D,GAAV;AAHI,CAAP,CAAZ,CAFJ",
+      "mappings": ";;AAAA;;;;AACA;;;;AACA;;;;AACA;;;;AACA;;;;AACA;;AACA;;;;AAEA;;;;;;AAEA,MAAMA,cAAcC,QAAQC,GAAR,CAAYF,WAAhC;;AAEA,MAAMG,SAAS,wBAAf;AACA,MAAMC,OAAO;AACXC,iBAAe,IADJ;AAEXC,kBAAgBC,OAAOC,SAFZ;AAGXC,qBAAmB;AAHR,CAAb;;AAMAN,OAAOO,GAAP,CAAW,qBAAX;;AAEA,mBAASC,OAAT,CAAiBX,WAAjB,EAA8BI,IAA9B;;AAEA,MAAMQ,kBAAkB,mBAASC,UAAjC;;AAEAD,gBAAgBE,EAAhB,CAAmB,OAAnB,EAA4BC,KAAK;AAC/B,MAAIA,EAAEC,OAAF,CAAUC,IAAV,KAAmB,WAAvB,EAAoC;AAClCC,YAAQC,GAAR,CAAYJ,CAAZ;AACA,uBAASJ,OAAT,CAAiBX,WAAjB,EAA8BI,IAA9B;AACD;AACDc,UAAQC,GAAR,CAAYJ,CAAZ;AACD,CAND;;AAQAH,gBAAgBQ,IAAhB,CAAqB,MAArB,EAA6B,MAAM;AACjCF,UAAQC,GAAR,CAAa,qCAAoCnB,WAAY,EAA7D;AACD,CAFD;;AAIAG,OAAOO,GAAP,CACE,iBAAgBW,GADlB,EAEE,qBAAWC,IAAX,EAFF,EAGE,yCAAe;AACbC,UAAQ,iBAAgBA,MADX;AAEbC,WAAS,IAFI;AAGb;AACA;AACA;AACA;AACAC,eAAaC,UAAU;AACrBV,aAASU,MAAMV,OADM;AAErBW,eAAWD,MAAMC,SAFI;AAGrBC,WAAOF,MAAME,KAAN,GAAcF,MAAME,KAAN,CAAYC,KAAZ,CAAkB,IAAlB,CAAd,GAAwC,EAH1B;AAIrBC,UAAMJ,MAAMI;AAJS,GAAV;AAPA,CAAf,CAHF;;AAkBA;AACA3B,OAAO4B,GAAP,CAAY,GAAE,iBAAgBV,GAAI,IAAlC,EAAuC,0CAAgB,EAAEW,aAAa,iBAAgBX,GAA/B,EAAhB,CAAvC;;AAEA;AACAlB,OAAO4B,GAAP,CAAY,GAAE,iBAAgBV,GAAI,IAAlC,EAAuC,kDAAkB,EAAEY,UAAU,iBAAgBZ,GAA5B,EAAlB,CAAvC;;AAEA;AACAlB,OAAO+B,MAAP,CAAcjC,QAAQC,GAAR,CAAYiC,IAA1B;;AAEAjB,QAAQC,GAAR,CAAY,WAAWlB,QAAQC,GAAR,CAAYiC,IAAnC",
       "file": "server.js",
       "sourceRoot": "/app",
       "sourcesContent": [
-        "const express = require('express');\n\nconst cors = require('cors');\nconst graphqlHTTP = require('express-graphql');\nconst expressPlayground = require('graphql-playground-middleware-express');\nconst mongoose = require('mongoose');\n\nconst lifescopeSchema = require('./schema');\n\nconst MONGODB_URI = process.env.MONGODB_URI;\n\nconst server = express();\nserver.use(cors());\n\nconst opts = {\n  autoReconnect: true,\n  reconnectTries: Number.MAX_VALUE,\n  reconnectInterval: 1000,\n};\n\nmongoose.connect(MONGODB_URI, opts);\n\nconst mongooseConnect = mongoose.connection;\n\nmongooseConnect.on('error', e => {\n  if (e.message.code === 'ETIMEDOUT') {\n    console.log(e);\n    mongoose.connect(MONGODB_URI, opts);\n  }\n  console.log(e);\n});\n\nmongooseConnect.once('open', () => {\n  console.log(`MongoDB successfully connected to ${MONGODB_URI}`);\n});\n\nserver.use(\n    lifescopeSchema.default.uri,\n    graphqlHTTP(() => ({\n      schema: lifescopeSchema.schema,\n      graphiql: true,\n      formatError: error => ({\n        message: error.message,\n        stack: !error.message.match(/for security reason/i) ? error.stack.split('\\n') : null,\n      }),\n    }))\n);\n"
+        "import bodyParser from 'body-parser';\nimport cors from 'cors';\nimport cookieParser from 'cookie-parser';\nimport express from 'express';\nimport expressPlayground from 'graphql-playground-middleware-express';\nimport { graphqlExpress, graphiqlExpress } from 'apollo-server-express';\nimport mongoose from 'mongoose';\n\nimport lifescopeSchema from './schema';\n\nconst MONGODB_URI = process.env.MONGODB_URI;\n\nconst server = express();\nconst opts = {\n  autoReconnect: true,\n  reconnectTries: Number.MAX_VALUE,\n  reconnectInterval: 1000,\n};\n\nserver.use(cors());\n\nmongoose.connect(MONGODB_URI, opts);\n\nconst mongooseConnect = mongoose.connection;\n\nmongooseConnect.on('error', e => {\n  if (e.message.code === 'ETIMEDOUT') {\n    console.log(e);\n    mongoose.connect(MONGODB_URI, opts);\n  }\n  console.log(e);\n});\n\nmongooseConnect.once('open', () => {\n  console.log(`MongoDB successfully connected to ${MONGODB_URI}`);\n});\n\nserver.use(\n  lifescopeSchema.uri, \n  bodyParser.json(), \n  graphqlExpress({ \n    schema: lifescopeSchema.schema, \n    tracing: true,\n    // formatError: error => ({\n    //   message: error.message,\n    //   stack: !error.message.match(/for security reason/i) ? error.stack.split('\\n') : null,\n    // }),\n    formatError: error => ({\n      message: error.message,\n      locations: error.locations,\n      stack: error.stack ? error.stack.split('\\n') : [],\n      path: error.path\n    })\n  }));\n\n// http://localhost:3000/gql-i/\nserver.get(`${lifescopeSchema.uri}-i`, graphiqlExpress({ endpointURL: lifescopeSchema.uri }));\n\n// http://localhost:3000/gql-p/\nserver.get(`${lifescopeSchema.uri}-p`, expressPlayground({ endpoint: lifescopeSchema.uri }));\n\n// http://localhost:3000/user/\nserver.listen(process.env.PORT);\n\nconsole.log('PORT: ' + process.env.PORT);\n"
       ]
     },
-    "mtime": 1521240655892
+    "mtime": 1521433748693
   },
   "{\"filename\":\"/app/schema/index.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],null],[[],null],[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app/schema\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
     "metadata": {
@@ -631,7 +743,7 @@
       "basename": "index"
     },
     "ignored": false,
-    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _schema = require('./schema');\n\nvar _schema2 = _interopRequireDefault(_schema);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nexports.default = {\n  uri: '/user',\n  schema: _schema2.default,\n  title: 'User: simple schema with one type.',\n  description: 'This schema implements all 13 CRUD operations available in graphql-compose-mongoose.',\n  github: 'https://github.com/nodkz/graphql-compose-examples/tree/master/examples/user',\n  queries: [{\n    title: 'Find by id',\n    query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f010\") {\n    _id\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `\n  }, {\n    title: 'Find one User',\n    query: `\n{\n  userOne(filter: { age: 18 }, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `\n  }, {\n    title: 'Find many Users',\n    query: `\n{\n  userMany(filter: { gender: male }, limit: 5, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `\n  }, {\n    title: 'Find many Users (by geo distance)',\n    query: `\n{\n  distance_5_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 5000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n  distance_100_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 100000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n}\n      `\n  }, {\n    title: 'Find User with field of MIXED type',\n    query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f001\") {\n    _id\n    name\n    someMixed\n  }\n}\n      `\n  }, {\n    title: 'Create user mutation (with arg of MIXED type)',\n    query: `\nmutation {\n  userCreate(record: {\n    name: \"My Name\",\n    age: 24,\n    gender: ladyboy,\n    contacts: {\n      email: \"mail@example.com\",\n      phones: [\n        \"111-222-333-444\",\n        \"444-555-666-777\"\n      ]\n    },\n    someMixed: {\n      a: 1,\n      b: 2,\n      c: [ 1, 2, 3, true, false, { sub: 1 }]\n    }\n  }) {\n    recordId\n    record {\n      name\n      age\n      gender\n      contacts {\n        email\n        phones\n      }\n      someMixed\n    }\n  }\n}\n      `\n  }, {\n    title: 'Pagination',\n    query: `\n{\n  userPagination(filter: { gender: male }, perPage: 2, page: 2, sort: _ID_ASC) {\n    items {\n      name\n      languages {\n        language\n        skill\n      }\n      contacts {\n        email\n      }\n      gender\n      age\n    }\n    count\n    pageInfo {\n      currentPage\n      perPage\n      itemCount\n      pageCount\n      hasPreviousPage\n      hasNextPage\n    }\n  }\n}\n      `\n  }]\n};\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImluZGV4LmpzIl0sIm5hbWVzIjpbInVyaSIsInNjaGVtYSIsInRpdGxlIiwiZGVzY3JpcHRpb24iLCJnaXRodWIiLCJxdWVyaWVzIiwicXVlcnkiXSwibWFwcGluZ3MiOiI7Ozs7OztBQUVBOzs7Ozs7a0JBRWU7QUFDYkEsT0FBSyxPQURRO0FBRWJDLDBCQUZhO0FBR2JDLFNBQU8sb0NBSE07QUFJYkMsZUFDRSxzRkFMVztBQU1iQyxVQUFRLDZFQU5LO0FBT2JDLFdBQVMsQ0FDUDtBQUNFSCxXQUFPLFlBRFQ7QUFFRUksV0FBUTs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFGVixHQURPLEVBcUJQO0FBQ0VKLFdBQU8sZUFEVDtBQUVFSSxXQUFROzs7Ozs7Ozs7Ozs7Ozs7O0FBRlYsR0FyQk8sRUF3Q1A7QUFDRUosV0FBTyxpQkFEVDtBQUVFSSxXQUFROzs7Ozs7Ozs7Ozs7Ozs7O0FBRlYsR0F4Q08sRUEyRFA7QUFDRUosV0FBTyxtQ0FEVDtBQUVFSSxXQUFROzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBRlYsR0EzRE8sRUEwRlA7QUFDRUosV0FBTyxvQ0FEVDtBQUVFSSxXQUFROzs7Ozs7Ozs7QUFGVixHQTFGTyxFQXNHUDtBQUNFSixXQUFPLCtDQURUO0FBRUVJLFdBQVE7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUZWLEdBdEdPLEVBMElQO0FBQ0VKLFdBQU8sWUFEVDtBQUVFSSxXQUFROzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFGVixHQTFJTztBQVBJLEMiLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiL2FwcC9zY2hlbWEiLCJzb3VyY2VzQ29udGVudCI6WyIvKiBAZmxvdyAqL1xuXG5pbXBvcnQgc2NoZW1hIGZyb20gJy4vc2NoZW1hJztcblxuZXhwb3J0IGRlZmF1bHQge1xuICB1cmk6ICcvdXNlcicsXG4gIHNjaGVtYSxcbiAgdGl0bGU6ICdVc2VyOiBzaW1wbGUgc2NoZW1hIHdpdGggb25lIHR5cGUuJyxcbiAgZGVzY3JpcHRpb246XG4gICAgJ1RoaXMgc2NoZW1hIGltcGxlbWVudHMgYWxsIDEzIENSVUQgb3BlcmF0aW9ucyBhdmFpbGFibGUgaW4gZ3JhcGhxbC1jb21wb3NlLW1vbmdvb3NlLicsXG4gIGdpdGh1YjogJ2h0dHBzOi8vZ2l0aHViLmNvbS9ub2Rrei9ncmFwaHFsLWNvbXBvc2UtZXhhbXBsZXMvdHJlZS9tYXN0ZXIvZXhhbXBsZXMvdXNlcicsXG4gIHF1ZXJpZXM6IFtcbiAgICB7XG4gICAgICB0aXRsZTogJ0ZpbmQgYnkgaWQnLFxuICAgICAgcXVlcnk6IGBcbntcbiAgdXNlckJ5SWQoX2lkOiBcIjU3YmI0NGRkMjFkMmJlZmI3Y2EzZjAxMFwiKSB7XG4gICAgX2lkXG4gICAgbmFtZVxuICAgIGxhbmd1YWdlcyB7XG4gICAgICBsYW5ndWFnZVxuICAgICAgc2tpbGxcbiAgICB9XG4gICAgY29udGFjdHMge1xuICAgICAgZW1haWxcbiAgICB9XG4gICAgZ2VuZGVyXG4gICAgYWdlXG4gIH1cbn1cbiAgICAgIGAsXG4gICAgfSxcbiAgICB7XG4gICAgICB0aXRsZTogJ0ZpbmQgb25lIFVzZXInLFxuICAgICAgcXVlcnk6IGBcbntcbiAgdXNlck9uZShmaWx0ZXI6IHsgYWdlOiAxOCB9LCBzb3J0OiBfSURfQVNDKSB7XG4gICAgbmFtZVxuICAgIGxhbmd1YWdlcyB7XG4gICAgICBsYW5ndWFnZVxuICAgICAgc2tpbGxcbiAgICB9XG4gICAgY29udGFjdHMge1xuICAgICAgZW1haWxcbiAgICB9XG4gICAgZ2VuZGVyXG4gICAgYWdlXG4gIH1cbn1cbiAgICAgIGAsXG4gICAgfSxcbiAgICB7XG4gICAgICB0aXRsZTogJ0ZpbmQgbWFueSBVc2VycycsXG4gICAgICBxdWVyeTogYFxue1xuICB1c2VyTWFueShmaWx0ZXI6IHsgZ2VuZGVyOiBtYWxlIH0sIGxpbWl0OiA1LCBzb3J0OiBfSURfQVNDKSB7XG4gICAgbmFtZVxuICAgIGxhbmd1YWdlcyB7XG4gICAgICBsYW5ndWFnZVxuICAgICAgc2tpbGxcbiAgICB9XG4gICAgY29udGFjdHMge1xuICAgICAgZW1haWxcbiAgICB9XG4gICAgZ2VuZGVyXG4gICAgYWdlXG4gIH1cbn1cbiAgICAgIGAsXG4gICAgfSxcbiAgICB7XG4gICAgICB0aXRsZTogJ0ZpbmQgbWFueSBVc2VycyAoYnkgZ2VvIGRpc3RhbmNlKScsXG4gICAgICBxdWVyeTogYFxue1xuICBkaXN0YW5jZV81X2ttOiB1c2VyTWFueShmaWx0ZXI6IHtcbiAgICBnZW9EaXN0YW5jZToge1xuICAgICAgbG5nOiA3Ni45MTE5ODIsXG4gICAgICBsYXQ6IDQzLjIzMzg5MyxcbiAgICAgIGRpc3RhbmNlOiA1MDAwLFxuICAgIH1cbiAgfSkge1xuICAgIG5hbWVcbiAgICBhZGRyZXNzIHtcbiAgICAgIGdlb1xuICAgIH1cbiAgfVxuICBkaXN0YW5jZV8xMDBfa206IHVzZXJNYW55KGZpbHRlcjoge1xuICAgIGdlb0Rpc3RhbmNlOiB7XG4gICAgICBsbmc6IDc2LjkxMTk4MixcbiAgICAgIGxhdDogNDMuMjMzODkzLFxuICAgICAgZGlzdGFuY2U6IDEwMDAwMCxcbiAgICB9XG4gIH0pIHtcbiAgICBuYW1lXG4gICAgYWRkcmVzcyB7XG4gICAgICBnZW9cbiAgICB9XG4gIH1cbn1cbiAgICAgIGAsXG4gICAgfSxcbiAgICB7XG4gICAgICB0aXRsZTogJ0ZpbmQgVXNlciB3aXRoIGZpZWxkIG9mIE1JWEVEIHR5cGUnLFxuICAgICAgcXVlcnk6IGBcbntcbiAgdXNlckJ5SWQoX2lkOiBcIjU3YmI0NGRkMjFkMmJlZmI3Y2EzZjAwMVwiKSB7XG4gICAgX2lkXG4gICAgbmFtZVxuICAgIHNvbWVNaXhlZFxuICB9XG59XG4gICAgICBgLFxuICAgIH0sXG4gICAge1xuICAgICAgdGl0bGU6ICdDcmVhdGUgdXNlciBtdXRhdGlvbiAod2l0aCBhcmcgb2YgTUlYRUQgdHlwZSknLFxuICAgICAgcXVlcnk6IGBcbm11dGF0aW9uIHtcbiAgdXNlckNyZWF0ZShyZWNvcmQ6IHtcbiAgICBuYW1lOiBcIk15IE5hbWVcIixcbiAgICBhZ2U6IDI0LFxuICAgIGdlbmRlcjogbGFkeWJveSxcbiAgICBjb250YWN0czoge1xuICAgICAgZW1haWw6IFwibWFpbEBleGFtcGxlLmNvbVwiLFxuICAgICAgcGhvbmVzOiBbXG4gICAgICAgIFwiMTExLTIyMi0zMzMtNDQ0XCIsXG4gICAgICAgIFwiNDQ0LTU1NS02NjYtNzc3XCJcbiAgICAgIF1cbiAgICB9LFxuICAgIHNvbWVNaXhlZDoge1xuICAgICAgYTogMSxcbiAgICAgIGI6IDIsXG4gICAgICBjOiBbIDEsIDIsIDMsIHRydWUsIGZhbHNlLCB7IHN1YjogMSB9XVxuICAgIH1cbiAgfSkge1xuICAgIHJlY29yZElkXG4gICAgcmVjb3JkIHtcbiAgICAgIG5hbWVcbiAgICAgIGFnZVxuICAgICAgZ2VuZGVyXG4gICAgICBjb250YWN0cyB7XG4gICAgICAgIGVtYWlsXG4gICAgICAgIHBob25lc1xuICAgICAgfVxuICAgICAgc29tZU1peGVkXG4gICAgfVxuICB9XG59XG4gICAgICBgLFxuICAgIH0sXG4gICAge1xuICAgICAgdGl0bGU6ICdQYWdpbmF0aW9uJyxcbiAgICAgIHF1ZXJ5OiBgXG57XG4gIHVzZXJQYWdpbmF0aW9uKGZpbHRlcjogeyBnZW5kZXI6IG1hbGUgfSwgcGVyUGFnZTogMiwgcGFnZTogMiwgc29ydDogX0lEX0FTQykge1xuICAgIGl0ZW1zIHtcbiAgICAgIG5hbWVcbiAgICAgIGxhbmd1YWdlcyB7XG4gICAgICAgIGxhbmd1YWdlXG4gICAgICAgIHNraWxsXG4gICAgICB9XG4gICAgICBjb250YWN0cyB7XG4gICAgICAgIGVtYWlsXG4gICAgICB9XG4gICAgICBnZW5kZXJcbiAgICAgIGFnZVxuICAgIH1cbiAgICBjb3VudFxuICAgIHBhZ2VJbmZvIHtcbiAgICAgIGN1cnJlbnRQYWdlXG4gICAgICBwZXJQYWdlXG4gICAgICBpdGVtQ291bnRcbiAgICAgIHBhZ2VDb3VudFxuICAgICAgaGFzUHJldmlvdXNQYWdlXG4gICAgICBoYXNOZXh0UGFnZVxuICAgIH1cbiAgfVxufVxuICAgICAgYCxcbiAgICB9LFxuICBdLFxufTsiXX0=",
+    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _schema = require('./schema');\n\nvar _schema2 = _interopRequireDefault(_schema);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nconst queries = [{\n  title: 'Find by id',\n  query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f010\") {\n    _id\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `\n}, {\n  title: 'Find one User',\n  query: `\n{\n  userOne(filter: { age: 18 }, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `\n}, {\n  title: 'Find many Users',\n  query: `\n{\n  userMany(filter: { gender: male }, limit: 5, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `\n}, {\n  title: 'Find many Users (by geo distance)',\n  query: `\n{\n  distance_5_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 5000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n  distance_100_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 100000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n}\n      `\n}, {\n  title: 'Find User with field of MIXED type',\n  query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f001\") {\n    _id\n    name\n    someMixed\n  }\n}\n      `\n}, {\n  title: 'Create user mutation (with arg of MIXED type)',\n  query: `\nmutation {\n  userCreate(record: {\n    name: \"My Name\",\n    age: 24,\n    gender: ladyboy,\n    contacts: {\n      email: \"mail@example.com\",\n      phones: [\n        \"111-222-333-444\",\n        \"444-555-666-777\"\n      ]\n    },\n    someMixed: {\n      a: 1,\n      b: 2,\n      c: [ 1, 2, 3, true, false, { sub: 1 }]\n    }\n  }) {\n    recordId\n    record {\n      name\n      age\n      gender\n      contacts {\n        email\n        phones\n      }\n      someMixed\n    }\n  }\n}\n      `\n}, {\n  title: 'Pagination',\n  query: `\n{\n  userPagination(filter: { gender: male }, perPage: 2, page: 2, sort: _ID_ASC) {\n    items {\n      name\n      languages {\n        language\n        skill\n      }\n      contacts {\n        email\n      }\n      gender\n      age\n    }\n    count\n    pageInfo {\n      currentPage\n      perPage\n      itemCount\n      pageCount\n      hasPreviousPage\n      hasNextPage\n    }\n  }\n}\n      `\n}];\n\nexports.default = {\n  uri: '/gql',\n  schema: _schema2.default,\n  title: 'LifeScope GraphQL API',\n  description: 'This schema implements all data collected, organized, and analyzed by the LifeScope platform',\n  github: 'https://github.com/bitscooplabs/lifescope',\n  queries: queries\n};\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImluZGV4LmpzIl0sIm5hbWVzIjpbInF1ZXJpZXMiLCJ0aXRsZSIsInF1ZXJ5IiwidXJpIiwic2NoZW1hIiwiZGVzY3JpcHRpb24iLCJnaXRodWIiXSwibWFwcGluZ3MiOiI7Ozs7OztBQUVBOzs7Ozs7QUFFQSxNQUFNQSxVQUFVLENBQ1o7QUFDRUMsU0FBTyxZQURUO0FBRUVDLFNBQVE7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBRlYsQ0FEWSxFQXFCWjtBQUNFRCxTQUFPLGVBRFQ7QUFFRUMsU0FBUTs7Ozs7Ozs7Ozs7Ozs7OztBQUZWLENBckJZLEVBd0NaO0FBQ0VELFNBQU8saUJBRFQ7QUFFRUMsU0FBUTs7Ozs7Ozs7Ozs7Ozs7OztBQUZWLENBeENZLEVBMkRaO0FBQ0VELFNBQU8sbUNBRFQ7QUFFRUMsU0FBUTs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUZWLENBM0RZLEVBMEZaO0FBQ0VELFNBQU8sb0NBRFQ7QUFFRUMsU0FBUTs7Ozs7Ozs7O0FBRlYsQ0ExRlksRUFzR1o7QUFDRUQsU0FBTywrQ0FEVDtBQUVFQyxTQUFROzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFGVixDQXRHWSxFQTBJWjtBQUNFRCxTQUFPLFlBRFQ7QUFFRUMsU0FBUTs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBRlYsQ0ExSVksQ0FBaEI7O2tCQTJLZTtBQUNiQyxPQUFLLE1BRFE7QUFFYkMsMEJBRmE7QUFHYkgsU0FBTyx1QkFITTtBQUliSSxlQUNFLDhGQUxXO0FBTWJDLFVBQVEsMkNBTks7QUFPYk4sV0FBU0E7QUFQSSxDIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlUm9vdCI6Ii9hcHAvc2NoZW1hIiwic291cmNlc0NvbnRlbnQiOlsiLyogQGZsb3cgKi9cblxuaW1wb3J0IHNjaGVtYSBmcm9tICcuL3NjaGVtYSc7XG5cbmNvbnN0IHF1ZXJpZXMgPSBbXG4gICAge1xuICAgICAgdGl0bGU6ICdGaW5kIGJ5IGlkJyxcbiAgICAgIHF1ZXJ5OiBgXG57XG4gIHVzZXJCeUlkKF9pZDogXCI1N2JiNDRkZDIxZDJiZWZiN2NhM2YwMTBcIikge1xuICAgIF9pZFxuICAgIG5hbWVcbiAgICBsYW5ndWFnZXMge1xuICAgICAgbGFuZ3VhZ2VcbiAgICAgIHNraWxsXG4gICAgfVxuICAgIGNvbnRhY3RzIHtcbiAgICAgIGVtYWlsXG4gICAgfVxuICAgIGdlbmRlclxuICAgIGFnZVxuICB9XG59XG4gICAgICBgLFxuICAgIH0sXG4gICAge1xuICAgICAgdGl0bGU6ICdGaW5kIG9uZSBVc2VyJyxcbiAgICAgIHF1ZXJ5OiBgXG57XG4gIHVzZXJPbmUoZmlsdGVyOiB7IGFnZTogMTggfSwgc29ydDogX0lEX0FTQykge1xuICAgIG5hbWVcbiAgICBsYW5ndWFnZXMge1xuICAgICAgbGFuZ3VhZ2VcbiAgICAgIHNraWxsXG4gICAgfVxuICAgIGNvbnRhY3RzIHtcbiAgICAgIGVtYWlsXG4gICAgfVxuICAgIGdlbmRlclxuICAgIGFnZVxuICB9XG59XG4gICAgICBgLFxuICAgIH0sXG4gICAge1xuICAgICAgdGl0bGU6ICdGaW5kIG1hbnkgVXNlcnMnLFxuICAgICAgcXVlcnk6IGBcbntcbiAgdXNlck1hbnkoZmlsdGVyOiB7IGdlbmRlcjogbWFsZSB9LCBsaW1pdDogNSwgc29ydDogX0lEX0FTQykge1xuICAgIG5hbWVcbiAgICBsYW5ndWFnZXMge1xuICAgICAgbGFuZ3VhZ2VcbiAgICAgIHNraWxsXG4gICAgfVxuICAgIGNvbnRhY3RzIHtcbiAgICAgIGVtYWlsXG4gICAgfVxuICAgIGdlbmRlclxuICAgIGFnZVxuICB9XG59XG4gICAgICBgLFxuICAgIH0sXG4gICAge1xuICAgICAgdGl0bGU6ICdGaW5kIG1hbnkgVXNlcnMgKGJ5IGdlbyBkaXN0YW5jZSknLFxuICAgICAgcXVlcnk6IGBcbntcbiAgZGlzdGFuY2VfNV9rbTogdXNlck1hbnkoZmlsdGVyOiB7XG4gICAgZ2VvRGlzdGFuY2U6IHtcbiAgICAgIGxuZzogNzYuOTExOTgyLFxuICAgICAgbGF0OiA0My4yMzM4OTMsXG4gICAgICBkaXN0YW5jZTogNTAwMCxcbiAgICB9XG4gIH0pIHtcbiAgICBuYW1lXG4gICAgYWRkcmVzcyB7XG4gICAgICBnZW9cbiAgICB9XG4gIH1cbiAgZGlzdGFuY2VfMTAwX2ttOiB1c2VyTWFueShmaWx0ZXI6IHtcbiAgICBnZW9EaXN0YW5jZToge1xuICAgICAgbG5nOiA3Ni45MTE5ODIsXG4gICAgICBsYXQ6IDQzLjIzMzg5MyxcbiAgICAgIGRpc3RhbmNlOiAxMDAwMDAsXG4gICAgfVxuICB9KSB7XG4gICAgbmFtZVxuICAgIGFkZHJlc3Mge1xuICAgICAgZ2VvXG4gICAgfVxuICB9XG59XG4gICAgICBgLFxuICAgIH0sXG4gICAge1xuICAgICAgdGl0bGU6ICdGaW5kIFVzZXIgd2l0aCBmaWVsZCBvZiBNSVhFRCB0eXBlJyxcbiAgICAgIHF1ZXJ5OiBgXG57XG4gIHVzZXJCeUlkKF9pZDogXCI1N2JiNDRkZDIxZDJiZWZiN2NhM2YwMDFcIikge1xuICAgIF9pZFxuICAgIG5hbWVcbiAgICBzb21lTWl4ZWRcbiAgfVxufVxuICAgICAgYCxcbiAgICB9LFxuICAgIHtcbiAgICAgIHRpdGxlOiAnQ3JlYXRlIHVzZXIgbXV0YXRpb24gKHdpdGggYXJnIG9mIE1JWEVEIHR5cGUpJyxcbiAgICAgIHF1ZXJ5OiBgXG5tdXRhdGlvbiB7XG4gIHVzZXJDcmVhdGUocmVjb3JkOiB7XG4gICAgbmFtZTogXCJNeSBOYW1lXCIsXG4gICAgYWdlOiAyNCxcbiAgICBnZW5kZXI6IGxhZHlib3ksXG4gICAgY29udGFjdHM6IHtcbiAgICAgIGVtYWlsOiBcIm1haWxAZXhhbXBsZS5jb21cIixcbiAgICAgIHBob25lczogW1xuICAgICAgICBcIjExMS0yMjItMzMzLTQ0NFwiLFxuICAgICAgICBcIjQ0NC01NTUtNjY2LTc3N1wiXG4gICAgICBdXG4gICAgfSxcbiAgICBzb21lTWl4ZWQ6IHtcbiAgICAgIGE6IDEsXG4gICAgICBiOiAyLFxuICAgICAgYzogWyAxLCAyLCAzLCB0cnVlLCBmYWxzZSwgeyBzdWI6IDEgfV1cbiAgICB9XG4gIH0pIHtcbiAgICByZWNvcmRJZFxuICAgIHJlY29yZCB7XG4gICAgICBuYW1lXG4gICAgICBhZ2VcbiAgICAgIGdlbmRlclxuICAgICAgY29udGFjdHMge1xuICAgICAgICBlbWFpbFxuICAgICAgICBwaG9uZXNcbiAgICAgIH1cbiAgICAgIHNvbWVNaXhlZFxuICAgIH1cbiAgfVxufVxuICAgICAgYCxcbiAgICB9LFxuICAgIHtcbiAgICAgIHRpdGxlOiAnUGFnaW5hdGlvbicsXG4gICAgICBxdWVyeTogYFxue1xuICB1c2VyUGFnaW5hdGlvbihmaWx0ZXI6IHsgZ2VuZGVyOiBtYWxlIH0sIHBlclBhZ2U6IDIsIHBhZ2U6IDIsIHNvcnQ6IF9JRF9BU0MpIHtcbiAgICBpdGVtcyB7XG4gICAgICBuYW1lXG4gICAgICBsYW5ndWFnZXMge1xuICAgICAgICBsYW5ndWFnZVxuICAgICAgICBza2lsbFxuICAgICAgfVxuICAgICAgY29udGFjdHMge1xuICAgICAgICBlbWFpbFxuICAgICAgfVxuICAgICAgZ2VuZGVyXG4gICAgICBhZ2VcbiAgICB9XG4gICAgY291bnRcbiAgICBwYWdlSW5mbyB7XG4gICAgICBjdXJyZW50UGFnZVxuICAgICAgcGVyUGFnZVxuICAgICAgaXRlbUNvdW50XG4gICAgICBwYWdlQ291bnRcbiAgICAgIGhhc1ByZXZpb3VzUGFnZVxuICAgICAgaGFzTmV4dFBhZ2VcbiAgICB9XG4gIH1cbn1cbiAgICAgIGAsXG4gICAgfSxcbiAgXVxuXG5cbmV4cG9ydCBkZWZhdWx0IHtcbiAgdXJpOiAnL2dxbCcsXG4gIHNjaGVtYSxcbiAgdGl0bGU6ICdMaWZlU2NvcGUgR3JhcGhRTCBBUEknLFxuICBkZXNjcmlwdGlvbjpcbiAgICAnVGhpcyBzY2hlbWEgaW1wbGVtZW50cyBhbGwgZGF0YSBjb2xsZWN0ZWQsIG9yZ2FuaXplZCwgYW5kIGFuYWx5emVkIGJ5IHRoZSBMaWZlU2NvcGUgcGxhdGZvcm0nLFxuICBnaXRodWI6ICdodHRwczovL2dpdGh1Yi5jb20vYml0c2Nvb3BsYWJzL2xpZmVzY29wZScsXG4gIHF1ZXJpZXM6IHF1ZXJpZXMsXG59OyJdfQ==",
     "ast": null,
     "map": {
       "version": 3,
@@ -639,22 +751,22 @@
         "index.js"
       ],
       "names": [
+        "queries",
+        "title",
+        "query",
         "uri",
         "schema",
-        "title",
         "description",
-        "github",
-        "queries",
-        "query"
+        "github"
       ],
-      "mappings": ";;;;;;AAEA;;;;;;kBAEe;AACbA,OAAK,OADQ;AAEbC,0BAFa;AAGbC,SAAO,oCAHM;AAIbC,eACE,sFALW;AAMbC,UAAQ,6EANK;AAObC,WAAS,CACP;AACEH,WAAO,YADT;AAEEI,WAAQ;;;;;;;;;;;;;;;;;AAFV,GADO,EAqBP;AACEJ,WAAO,eADT;AAEEI,WAAQ;;;;;;;;;;;;;;;;AAFV,GArBO,EAwCP;AACEJ,WAAO,iBADT;AAEEI,WAAQ;;;;;;;;;;;;;;;;AAFV,GAxCO,EA2DP;AACEJ,WAAO,mCADT;AAEEI,WAAQ;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAFV,GA3DO,EA0FP;AACEJ,WAAO,oCADT;AAEEI,WAAQ;;;;;;;;;AAFV,GA1FO,EAsGP;AACEJ,WAAO,+CADT;AAEEI,WAAQ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAFV,GAtGO,EA0IP;AACEJ,WAAO,YADT;AAEEI,WAAQ;;;;;;;;;;;;;;;;;;;;;;;;;;;AAFV,GA1IO;AAPI,C",
+      "mappings": ";;;;;;AAEA;;;;;;AAEA,MAAMA,UAAU,CACZ;AACEC,SAAO,YADT;AAEEC,SAAQ;;;;;;;;;;;;;;;;;AAFV,CADY,EAqBZ;AACED,SAAO,eADT;AAEEC,SAAQ;;;;;;;;;;;;;;;;AAFV,CArBY,EAwCZ;AACED,SAAO,iBADT;AAEEC,SAAQ;;;;;;;;;;;;;;;;AAFV,CAxCY,EA2DZ;AACED,SAAO,mCADT;AAEEC,SAAQ;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAFV,CA3DY,EA0FZ;AACED,SAAO,oCADT;AAEEC,SAAQ;;;;;;;;;AAFV,CA1FY,EAsGZ;AACED,SAAO,+CADT;AAEEC,SAAQ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAFV,CAtGY,EA0IZ;AACED,SAAO,YADT;AAEEC,SAAQ;;;;;;;;;;;;;;;;;;;;;;;;;;;AAFV,CA1IY,CAAhB;;kBA2Ke;AACbC,OAAK,MADQ;AAEbC,0BAFa;AAGbH,SAAO,uBAHM;AAIbI,eACE,8FALW;AAMbC,UAAQ,2CANK;AAObN,WAASA;AAPI,C",
       "file": "index.js",
       "sourceRoot": "/app/schema",
       "sourcesContent": [
-        "/* @flow */\n\nimport schema from './schema';\n\nexport default {\n  uri: '/user',\n  schema,\n  title: 'User: simple schema with one type.',\n  description:\n    'This schema implements all 13 CRUD operations available in graphql-compose-mongoose.',\n  github: 'https://github.com/nodkz/graphql-compose-examples/tree/master/examples/user',\n  queries: [\n    {\n      title: 'Find by id',\n      query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f010\") {\n    _id\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `,\n    },\n    {\n      title: 'Find one User',\n      query: `\n{\n  userOne(filter: { age: 18 }, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `,\n    },\n    {\n      title: 'Find many Users',\n      query: `\n{\n  userMany(filter: { gender: male }, limit: 5, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `,\n    },\n    {\n      title: 'Find many Users (by geo distance)',\n      query: `\n{\n  distance_5_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 5000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n  distance_100_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 100000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n}\n      `,\n    },\n    {\n      title: 'Find User with field of MIXED type',\n      query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f001\") {\n    _id\n    name\n    someMixed\n  }\n}\n      `,\n    },\n    {\n      title: 'Create user mutation (with arg of MIXED type)',\n      query: `\nmutation {\n  userCreate(record: {\n    name: \"My Name\",\n    age: 24,\n    gender: ladyboy,\n    contacts: {\n      email: \"mail@example.com\",\n      phones: [\n        \"111-222-333-444\",\n        \"444-555-666-777\"\n      ]\n    },\n    someMixed: {\n      a: 1,\n      b: 2,\n      c: [ 1, 2, 3, true, false, { sub: 1 }]\n    }\n  }) {\n    recordId\n    record {\n      name\n      age\n      gender\n      contacts {\n        email\n        phones\n      }\n      someMixed\n    }\n  }\n}\n      `,\n    },\n    {\n      title: 'Pagination',\n      query: `\n{\n  userPagination(filter: { gender: male }, perPage: 2, page: 2, sort: _ID_ASC) {\n    items {\n      name\n      languages {\n        language\n        skill\n      }\n      contacts {\n        email\n      }\n      gender\n      age\n    }\n    count\n    pageInfo {\n      currentPage\n      perPage\n      itemCount\n      pageCount\n      hasPreviousPage\n      hasNextPage\n    }\n  }\n}\n      `,\n    },\n  ],\n};"
+        "/* @flow */\n\nimport schema from './schema';\n\nconst queries = [\n    {\n      title: 'Find by id',\n      query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f010\") {\n    _id\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `,\n    },\n    {\n      title: 'Find one User',\n      query: `\n{\n  userOne(filter: { age: 18 }, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `,\n    },\n    {\n      title: 'Find many Users',\n      query: `\n{\n  userMany(filter: { gender: male }, limit: 5, sort: _ID_ASC) {\n    name\n    languages {\n      language\n      skill\n    }\n    contacts {\n      email\n    }\n    gender\n    age\n  }\n}\n      `,\n    },\n    {\n      title: 'Find many Users (by geo distance)',\n      query: `\n{\n  distance_5_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 5000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n  distance_100_km: userMany(filter: {\n    geoDistance: {\n      lng: 76.911982,\n      lat: 43.233893,\n      distance: 100000,\n    }\n  }) {\n    name\n    address {\n      geo\n    }\n  }\n}\n      `,\n    },\n    {\n      title: 'Find User with field of MIXED type',\n      query: `\n{\n  userById(_id: \"57bb44dd21d2befb7ca3f001\") {\n    _id\n    name\n    someMixed\n  }\n}\n      `,\n    },\n    {\n      title: 'Create user mutation (with arg of MIXED type)',\n      query: `\nmutation {\n  userCreate(record: {\n    name: \"My Name\",\n    age: 24,\n    gender: ladyboy,\n    contacts: {\n      email: \"mail@example.com\",\n      phones: [\n        \"111-222-333-444\",\n        \"444-555-666-777\"\n      ]\n    },\n    someMixed: {\n      a: 1,\n      b: 2,\n      c: [ 1, 2, 3, true, false, { sub: 1 }]\n    }\n  }) {\n    recordId\n    record {\n      name\n      age\n      gender\n      contacts {\n        email\n        phones\n      }\n      someMixed\n    }\n  }\n}\n      `,\n    },\n    {\n      title: 'Pagination',\n      query: `\n{\n  userPagination(filter: { gender: male }, perPage: 2, page: 2, sort: _ID_ASC) {\n    items {\n      name\n      languages {\n        language\n        skill\n      }\n      contacts {\n        email\n      }\n      gender\n      age\n    }\n    count\n    pageInfo {\n      currentPage\n      perPage\n      itemCount\n      pageCount\n      hasPreviousPage\n      hasNextPage\n    }\n  }\n}\n      `,\n    },\n  ]\n\n\nexport default {\n  uri: '/gql',\n  schema,\n  title: 'LifeScope GraphQL API',\n  description:\n    'This schema implements all data collected, organized, and analyzed by the LifeScope platform',\n  github: 'https://github.com/bitscooplabs/lifescope',\n  queries: queries,\n};"
       ]
     },
-    "mtime": 1521176138312
+    "mtime": 1521430958026
   },
   "{\"filename\":\"/app/schema/schema.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],null],[[],null],[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app/schema\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
     "metadata": {
@@ -685,6 +797,19 @@
                 "kind": "named",
                 "imported": "UserTC",
                 "local": "UserTC"
+              }
+            ]
+          },
+          {
+            "source": "./models/session",
+            "imported": [
+              "SessionTC"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "SessionTC",
+                "local": "SessionTC"
               }
             ]
           }
@@ -782,7 +907,7 @@
       "basename": "schema"
     },
     "ignored": false,
-    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _graphqlCompose = require('graphql-compose');\n\nvar _user = require('./models/user');\n\n// SINGLE SCHEMA ON SERVER\n// import { GQC } from 'graphql-compose';\n\n// MULTI SCHEMA MODE IN ONE SERVER\n// create new GQC from SchemaComposer\nconst GQC = new _graphqlCompose.SchemaComposer();\n\n// create GraphQL Schema with all available resolvers for User Type\nGQC.rootQuery().addFields({\n  userById: _user.UserTC.getResolver('findById'),\n  userByIds: _user.UserTC.getResolver('findByIds'),\n  userOne: _user.UserTC.getResolver('findOne'),\n  userMany: _user.UserTC.getResolver('findMany'), // .debug(), // debug info to console for this resolver\n  userTotal: _user.UserTC.getResolver('count'),\n  userConnection: _user.UserTC.getResolver('connection'),\n  userPagination: _user.UserTC.getResolver('pagination')\n});\n// For debug purposes you may display resolver internals in the following manner:\n// console.log(UserTC.getResolver('findMany').toString());\n\nGQC.rootMutation().addFields({\n  userCreate: _user.UserTC.getResolver('createOne'),\n  userUpdateById: _user.UserTC.getResolver('updateById'),\n  userUpdateOne: _user.UserTC.getResolver('updateOne'),\n  userUpdateMany: _user.UserTC.getResolver('updateMany'),\n  userRemoveById: _user.UserTC.getResolver('removeById'),\n  userRemoveOne: _user.UserTC.getResolver('removeOne'),\n  userRemoveMany: _user.UserTC.getResolver('removeMany')\n});\n\nconst graphqlSchema = GQC.buildSchema();\n\ngraphqlSchema.uri = '/user';\n\nexports.default = graphqlSchema;\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNjaGVtYS5qcyJdLCJuYW1lcyI6WyJHUUMiLCJyb290UXVlcnkiLCJhZGRGaWVsZHMiLCJ1c2VyQnlJZCIsImdldFJlc29sdmVyIiwidXNlckJ5SWRzIiwidXNlck9uZSIsInVzZXJNYW55IiwidXNlclRvdGFsIiwidXNlckNvbm5lY3Rpb24iLCJ1c2VyUGFnaW5hdGlvbiIsInJvb3RNdXRhdGlvbiIsInVzZXJDcmVhdGUiLCJ1c2VyVXBkYXRlQnlJZCIsInVzZXJVcGRhdGVPbmUiLCJ1c2VyVXBkYXRlTWFueSIsInVzZXJSZW1vdmVCeUlkIiwidXNlclJlbW92ZU9uZSIsInVzZXJSZW1vdmVNYW55IiwiZ3JhcGhxbFNjaGVtYSIsImJ1aWxkU2NoZW1hIiwidXJpIl0sIm1hcHBpbmdzIjoiOzs7Ozs7QUFNQTs7QUFDQTs7QUFOQTtBQUNBOztBQUVBO0FBQ0E7QUFJQSxNQUFNQSxNQUFNLG9DQUFaOztBQUVBO0FBQ0FBLElBQUlDLFNBQUosR0FBZ0JDLFNBQWhCLENBQTBCO0FBQ3hCQyxZQUFVLGFBQU9DLFdBQVAsQ0FBbUIsVUFBbkIsQ0FEYztBQUV4QkMsYUFBVyxhQUFPRCxXQUFQLENBQW1CLFdBQW5CLENBRmE7QUFHeEJFLFdBQVMsYUFBT0YsV0FBUCxDQUFtQixTQUFuQixDQUhlO0FBSXhCRyxZQUFVLGFBQU9ILFdBQVAsQ0FBbUIsVUFBbkIsQ0FKYyxFQUlrQjtBQUMxQ0ksYUFBVyxhQUFPSixXQUFQLENBQW1CLE9BQW5CLENBTGE7QUFNeEJLLGtCQUFnQixhQUFPTCxXQUFQLENBQW1CLFlBQW5CLENBTlE7QUFPeEJNLGtCQUFnQixhQUFPTixXQUFQLENBQW1CLFlBQW5CO0FBUFEsQ0FBMUI7QUFTQTtBQUNBOztBQUVBSixJQUFJVyxZQUFKLEdBQW1CVCxTQUFuQixDQUE2QjtBQUMzQlUsY0FBWSxhQUFPUixXQUFQLENBQW1CLFdBQW5CLENBRGU7QUFFM0JTLGtCQUFnQixhQUFPVCxXQUFQLENBQW1CLFlBQW5CLENBRlc7QUFHM0JVLGlCQUFlLGFBQU9WLFdBQVAsQ0FBbUIsV0FBbkIsQ0FIWTtBQUkzQlcsa0JBQWdCLGFBQU9YLFdBQVAsQ0FBbUIsWUFBbkIsQ0FKVztBQUszQlksa0JBQWdCLGFBQU9aLFdBQVAsQ0FBbUIsWUFBbkIsQ0FMVztBQU0zQmEsaUJBQWUsYUFBT2IsV0FBUCxDQUFtQixXQUFuQixDQU5ZO0FBTzNCYyxrQkFBZ0IsYUFBT2QsV0FBUCxDQUFtQixZQUFuQjtBQVBXLENBQTdCOztBQVVBLE1BQU1lLGdCQUFnQm5CLElBQUlvQixXQUFKLEVBQXRCOztBQUVBRCxjQUFjRSxHQUFkLEdBQW9CLE9BQXBCOztrQkFFZUYsYSIsImZpbGUiOiJzY2hlbWEuanMiLCJzb3VyY2VSb290IjoiL2FwcC9zY2hlbWEiLCJzb3VyY2VzQ29udGVudCI6WyIvKiBAZmxvdyAqL1xuLy8gU0lOR0xFIFNDSEVNQSBPTiBTRVJWRVJcbi8vIGltcG9ydCB7IEdRQyB9IGZyb20gJ2dyYXBocWwtY29tcG9zZSc7XG5cbi8vIE1VTFRJIFNDSEVNQSBNT0RFIElOIE9ORSBTRVJWRVJcbi8vIGNyZWF0ZSBuZXcgR1FDIGZyb20gU2NoZW1hQ29tcG9zZXJcbmltcG9ydCB7IFNjaGVtYUNvbXBvc2VyIH0gZnJvbSAnZ3JhcGhxbC1jb21wb3NlJztcbmltcG9ydCB7IFVzZXJUQyB9IGZyb20gJy4vbW9kZWxzL3VzZXInO1xuXG5jb25zdCBHUUMgPSBuZXcgU2NoZW1hQ29tcG9zZXIoKTtcblxuLy8gY3JlYXRlIEdyYXBoUUwgU2NoZW1hIHdpdGggYWxsIGF2YWlsYWJsZSByZXNvbHZlcnMgZm9yIFVzZXIgVHlwZVxuR1FDLnJvb3RRdWVyeSgpLmFkZEZpZWxkcyh7XG4gIHVzZXJCeUlkOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2ZpbmRCeUlkJyksXG4gIHVzZXJCeUlkczogVXNlclRDLmdldFJlc29sdmVyKCdmaW5kQnlJZHMnKSxcbiAgdXNlck9uZTogVXNlclRDLmdldFJlc29sdmVyKCdmaW5kT25lJyksXG4gIHVzZXJNYW55OiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2ZpbmRNYW55JyksIC8vIC5kZWJ1ZygpLCAvLyBkZWJ1ZyBpbmZvIHRvIGNvbnNvbGUgZm9yIHRoaXMgcmVzb2x2ZXJcbiAgdXNlclRvdGFsOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2NvdW50JyksXG4gIHVzZXJDb25uZWN0aW9uOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2Nvbm5lY3Rpb24nKSxcbiAgdXNlclBhZ2luYXRpb246IFVzZXJUQy5nZXRSZXNvbHZlcigncGFnaW5hdGlvbicpLFxufSk7XG4vLyBGb3IgZGVidWcgcHVycG9zZXMgeW91IG1heSBkaXNwbGF5IHJlc29sdmVyIGludGVybmFscyBpbiB0aGUgZm9sbG93aW5nIG1hbm5lcjpcbi8vIGNvbnNvbGUubG9nKFVzZXJUQy5nZXRSZXNvbHZlcignZmluZE1hbnknKS50b1N0cmluZygpKTtcblxuR1FDLnJvb3RNdXRhdGlvbigpLmFkZEZpZWxkcyh7XG4gIHVzZXJDcmVhdGU6IFVzZXJUQy5nZXRSZXNvbHZlcignY3JlYXRlT25lJyksXG4gIHVzZXJVcGRhdGVCeUlkOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ3VwZGF0ZUJ5SWQnKSxcbiAgdXNlclVwZGF0ZU9uZTogVXNlclRDLmdldFJlc29sdmVyKCd1cGRhdGVPbmUnKSxcbiAgdXNlclVwZGF0ZU1hbnk6IFVzZXJUQy5nZXRSZXNvbHZlcigndXBkYXRlTWFueScpLFxuICB1c2VyUmVtb3ZlQnlJZDogVXNlclRDLmdldFJlc29sdmVyKCdyZW1vdmVCeUlkJyksXG4gIHVzZXJSZW1vdmVPbmU6IFVzZXJUQy5nZXRSZXNvbHZlcigncmVtb3ZlT25lJyksXG4gIHVzZXJSZW1vdmVNYW55OiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ3JlbW92ZU1hbnknKSxcbn0pO1xuXG5jb25zdCBncmFwaHFsU2NoZW1hID0gR1FDLmJ1aWxkU2NoZW1hKCk7XG5cbmdyYXBocWxTY2hlbWEudXJpID0gJy91c2VyJztcblxuZXhwb3J0IGRlZmF1bHQgZ3JhcGhxbFNjaGVtYTsiXX0=",
+    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _graphqlCompose = require('graphql-compose');\n\nvar _user = require('./models/user');\n\nvar _session = require('./models/session');\n\nconst GQC = new _graphqlCompose.SchemaComposer();\n\n// create GraphQL Schema with all available resolvers\n\n\nGQC.rootQuery().addFields({\n  userById: _user.UserTC.getResolver('findById'),\n  userByIds: _user.UserTC.getResolver('findByIds'),\n  userOne: _user.UserTC.getResolver('findOne'),\n  userMany: _user.UserTC.getResolver('findMany'), // .debug(), // debug info to console for this resolver\n  userTotal: _user.UserTC.getResolver('count'),\n  userConnection: _user.UserTC.getResolver('connection'),\n  userPagination: _user.UserTC.getResolver('pagination'),\n\n  sessionMany: _session.SessionTC.getResolver('findMany')\n});\n// For debug purposes you may display resolver internals in the following manner:\n// console.log(UserTC.getResolver('findMany').toString());\n\nGQC.rootMutation().addFields({\n  userCreate: _user.UserTC.getResolver('createOne'),\n  userUpdateById: _user.UserTC.getResolver('updateById'),\n  userUpdateOne: _user.UserTC.getResolver('updateOne'),\n  userUpdateMany: _user.UserTC.getResolver('updateMany'),\n  userRemoveById: _user.UserTC.getResolver('removeById'),\n  userRemoveOne: _user.UserTC.getResolver('removeOne'),\n  userRemoveMany: _user.UserTC.getResolver('removeMany')\n});\n\nconst graphqlSchema = GQC.buildSchema();\n\nexports.default = graphqlSchema;\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNjaGVtYS5qcyJdLCJuYW1lcyI6WyJHUUMiLCJyb290UXVlcnkiLCJhZGRGaWVsZHMiLCJ1c2VyQnlJZCIsImdldFJlc29sdmVyIiwidXNlckJ5SWRzIiwidXNlck9uZSIsInVzZXJNYW55IiwidXNlclRvdGFsIiwidXNlckNvbm5lY3Rpb24iLCJ1c2VyUGFnaW5hdGlvbiIsInNlc3Npb25NYW55Iiwicm9vdE11dGF0aW9uIiwidXNlckNyZWF0ZSIsInVzZXJVcGRhdGVCeUlkIiwidXNlclVwZGF0ZU9uZSIsInVzZXJVcGRhdGVNYW55IiwidXNlclJlbW92ZUJ5SWQiLCJ1c2VyUmVtb3ZlT25lIiwidXNlclJlbW92ZU1hbnkiLCJncmFwaHFsU2NoZW1hIiwiYnVpbGRTY2hlbWEiXSwibWFwcGluZ3MiOiI7Ozs7OztBQUVBOztBQUNBOztBQUNBOztBQUVBLE1BQU1BLE1BQU0sb0NBQVo7O0FBRUE7OztBQUNBQSxJQUFJQyxTQUFKLEdBQWdCQyxTQUFoQixDQUEwQjtBQUN4QkMsWUFBVSxhQUFPQyxXQUFQLENBQW1CLFVBQW5CLENBRGM7QUFFeEJDLGFBQVcsYUFBT0QsV0FBUCxDQUFtQixXQUFuQixDQUZhO0FBR3hCRSxXQUFTLGFBQU9GLFdBQVAsQ0FBbUIsU0FBbkIsQ0FIZTtBQUl4QkcsWUFBVSxhQUFPSCxXQUFQLENBQW1CLFVBQW5CLENBSmMsRUFJa0I7QUFDMUNJLGFBQVcsYUFBT0osV0FBUCxDQUFtQixPQUFuQixDQUxhO0FBTXhCSyxrQkFBZ0IsYUFBT0wsV0FBUCxDQUFtQixZQUFuQixDQU5RO0FBT3hCTSxrQkFBZ0IsYUFBT04sV0FBUCxDQUFtQixZQUFuQixDQVBROztBQVN4Qk8sZUFBYSxtQkFBVVAsV0FBVixDQUFzQixVQUF0QjtBQVRXLENBQTFCO0FBV0E7QUFDQTs7QUFFQUosSUFBSVksWUFBSixHQUFtQlYsU0FBbkIsQ0FBNkI7QUFDM0JXLGNBQVksYUFBT1QsV0FBUCxDQUFtQixXQUFuQixDQURlO0FBRTNCVSxrQkFBZ0IsYUFBT1YsV0FBUCxDQUFtQixZQUFuQixDQUZXO0FBRzNCVyxpQkFBZSxhQUFPWCxXQUFQLENBQW1CLFdBQW5CLENBSFk7QUFJM0JZLGtCQUFnQixhQUFPWixXQUFQLENBQW1CLFlBQW5CLENBSlc7QUFLM0JhLGtCQUFnQixhQUFPYixXQUFQLENBQW1CLFlBQW5CLENBTFc7QUFNM0JjLGlCQUFlLGFBQU9kLFdBQVAsQ0FBbUIsV0FBbkIsQ0FOWTtBQU8zQmUsa0JBQWdCLGFBQU9mLFdBQVAsQ0FBbUIsWUFBbkI7QUFQVyxDQUE3Qjs7QUFVQSxNQUFNZ0IsZ0JBQWdCcEIsSUFBSXFCLFdBQUosRUFBdEI7O2tCQUVlRCxhIiwiZmlsZSI6InNjaGVtYS5qcyIsInNvdXJjZVJvb3QiOiIvYXBwL3NjaGVtYSIsInNvdXJjZXNDb250ZW50IjpbIi8qIEBmbG93ICovXG5cbmltcG9ydCB7IFNjaGVtYUNvbXBvc2VyIH0gZnJvbSAnZ3JhcGhxbC1jb21wb3NlJztcbmltcG9ydCB7IFVzZXJUQyB9IGZyb20gJy4vbW9kZWxzL3VzZXInO1xuaW1wb3J0IHsgU2Vzc2lvblRDIH0gZnJvbSAnLi9tb2RlbHMvc2Vzc2lvbic7XG5cbmNvbnN0IEdRQyA9IG5ldyBTY2hlbWFDb21wb3NlcigpO1xuXG4vLyBjcmVhdGUgR3JhcGhRTCBTY2hlbWEgd2l0aCBhbGwgYXZhaWxhYmxlIHJlc29sdmVyc1xuR1FDLnJvb3RRdWVyeSgpLmFkZEZpZWxkcyh7XG4gIHVzZXJCeUlkOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2ZpbmRCeUlkJyksXG4gIHVzZXJCeUlkczogVXNlclRDLmdldFJlc29sdmVyKCdmaW5kQnlJZHMnKSxcbiAgdXNlck9uZTogVXNlclRDLmdldFJlc29sdmVyKCdmaW5kT25lJyksXG4gIHVzZXJNYW55OiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2ZpbmRNYW55JyksIC8vIC5kZWJ1ZygpLCAvLyBkZWJ1ZyBpbmZvIHRvIGNvbnNvbGUgZm9yIHRoaXMgcmVzb2x2ZXJcbiAgdXNlclRvdGFsOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2NvdW50JyksXG4gIHVzZXJDb25uZWN0aW9uOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2Nvbm5lY3Rpb24nKSxcbiAgdXNlclBhZ2luYXRpb246IFVzZXJUQy5nZXRSZXNvbHZlcigncGFnaW5hdGlvbicpLFxuICBcbiAgc2Vzc2lvbk1hbnk6IFNlc3Npb25UQy5nZXRSZXNvbHZlcignZmluZE1hbnknKVxufSk7XG4vLyBGb3IgZGVidWcgcHVycG9zZXMgeW91IG1heSBkaXNwbGF5IHJlc29sdmVyIGludGVybmFscyBpbiB0aGUgZm9sbG93aW5nIG1hbm5lcjpcbi8vIGNvbnNvbGUubG9nKFVzZXJUQy5nZXRSZXNvbHZlcignZmluZE1hbnknKS50b1N0cmluZygpKTtcblxuR1FDLnJvb3RNdXRhdGlvbigpLmFkZEZpZWxkcyh7XG4gIHVzZXJDcmVhdGU6IFVzZXJUQy5nZXRSZXNvbHZlcignY3JlYXRlT25lJyksXG4gIHVzZXJVcGRhdGVCeUlkOiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ3VwZGF0ZUJ5SWQnKSxcbiAgdXNlclVwZGF0ZU9uZTogVXNlclRDLmdldFJlc29sdmVyKCd1cGRhdGVPbmUnKSxcbiAgdXNlclVwZGF0ZU1hbnk6IFVzZXJUQy5nZXRSZXNvbHZlcigndXBkYXRlTWFueScpLFxuICB1c2VyUmVtb3ZlQnlJZDogVXNlclRDLmdldFJlc29sdmVyKCdyZW1vdmVCeUlkJyksXG4gIHVzZXJSZW1vdmVPbmU6IFVzZXJUQy5nZXRSZXNvbHZlcigncmVtb3ZlT25lJyksXG4gIHVzZXJSZW1vdmVNYW55OiBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ3JlbW92ZU1hbnknKSxcbn0pO1xuXG5jb25zdCBncmFwaHFsU2NoZW1hID0gR1FDLmJ1aWxkU2NoZW1hKCk7XG5cbmV4cG9ydCBkZWZhdWx0IGdyYXBocWxTY2hlbWE7Il19",
     "ast": null,
     "map": {
       "version": 3,
@@ -801,6 +926,7 @@
         "userTotal",
         "userConnection",
         "userPagination",
+        "sessionMany",
         "rootMutation",
         "userCreate",
         "userUpdateById",
@@ -810,17 +936,16 @@
         "userRemoveOne",
         "userRemoveMany",
         "graphqlSchema",
-        "buildSchema",
-        "uri"
+        "buildSchema"
       ],
-      "mappings": ";;;;;;AAMA;;AACA;;AANA;AACA;;AAEA;AACA;AAIA,MAAMA,MAAM,oCAAZ;;AAEA;AACAA,IAAIC,SAAJ,GAAgBC,SAAhB,CAA0B;AACxBC,YAAU,aAAOC,WAAP,CAAmB,UAAnB,CADc;AAExBC,aAAW,aAAOD,WAAP,CAAmB,WAAnB,CAFa;AAGxBE,WAAS,aAAOF,WAAP,CAAmB,SAAnB,CAHe;AAIxBG,YAAU,aAAOH,WAAP,CAAmB,UAAnB,CAJc,EAIkB;AAC1CI,aAAW,aAAOJ,WAAP,CAAmB,OAAnB,CALa;AAMxBK,kBAAgB,aAAOL,WAAP,CAAmB,YAAnB,CANQ;AAOxBM,kBAAgB,aAAON,WAAP,CAAmB,YAAnB;AAPQ,CAA1B;AASA;AACA;;AAEAJ,IAAIW,YAAJ,GAAmBT,SAAnB,CAA6B;AAC3BU,cAAY,aAAOR,WAAP,CAAmB,WAAnB,CADe;AAE3BS,kBAAgB,aAAOT,WAAP,CAAmB,YAAnB,CAFW;AAG3BU,iBAAe,aAAOV,WAAP,CAAmB,WAAnB,CAHY;AAI3BW,kBAAgB,aAAOX,WAAP,CAAmB,YAAnB,CAJW;AAK3BY,kBAAgB,aAAOZ,WAAP,CAAmB,YAAnB,CALW;AAM3Ba,iBAAe,aAAOb,WAAP,CAAmB,WAAnB,CANY;AAO3Bc,kBAAgB,aAAOd,WAAP,CAAmB,YAAnB;AAPW,CAA7B;;AAUA,MAAMe,gBAAgBnB,IAAIoB,WAAJ,EAAtB;;AAEAD,cAAcE,GAAd,GAAoB,OAApB;;kBAEeF,a",
+      "mappings": ";;;;;;AAEA;;AACA;;AACA;;AAEA,MAAMA,MAAM,oCAAZ;;AAEA;;;AACAA,IAAIC,SAAJ,GAAgBC,SAAhB,CAA0B;AACxBC,YAAU,aAAOC,WAAP,CAAmB,UAAnB,CADc;AAExBC,aAAW,aAAOD,WAAP,CAAmB,WAAnB,CAFa;AAGxBE,WAAS,aAAOF,WAAP,CAAmB,SAAnB,CAHe;AAIxBG,YAAU,aAAOH,WAAP,CAAmB,UAAnB,CAJc,EAIkB;AAC1CI,aAAW,aAAOJ,WAAP,CAAmB,OAAnB,CALa;AAMxBK,kBAAgB,aAAOL,WAAP,CAAmB,YAAnB,CANQ;AAOxBM,kBAAgB,aAAON,WAAP,CAAmB,YAAnB,CAPQ;;AASxBO,eAAa,mBAAUP,WAAV,CAAsB,UAAtB;AATW,CAA1B;AAWA;AACA;;AAEAJ,IAAIY,YAAJ,GAAmBV,SAAnB,CAA6B;AAC3BW,cAAY,aAAOT,WAAP,CAAmB,WAAnB,CADe;AAE3BU,kBAAgB,aAAOV,WAAP,CAAmB,YAAnB,CAFW;AAG3BW,iBAAe,aAAOX,WAAP,CAAmB,WAAnB,CAHY;AAI3BY,kBAAgB,aAAOZ,WAAP,CAAmB,YAAnB,CAJW;AAK3Ba,kBAAgB,aAAOb,WAAP,CAAmB,YAAnB,CALW;AAM3Bc,iBAAe,aAAOd,WAAP,CAAmB,WAAnB,CANY;AAO3Be,kBAAgB,aAAOf,WAAP,CAAmB,YAAnB;AAPW,CAA7B;;AAUA,MAAMgB,gBAAgBpB,IAAIqB,WAAJ,EAAtB;;kBAEeD,a",
       "file": "schema.js",
       "sourceRoot": "/app/schema",
       "sourcesContent": [
-        "/* @flow */\n// SINGLE SCHEMA ON SERVER\n// import { GQC } from 'graphql-compose';\n\n// MULTI SCHEMA MODE IN ONE SERVER\n// create new GQC from SchemaComposer\nimport { SchemaComposer } from 'graphql-compose';\nimport { UserTC } from './models/user';\n\nconst GQC = new SchemaComposer();\n\n// create GraphQL Schema with all available resolvers for User Type\nGQC.rootQuery().addFields({\n  userById: UserTC.getResolver('findById'),\n  userByIds: UserTC.getResolver('findByIds'),\n  userOne: UserTC.getResolver('findOne'),\n  userMany: UserTC.getResolver('findMany'), // .debug(), // debug info to console for this resolver\n  userTotal: UserTC.getResolver('count'),\n  userConnection: UserTC.getResolver('connection'),\n  userPagination: UserTC.getResolver('pagination'),\n});\n// For debug purposes you may display resolver internals in the following manner:\n// console.log(UserTC.getResolver('findMany').toString());\n\nGQC.rootMutation().addFields({\n  userCreate: UserTC.getResolver('createOne'),\n  userUpdateById: UserTC.getResolver('updateById'),\n  userUpdateOne: UserTC.getResolver('updateOne'),\n  userUpdateMany: UserTC.getResolver('updateMany'),\n  userRemoveById: UserTC.getResolver('removeById'),\n  userRemoveOne: UserTC.getResolver('removeOne'),\n  userRemoveMany: UserTC.getResolver('removeMany'),\n});\n\nconst graphqlSchema = GQC.buildSchema();\n\ngraphqlSchema.uri = '/user';\n\nexport default graphqlSchema;"
+        "/* @flow */\n\nimport { SchemaComposer } from 'graphql-compose';\nimport { UserTC } from './models/user';\nimport { SessionTC } from './models/session';\n\nconst GQC = new SchemaComposer();\n\n// create GraphQL Schema with all available resolvers\nGQC.rootQuery().addFields({\n  userById: UserTC.getResolver('findById'),\n  userByIds: UserTC.getResolver('findByIds'),\n  userOne: UserTC.getResolver('findOne'),\n  userMany: UserTC.getResolver('findMany'), // .debug(), // debug info to console for this resolver\n  userTotal: UserTC.getResolver('count'),\n  userConnection: UserTC.getResolver('connection'),\n  userPagination: UserTC.getResolver('pagination'),\n  \n  sessionMany: SessionTC.getResolver('findMany')\n});\n// For debug purposes you may display resolver internals in the following manner:\n// console.log(UserTC.getResolver('findMany').toString());\n\nGQC.rootMutation().addFields({\n  userCreate: UserTC.getResolver('createOne'),\n  userUpdateById: UserTC.getResolver('updateById'),\n  userUpdateOne: UserTC.getResolver('updateOne'),\n  userUpdateMany: UserTC.getResolver('updateMany'),\n  userRemoveById: UserTC.getResolver('removeById'),\n  userRemoveOne: UserTC.getResolver('removeOne'),\n  userRemoveMany: UserTC.getResolver('removeMany'),\n});\n\nconst graphqlSchema = GQC.buildSchema();\n\nexport default graphqlSchema;"
       ]
     },
-    "mtime": 1521240286405
+    "mtime": 1521437105713
   },
   "{\"filename\":\"/app/schema/models/user.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],null],[[],null],[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app/schema/models\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
     "metadata": {
@@ -844,7 +969,7 @@
             ]
           },
           {
-            "source": "graphql-compose-mongoose",
+            "source": "graphql-compose-mongoose/node8",
             "imported": [
               "default"
             ],
@@ -970,7 +1095,7 @@
       "basename": "user"
     },
     "ignored": false,
-    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.UserTC = exports.User = exports.UserSchema = undefined;\n\nvar _mongoose = require('mongoose');\n\nvar _mongoose2 = _interopRequireDefault(_mongoose);\n\nvar _graphqlComposeMongoose = require('graphql-compose-mongoose');\n\nvar _graphqlComposeMongoose2 = _interopRequireDefault(_graphqlComposeMongoose);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nconst AccountTypeSchema = new _mongoose2.default.Schema({\n  language: String,\n  skill: {\n    type: String,\n    enum: ['free', 'plus', 'pro']\n  }\n}, {\n  _id: false\n});\n\nconst AddressSchema = new _mongoose2.default.Schema({\n  street: String,\n  geo: {\n    type: [Number], // [<longitude>, <latitude>]\n    index: '2dsphere' // create the geospatial index\n  }\n});\n\nconst UserSchema = exports.UserSchema = new _mongoose2.default.Schema({\n  name: {\n    type: String,\n    index: true\n  },\n  is_active: {\n    type: Boolean,\n    index: true\n  },\n  age: {\n    type: Number,\n    index: true\n  },\n  accountType: {\n    type: [AccountTypeSchema],\n    default: []\n  },\n  contacts: {\n    // another mongoose way for providing embedded documents\n    email: String,\n    phones: [String] // array of strings\n  },\n  gender: {\n    // enum field with values\n    type: String,\n    enum: ['male', 'female', 'ladyboy']\n  },\n  address: {\n    type: AddressSchema\n  },\n  otherData: {\n    type: _mongoose2.default.Schema.Types.Mixed,\n    description: 'Some dynamic data'\n  }\n}, {\n  collection: 'users'\n});\n\nUserSchema.index({ gender: 1, age: -1 });\n\nconst User = exports.User = _mongoose2.default.model('User', UserSchema);\n\nconst UserTC = exports.UserTC = (0, _graphqlComposeMongoose2.default)(User);\n\nUserTC.setResolver('findMany', UserTC.getResolver('findMany').addFilterArg({\n  name: 'geoDistance',\n  type: `input GeoDistance {\n      lng: Float!\n      lat: Float!\n      # Distance in meters\n      distance: Float!\n    }`,\n  description: 'Search by distance in meters',\n  query: (rawQuery, value, resolveParams) => {\n    // eslint-disable-line\n    if (!value.lng || !value.lat || !value.distance) return;\n    // read more https://docs.mongodb.com/manual/tutorial/query-a-2dsphere-index/\n    rawQuery['address.geo'] = {\n      $near: {\n        $geometry: {\n          type: 'Point',\n          coordinates: [value.lng, value.lat]\n        },\n        $maxDistance: value.distance // <distance in meters>\n      }\n    };\n  }\n})\n// /* FOR DEBUG */\n//   .debug()\n// /* OR MORE PRECISELY */\n//   .debugParams()\n//   .debugPayload()\n//   .debugExecTime()\n);\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInVzZXIuanMiXSwibmFtZXMiOlsiQWNjb3VudFR5cGVTY2hlbWEiLCJTY2hlbWEiLCJsYW5ndWFnZSIsIlN0cmluZyIsInNraWxsIiwidHlwZSIsImVudW0iLCJfaWQiLCJBZGRyZXNzU2NoZW1hIiwic3RyZWV0IiwiZ2VvIiwiTnVtYmVyIiwiaW5kZXgiLCJVc2VyU2NoZW1hIiwibmFtZSIsImlzX2FjdGl2ZSIsIkJvb2xlYW4iLCJhZ2UiLCJhY2NvdW50VHlwZSIsImRlZmF1bHQiLCJjb250YWN0cyIsImVtYWlsIiwicGhvbmVzIiwiZ2VuZGVyIiwiYWRkcmVzcyIsIm90aGVyRGF0YSIsIlR5cGVzIiwiTWl4ZWQiLCJkZXNjcmlwdGlvbiIsImNvbGxlY3Rpb24iLCJVc2VyIiwibW9kZWwiLCJVc2VyVEMiLCJzZXRSZXNvbHZlciIsImdldFJlc29sdmVyIiwiYWRkRmlsdGVyQXJnIiwicXVlcnkiLCJyYXdRdWVyeSIsInZhbHVlIiwicmVzb2x2ZVBhcmFtcyIsImxuZyIsImxhdCIsImRpc3RhbmNlIiwiJG5lYXIiLCIkZ2VvbWV0cnkiLCJjb29yZGluYXRlcyIsIiRtYXhEaXN0YW5jZSJdLCJtYXBwaW5ncyI6Ijs7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7OztBQUVBLE1BQU1BLG9CQUFvQixJQUFJLG1CQUFTQyxNQUFiLENBQ3hCO0FBQ0VDLFlBQVVDLE1BRFo7QUFFRUMsU0FBTztBQUNMQyxVQUFNRixNQUREO0FBRUxHLFVBQU0sQ0FBQyxNQUFELEVBQVMsTUFBVCxFQUFpQixLQUFqQjtBQUZEO0FBRlQsQ0FEd0IsRUFReEI7QUFDRUMsT0FBSztBQURQLENBUndCLENBQTFCOztBQWFBLE1BQU1DLGdCQUFnQixJQUFJLG1CQUFTUCxNQUFiLENBQW9CO0FBQ3hDUSxVQUFRTixNQURnQztBQUV4Q08sT0FBSztBQUNITCxVQUFNLENBQUNNLE1BQUQsQ0FESCxFQUNhO0FBQ2hCQyxXQUFPLFVBRkosQ0FFZ0I7QUFGaEI7QUFGbUMsQ0FBcEIsQ0FBdEI7O0FBUU8sTUFBTUMsa0NBQWEsSUFBSSxtQkFBU1osTUFBYixDQUN4QjtBQUNFYSxRQUFNO0FBQ0pULFVBQU1GLE1BREY7QUFFSlMsV0FBTztBQUZILEdBRFI7QUFLRUcsYUFBVztBQUNUVixVQUFNVyxPQURHO0FBRVRKLFdBQU87QUFGRSxHQUxiO0FBU0VLLE9BQUs7QUFDSFosVUFBTU0sTUFESDtBQUVIQyxXQUFPO0FBRkosR0FUUDtBQWFFTSxlQUFhO0FBQ1hiLFVBQU0sQ0FBQ0wsaUJBQUQsQ0FESztBQUVYbUIsYUFBUztBQUZFLEdBYmY7QUFpQkVDLFlBQVU7QUFDUjtBQUNBQyxXQUFPbEIsTUFGQztBQUdSbUIsWUFBUSxDQUFDbkIsTUFBRCxDQUhBLENBR1U7QUFIVixHQWpCWjtBQXNCRW9CLFVBQVE7QUFDTjtBQUNBbEIsVUFBTUYsTUFGQTtBQUdORyxVQUFNLENBQUMsTUFBRCxFQUFTLFFBQVQsRUFBbUIsU0FBbkI7QUFIQSxHQXRCVjtBQTJCRWtCLFdBQVM7QUFDUG5CLFVBQU1HO0FBREMsR0EzQlg7QUE4QkVpQixhQUFXO0FBQ1RwQixVQUFNLG1CQUFTSixNQUFULENBQWdCeUIsS0FBaEIsQ0FBc0JDLEtBRG5CO0FBRVRDLGlCQUFhO0FBRko7QUE5QmIsQ0FEd0IsRUFvQ3hCO0FBQ0VDLGNBQVk7QUFEZCxDQXBDd0IsQ0FBbkI7O0FBeUNQaEIsV0FBV0QsS0FBWCxDQUFpQixFQUFFVyxRQUFRLENBQVYsRUFBYU4sS0FBSyxDQUFDLENBQW5CLEVBQWpCOztBQUVPLE1BQU1hLHNCQUFPLG1CQUFTQyxLQUFULENBQWUsTUFBZixFQUF1QmxCLFVBQXZCLENBQWI7O0FBRUEsTUFBTW1CLDBCQUFTLHNDQUFvQkYsSUFBcEIsQ0FBZjs7QUFFUEUsT0FBT0MsV0FBUCxDQUNFLFVBREYsRUFFRUQsT0FBT0UsV0FBUCxDQUFtQixVQUFuQixFQUErQkMsWUFBL0IsQ0FBNEM7QUFDMUNyQixRQUFNLGFBRG9DO0FBRTFDVCxRQUFPOzs7OztNQUZtQztBQVExQ3VCLGVBQWEsOEJBUjZCO0FBUzFDUSxTQUFPLENBQUNDLFFBQUQsRUFBV0MsS0FBWCxFQUFrQkMsYUFBbEIsS0FBb0M7QUFBRTtBQUMzQyxRQUFJLENBQUNELE1BQU1FLEdBQVAsSUFBYyxDQUFDRixNQUFNRyxHQUFyQixJQUE0QixDQUFDSCxNQUFNSSxRQUF2QyxFQUFpRDtBQUNqRDtBQUNBTCxhQUFTLGFBQVQsSUFBMEI7QUFDeEJNLGFBQU87QUFDTEMsbUJBQVc7QUFDVHZDLGdCQUFNLE9BREc7QUFFVHdDLHVCQUFhLENBQUNQLE1BQU1FLEdBQVAsRUFBWUYsTUFBTUcsR0FBbEI7QUFGSixTQUROO0FBS0xLLHNCQUFjUixNQUFNSSxRQUxmLENBS3lCO0FBTHpCO0FBRGlCLEtBQTFCO0FBU0Q7QUFyQnlDLENBQTVDO0FBdUJBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQTlCRiIsImZpbGUiOiJ1c2VyLmpzIiwic291cmNlUm9vdCI6Ii9hcHAvc2NoZW1hL21vZGVscyIsInNvdXJjZXNDb250ZW50IjpbIi8qIEBmbG93ICovXG5cbmltcG9ydCBtb25nb29zZSBmcm9tICdtb25nb29zZSc7XG5pbXBvcnQgY29tcG9zZVdpdGhNb25nb29zZSBmcm9tICdncmFwaHFsLWNvbXBvc2UtbW9uZ29vc2UnO1xuXG5jb25zdCBBY2NvdW50VHlwZVNjaGVtYSA9IG5ldyBtb25nb29zZS5TY2hlbWEoXG4gIHtcbiAgICBsYW5ndWFnZTogU3RyaW5nLFxuICAgIHNraWxsOiB7XG4gICAgICB0eXBlOiBTdHJpbmcsXG4gICAgICBlbnVtOiBbJ2ZyZWUnLCAncGx1cycsICdwcm8nXSxcbiAgICB9LFxuICB9LFxuICB7XG4gICAgX2lkOiBmYWxzZSxcbiAgfVxuKTtcblxuY29uc3QgQWRkcmVzc1NjaGVtYSA9IG5ldyBtb25nb29zZS5TY2hlbWEoe1xuICBzdHJlZXQ6IFN0cmluZyxcbiAgZ2VvOiB7XG4gICAgdHlwZTogW051bWJlcl0sIC8vIFs8bG9uZ2l0dWRlPiwgPGxhdGl0dWRlPl1cbiAgICBpbmRleDogJzJkc3BoZXJlJywgLy8gY3JlYXRlIHRoZSBnZW9zcGF0aWFsIGluZGV4XG4gIH0sXG59KTtcblxuZXhwb3J0IGNvbnN0IFVzZXJTY2hlbWEgPSBuZXcgbW9uZ29vc2UuU2NoZW1hKFxuICB7XG4gICAgbmFtZToge1xuICAgICAgdHlwZTogU3RyaW5nLFxuICAgICAgaW5kZXg6IHRydWUsXG4gICAgfSxcbiAgICBpc19hY3RpdmU6IHtcbiAgICAgIHR5cGU6IEJvb2xlYW4sXG4gICAgICBpbmRleDogdHJ1ZSxcbiAgICB9LFxuICAgIGFnZToge1xuICAgICAgdHlwZTogTnVtYmVyLFxuICAgICAgaW5kZXg6IHRydWUsXG4gICAgfSxcbiAgICBhY2NvdW50VHlwZToge1xuICAgICAgdHlwZTogW0FjY291bnRUeXBlU2NoZW1hXSxcbiAgICAgIGRlZmF1bHQ6IFtdLFxuICAgIH0sIFxuICAgIGNvbnRhY3RzOiB7XG4gICAgICAvLyBhbm90aGVyIG1vbmdvb3NlIHdheSBmb3IgcHJvdmlkaW5nIGVtYmVkZGVkIGRvY3VtZW50c1xuICAgICAgZW1haWw6IFN0cmluZyxcbiAgICAgIHBob25lczogW1N0cmluZ10sIC8vIGFycmF5IG9mIHN0cmluZ3NcbiAgICB9LFxuICAgIGdlbmRlcjoge1xuICAgICAgLy8gZW51bSBmaWVsZCB3aXRoIHZhbHVlc1xuICAgICAgdHlwZTogU3RyaW5nLFxuICAgICAgZW51bTogWydtYWxlJywgJ2ZlbWFsZScsICdsYWR5Ym95J10sXG4gICAgfSxcbiAgICBhZGRyZXNzOiB7XG4gICAgICB0eXBlOiBBZGRyZXNzU2NoZW1hLFxuICAgIH0sXG4gICAgb3RoZXJEYXRhOiB7XG4gICAgICB0eXBlOiBtb25nb29zZS5TY2hlbWEuVHlwZXMuTWl4ZWQsXG4gICAgICBkZXNjcmlwdGlvbjogJ1NvbWUgZHluYW1pYyBkYXRhJyxcbiAgICB9LFxuICB9LFxuICB7XG4gICAgY29sbGVjdGlvbjogJ3VzZXJzJyxcbiAgfVxuKTtcblxuVXNlclNjaGVtYS5pbmRleCh7IGdlbmRlcjogMSwgYWdlOiAtMSB9KTtcblxuZXhwb3J0IGNvbnN0IFVzZXIgPSBtb25nb29zZS5tb2RlbCgnVXNlcicsIFVzZXJTY2hlbWEpO1xuXG5leHBvcnQgY29uc3QgVXNlclRDID0gY29tcG9zZVdpdGhNb25nb29zZShVc2VyKTtcblxuVXNlclRDLnNldFJlc29sdmVyKFxuICAnZmluZE1hbnknLFxuICBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2ZpbmRNYW55JykuYWRkRmlsdGVyQXJnKHtcbiAgICBuYW1lOiAnZ2VvRGlzdGFuY2UnLFxuICAgIHR5cGU6IGBpbnB1dCBHZW9EaXN0YW5jZSB7XG4gICAgICBsbmc6IEZsb2F0IVxuICAgICAgbGF0OiBGbG9hdCFcbiAgICAgICMgRGlzdGFuY2UgaW4gbWV0ZXJzXG4gICAgICBkaXN0YW5jZTogRmxvYXQhXG4gICAgfWAsXG4gICAgZGVzY3JpcHRpb246ICdTZWFyY2ggYnkgZGlzdGFuY2UgaW4gbWV0ZXJzJyxcbiAgICBxdWVyeTogKHJhd1F1ZXJ5LCB2YWx1ZSwgcmVzb2x2ZVBhcmFtcykgPT4geyAvLyBlc2xpbnQtZGlzYWJsZS1saW5lXG4gICAgICBpZiAoIXZhbHVlLmxuZyB8fCAhdmFsdWUubGF0IHx8ICF2YWx1ZS5kaXN0YW5jZSkgcmV0dXJuO1xuICAgICAgLy8gcmVhZCBtb3JlIGh0dHBzOi8vZG9jcy5tb25nb2RiLmNvbS9tYW51YWwvdHV0b3JpYWwvcXVlcnktYS0yZHNwaGVyZS1pbmRleC9cbiAgICAgIHJhd1F1ZXJ5WydhZGRyZXNzLmdlbyddID0ge1xuICAgICAgICAkbmVhcjoge1xuICAgICAgICAgICRnZW9tZXRyeToge1xuICAgICAgICAgICAgdHlwZTogJ1BvaW50JyxcbiAgICAgICAgICAgIGNvb3JkaW5hdGVzOiBbdmFsdWUubG5nLCB2YWx1ZS5sYXRdLFxuICAgICAgICAgIH0sXG4gICAgICAgICAgJG1heERpc3RhbmNlOiB2YWx1ZS5kaXN0YW5jZSwgLy8gPGRpc3RhbmNlIGluIG1ldGVycz5cbiAgICAgICAgfSxcbiAgICAgIH07XG4gICAgfSxcbiAgfSlcbiAgLy8gLyogRk9SIERFQlVHICovXG4gIC8vICAgLmRlYnVnKClcbiAgLy8gLyogT1IgTU9SRSBQUkVDSVNFTFkgKi9cbiAgLy8gICAuZGVidWdQYXJhbXMoKVxuICAvLyAgIC5kZWJ1Z1BheWxvYWQoKVxuICAvLyAgIC5kZWJ1Z0V4ZWNUaW1lKClcbik7Il19",
+    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.UserTC = exports.User = exports.UserSchema = undefined;\n\nvar _mongoose = require('mongoose');\n\nvar _mongoose2 = _interopRequireDefault(_mongoose);\n\nvar _node = require('graphql-compose-mongoose/node8');\n\nvar _node2 = _interopRequireDefault(_node);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nconst AccountTypeSchema = new _mongoose2.default.Schema({\n  language: String,\n  skill: {\n    type: String,\n    enum: ['free', 'plus', 'pro']\n  }\n}, {\n  _id: false\n});\n\nconst AddressSchema = new _mongoose2.default.Schema({\n  street: String,\n  geo: {\n    type: [Number], // [<longitude>, <latitude>]\n    index: '2dsphere' // create the geospatial index\n  }\n});\n\nconst UserSchema = exports.UserSchema = new _mongoose2.default.Schema({\n  meta: {\n    type: Object\n  },\n  _id: {\n    type: Buffer\n  },\n  name: {\n    type: String,\n    index: true\n  },\n  is_active: {\n    type: Boolean,\n    index: true\n  },\n  joined: {\n    type: Date,\n    index: false\n  },\n  last_login: {\n    type: Date,\n    index: false\n  },\n  settings: {\n    explorer: {\n      initial_searches: {\n        type: Boolean,\n        index: false\n      }\n    }\n  },\n  social_accounts: {\n    type: Array,\n    index: false\n  },\n  subscriptions: {\n    type: Array,\n    index: false\n  },\n  age: {\n    type: Number,\n    index: true\n  },\n  accountType: {\n    type: [AccountTypeSchema],\n    default: []\n  },\n  contacts: {\n    // another mongoose way for providing embedded documents\n    email: String,\n    phones: [String] // array of strings\n  },\n  gender: {\n    // enum field with values\n    type: String,\n    enum: ['male', 'female', 'ladyboy', 'ai', 'animal', 'mineral', 'other']\n  },\n  address: {\n    type: AddressSchema\n  },\n  otherData: {\n    type: _mongoose2.default.Schema.Types.Mixed,\n    description: 'Some dynamic data'\n  }\n}, {\n  collection: 'users'\n});\n\nUserSchema.index({ gender: 1, age: -1 });\n\nconst User = exports.User = _mongoose2.default.model('User', UserSchema);\n\nconst UserTC = exports.UserTC = (0, _node2.default)(User);\n\n// TODO: Buffer to Base64 encoding fix.\n\n// UserTC.addFields({\n//   id: { // extended\n//     type: 'String', // String, Int, Float, Boolean, ID, Json, array []\n//     description: 'uuid4 id',\n//     resolve: (source, args, context, info) => {\n//         console.log(source._id.buffer);\n//         // console.log(Buffer.from(source._id.buffer, 'base64').toString());\n//         // Buffer.from(source._id.buffer, 'base64').toString();\n//       },\n//     },\n// });\n\nUserTC.setResolver('findMany', UserTC.getResolver('findMany').addFilterArg({\n  name: 'geoDistance',\n  type: `input GeoDistance {\n      lng: Float!\n      lat: Float!\n      # Distance in meters\n      distance: Float!\n    }`,\n  description: 'Search by distance in meters',\n  query: (rawQuery, value, resolveParams) => {\n    // eslint-disable-line\n    if (!value.lng || !value.lat || !value.distance) return;\n    // read more https://docs.mongodb.com/manual/tutorial/query-a-2dsphere-index/\n    rawQuery['address.geo'] = {\n      $near: {\n        $geometry: {\n          type: 'Point',\n          coordinates: [value.lng, value.lat]\n        },\n        $maxDistance: value.distance // <distance in meters>\n      }\n    };\n  }\n})\n// /* FOR DEBUG */\n//   .debug()\n// /* OR MORE PRECISELY */\n//   .debugParams()\n//   .debugPayload()\n//   .debugExecTime()\n);\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInVzZXIuanMiXSwibmFtZXMiOlsiQWNjb3VudFR5cGVTY2hlbWEiLCJTY2hlbWEiLCJsYW5ndWFnZSIsIlN0cmluZyIsInNraWxsIiwidHlwZSIsImVudW0iLCJfaWQiLCJBZGRyZXNzU2NoZW1hIiwic3RyZWV0IiwiZ2VvIiwiTnVtYmVyIiwiaW5kZXgiLCJVc2VyU2NoZW1hIiwibWV0YSIsIk9iamVjdCIsIkJ1ZmZlciIsIm5hbWUiLCJpc19hY3RpdmUiLCJCb29sZWFuIiwiam9pbmVkIiwiRGF0ZSIsImxhc3RfbG9naW4iLCJzZXR0aW5ncyIsImV4cGxvcmVyIiwiaW5pdGlhbF9zZWFyY2hlcyIsInNvY2lhbF9hY2NvdW50cyIsIkFycmF5Iiwic3Vic2NyaXB0aW9ucyIsImFnZSIsImFjY291bnRUeXBlIiwiZGVmYXVsdCIsImNvbnRhY3RzIiwiZW1haWwiLCJwaG9uZXMiLCJnZW5kZXIiLCJhZGRyZXNzIiwib3RoZXJEYXRhIiwiVHlwZXMiLCJNaXhlZCIsImRlc2NyaXB0aW9uIiwiY29sbGVjdGlvbiIsIlVzZXIiLCJtb2RlbCIsIlVzZXJUQyIsInNldFJlc29sdmVyIiwiZ2V0UmVzb2x2ZXIiLCJhZGRGaWx0ZXJBcmciLCJxdWVyeSIsInJhd1F1ZXJ5IiwidmFsdWUiLCJyZXNvbHZlUGFyYW1zIiwibG5nIiwibGF0IiwiZGlzdGFuY2UiLCIkbmVhciIsIiRnZW9tZXRyeSIsImNvb3JkaW5hdGVzIiwiJG1heERpc3RhbmNlIl0sIm1hcHBpbmdzIjoiOzs7Ozs7O0FBRUE7Ozs7QUFDQTs7Ozs7O0FBRUEsTUFBTUEsb0JBQW9CLElBQUksbUJBQVNDLE1BQWIsQ0FDeEI7QUFDRUMsWUFBVUMsTUFEWjtBQUVFQyxTQUFPO0FBQ0xDLFVBQU1GLE1BREQ7QUFFTEcsVUFBTSxDQUFDLE1BQUQsRUFBUyxNQUFULEVBQWlCLEtBQWpCO0FBRkQ7QUFGVCxDQUR3QixFQVF4QjtBQUNFQyxPQUFLO0FBRFAsQ0FSd0IsQ0FBMUI7O0FBYUEsTUFBTUMsZ0JBQWdCLElB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QUt5QjtBQUx6QjtBQURpQixLQUExQjtBQVNEO0FBckJ5QyxDQUE1QztBQXVCQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUE5QkYiLCJmaWxlIjoidXNlci5qcyIsInNvdXJjZVJvb3QiOiIvYXBwL3NjaGVtYS9tb2RlbHMiLCJzb3VyY2VzQ29udGVudCI6WyIvKiBAZmxvdyAqL1xuXG5pbXBvcnQgbW9uZ29vc2UgZnJvbSAnbW9uZ29vc2UnO1xuaW1wb3J0IGNvbXBvc2VXaXRoTW9uZ29vc2UgZnJvbSAnZ3JhcGhxbC1jb21wb3NlLW1vbmdvb3NlL25vZGU4JztcblxuY29uc3QgQWNjb3VudFR5cGVTY2hlbWEgPSBuZXcgbW9uZ29vc2UuU2NoZW1hKFxuICB7XG4gICAgbGFuZ3VhZ2U6IFN0cmluZyxcbiAgICBza2lsbDoge1xuICAgICAgdHlwZTogU3RyaW5nLFxuICAgICAgZW51bTogWydmcmVlJywgJ3BsdXMnLCAncHJvJ10sXG4gICAgfSxcbiAgfSxcbiAge1xuICAgIF9pZDogZmFsc2UsXG4gIH1cbik7XG5cbmNvbnN0IEFkZHJlc3NTY2hlbWEgPSBuZXcgbW9uZ29vc2UuU2NoZW1hKHtcbiAgc3RyZWV0OiBTdHJpbmcsXG4gIGdlbzoge1xuICAgIHR5cGU6IFtOdW1iZXJdLCAvLyBbPGxvbmdpdHVkZT4sIDxsYXRpdHVkZT5dXG4gICAgaW5kZXg6ICcyZHNwaGVyZScsIC8vIGNyZWF0ZSB0aGUgZ2Vvc3BhdGlhbCBpbmRleFxuICB9LFxufSk7XG5cbmV4cG9ydCBjb25zdCBVc2VyU2NoZW1hID0gbmV3IG1vbmdvb3NlLlNjaGVtYShcbiAge1xuICAgIG1ldGE6IHtcbiAgICAgIHR5cGU6IE9iamVjdFxuICAgIH0sXG4gICAgX2lkOntcbiAgICAgIHR5cGU6IEJ1ZmZlcixcbiAgICB9LFxuICAgIG5hbWU6IHtcbiAgICAgIHR5cGU6IFN0cmluZyxcbiAgICAgIGluZGV4OiB0cnVlLFxuICAgIH0sXG4gICAgaXNfYWN0aXZlOiB7XG4gICAgICB0eXBlOiBCb29sZWFuLFxuICAgICAgaW5kZXg6IHRydWUsXG4gICAgfSxcbiAgICBqb2luZWQ6IHtcbiAgICAgIHR5cGU6IERhdGUsXG4gICAgICBpbmRleDogZmFsc2VcbiAgICB9LFxuICAgIGxhc3RfbG9naW46IHtcbiAgICAgIHR5cGU6IERhdGUsXG4gICAgICBpbmRleDogZmFsc2VcbiAgICB9LFxuICAgIHNldHRpbmdzOiB7XG4gICAgICBleHBsb3Jlcjoge1xuICAgICAgICBpbml0aWFsX3NlYXJjaGVzOiB7XG4gICAgICAgICAgdHlwZTogQm9vbGVhbixcbiAgICAgICAgICBpbmRleDogZmFsc2VcbiAgICAgICAgfVxuICAgICAgfVxuICAgIH0sXG4gICAgc29jaWFsX2FjY291bnRzOiB7XG4gICAgICB0eXBlOiBBcnJheSxcbiAgICAgIGluZGV4OiBmYWxzZVxuICAgIH0sXG4gICAgc3Vic2NyaXB0aW9uczoge1xuICAgICAgdHlwZTogQXJyYXksXG4gICAgICBpbmRleDogZmFsc2VcbiAgICB9LFxuICAgIGFnZToge1xuICAgICAgdHlwZTogTnVtYmVyLFxuICAgICAgaW5kZXg6IHRydWUsXG4gICAgfSxcbiAgICBhY2NvdW50VHlwZToge1xuICAgICAgdHlwZTogW0FjY291bnRUeXBlU2NoZW1hXSxcbiAgICAgIGRlZmF1bHQ6IFtdLFxuICAgIH0sIFxuICAgIGNvbnRhY3RzOiB7XG4gICAgICAvLyBhbm90aGVyIG1vbmdvb3NlIHdheSBmb3IgcHJvdmlkaW5nIGVtYmVkZGVkIGRvY3VtZW50c1xuICAgICAgZW1haWw6IFN0cmluZyxcbiAgICAgIHBob25lczogW1N0cmluZ10sIC8vIGFycmF5IG9mIHN0cmluZ3NcbiAgICB9LFxuICAgIGdlbmRlcjoge1xuICAgICAgLy8gZW51bSBmaWVsZCB3aXRoIHZhbHVlc1xuICAgICAgdHlwZTogU3RyaW5nLFxuICAgICAgZW51bTogWydtYWxlJywgJ2ZlbWFsZScsICdsYWR5Ym95JywgJ2FpJywgJ2FuaW1hbCcsICdtaW5lcmFsJywgJ290aGVyJ10sXG4gICAgfSxcbiAgICBhZGRyZXNzOiB7XG4gICAgICB0eXBlOiBBZGRyZXNzU2NoZW1hLFxuICAgIH0sXG4gICAgb3RoZXJEYXRhOiB7XG4gICAgICB0eXBlOiBtb25nb29zZS5TY2hlbWEuVHlwZXMuTWl4ZWQsXG4gICAgICBkZXNjcmlwdGlvbjogJ1NvbWUgZHluYW1pYyBkYXRhJyxcbiAgICB9LFxuICB9LFxuICB7XG4gICAgY29sbGVjdGlvbjogJ3VzZXJzJyxcbiAgfVxuKTtcblxuVXNlclNjaGVtYS5pbmRleCh7IGdlbmRlcjogMSwgYWdlOiAtMSB9KTtcblxuZXhwb3J0IGNvbnN0IFVzZXIgPSBtb25nb29zZS5tb2RlbCgnVXNlcicsIFVzZXJTY2hlbWEpO1xuXG5leHBvcnQgY29uc3QgVXNlclRDID0gY29tcG9zZVdpdGhNb25nb29zZShVc2VyKTtcblxuLy8gVE9ETzogQnVmZmVyIHRvIEJhc2U2NCBlbmNvZGluZyBmaXguXG5cbi8vIFVzZXJUQy5hZGRGaWVsZHMoe1xuLy8gICBpZDogeyAvLyBleHRlbmRlZFxuLy8gICAgIHR5cGU6ICdTdHJpbmcnLCAvLyBTdHJpbmcsIEludCwgRmxvYXQsIEJvb2xlYW4sIElELCBKc29uLCBhcnJheSBbXVxuLy8gICAgIGRlc2NyaXB0aW9uOiAndXVpZDQgaWQnLFxuLy8gICAgIHJlc29sdmU6IChzb3VyY2UsIGFyZ3MsIGNvbnRleHQsIGluZm8pID0+IHtcbi8vICAgICAgICAgY29uc29sZS5sb2coc291cmNlLl9pZC5idWZmZXIpO1xuLy8gICAgICAgICAvLyBjb25zb2xlLmxvZyhCdWZmZXIuZnJvbShzb3VyY2UuX2lkLmJ1ZmZlciwgJ2Jhc2U2NCcpLnRvU3RyaW5nKCkpO1xuLy8gICAgICAgICAvLyBCdWZmZXIuZnJvbShzb3VyY2UuX2lkLmJ1ZmZlciwgJ2Jhc2U2NCcpLnRvU3RyaW5nKCk7XG4vLyAgICAgICB9LFxuLy8gICAgIH0sXG4vLyB9KTtcblxuVXNlclRDLnNldFJlc29sdmVyKFxuICAnZmluZE1hbnknLFxuICBVc2VyVEMuZ2V0UmVzb2x2ZXIoJ2ZpbmRNYW55JykuYWRkRmlsdGVyQXJnKHtcbiAgICBuYW1lOiAnZ2VvRGlzdGFuY2UnLFxuICAgIHR5cGU6IGBpbnB1dCBHZW9EaXN0YW5jZSB7XG4gICAgICBsbmc6IEZsb2F0IVxuICAgICAgbGF0OiBGbG9hdCFcbiAgICAgICMgRGlzdGFuY2UgaW4gbWV0ZXJzXG4gICAgICBkaXN0YW5jZTogRmxvYXQhXG4gICAgfWAsXG4gICAgZGVzY3JpcHRpb246ICdTZWFyY2ggYnkgZGlzdGFuY2UgaW4gbWV0ZXJzJyxcbiAgICBxdWVyeTogKHJhd1F1ZXJ5LCB2YWx1ZSwgcmVzb2x2ZVBhcmFtcykgPT4geyAvLyBlc2xpbnQtZGlzYWJsZS1saW5lXG4gICAgICBpZiAoIXZhbHVlLmxuZyB8fCAhdmFsdWUubGF0IHx8ICF2YWx1ZS5kaXN0YW5jZSkgcmV0dXJuO1xuICAgICAgLy8gcmVhZCBtb3JlIGh0dHBzOi8vZG9jcy5tb25nb2RiLmNvbS9tYW51YWwvdHV0b3JpYWwvcXVlcnktYS0yZHNwaGVyZS1pbmRleC9cbiAgICAgIHJhd1F1ZXJ5WydhZGRyZXNzLmdlbyddID0ge1xuICAgICAgICAkbmVhcjoge1xuICAgICAgICAgICRnZW9tZXRyeToge1xuICAgICAgICAgICAgdHlwZTogJ1BvaW50JyxcbiAgICAgICAgICAgIGNvb3JkaW5hdGVzOiBbdmFsdWUubG5nLCB2YWx1ZS5sYXRdLFxuICAgICAgICAgIH0sXG4gICAgICAgICAgJG1heERpc3RhbmNlOiB2YWx1ZS5kaXN0YW5jZSwgLy8gPGRpc3RhbmNlIGluIG1ldGVycz5cbiAgICAgICAgfSxcbiAgICAgIH07XG4gICAgfSxcbiAgfSlcbiAgLy8gLyogRk9SIERFQlVHICovXG4gIC8vICAgLmRlYnVnKClcbiAgLy8gLyogT1IgTU9SRSBQUkVDSVNFTFkgKi9cbiAgLy8gICAuZGVidWdQYXJhbXMoKVxuICAvLyAgIC5kZWJ1Z1BheWxvYWQoKVxuICAvLyAgIC5kZWJ1Z0V4ZWNUaW1lKClcbik7Il19",
     "ast": null,
     "map": {
       "version": 3,
@@ -992,9 +1117,21 @@
         "Number",
         "index",
         "UserSchema",
+        "meta",
+        "Object",
+        "Buffer",
         "name",
         "is_active",
         "Boolean",
+        "joined",
+        "Date",
+        "last_login",
+        "settings",
+        "explorer",
+        "initial_searches",
+        "social_accounts",
+        "Array",
+        "subscriptions",
         "age",
         "accountType",
         "default",
@@ -1026,13 +1163,220 @@
         "coordinates",
         "$maxDistance"
       ],
-      "mappings": ";;;;;;;AAEA;;;;AACA;;;;;;AAEA,MAAMA,oBAAoB,IAAI,mBAASC,MAAb,CACxB;AACEC,YAAUC,MADZ;AAEEC,SAAO;AACLC,UAAMF,MADD;AAELG,UAAM,CAAC,MAAD,EAAS,MAAT,EAAiB,KAAjB;AAFD;AAFT,CADwB,EAQxB;AACEC,OAAK;AADP,CARwB,CAA1B;;AAaA,MAAMC,gBAAgB,IAAI,mBAASP,MAAb,CAAoB;AACxCQ,UAAQN,MADgC;AAExCO,OAAK;AACHL,UAAM,CAACM,MAAD,CADH,EACa;AAChBC,WAAO,UAFJ,CAEgB;AAFhB;AAFmC,CAApB,CAAtB;;AAQO,MAAMC,kCAAa,IAAI,mBAASZ,MAAb,CACxB;AACEa,QAAM;AACJT,UAAMF,MADF;AAEJS,WAAO;AAFH,GADR;AAKEG,aAAW;AACTV,UAAMW,OADG;AAETJ,WAAO;AAFE,GALb;AASEK,OAAK;AACHZ,UAAMM,MADH;AAEHC,WAAO;AAFJ,GATP;AAaEM,eAAa;AACXb,UAAM,CAACL,iBAAD,CADK;AAEXmB,aAAS;AAFE,GAbf;AAiBEC,YAAU;AACR;AACAC,WAAOlB,MAFC;AAGRmB,YAAQ,CAACnB,MAAD,CAHA,CAGU;AAHV,GAjBZ;AAsBEoB,UAAQ;AACN;AACAlB,UAAMF,MAFA;AAGNG,UAAM,CAAC,MAAD,EAAS,QAAT,EAAmB,SAAnB;AAHA,GAtBV;AA2BEkB,WAAS;AACPnB,UAAMG;AADC,GA3BX;AA8BEiB,aAAW;AACTpB,UAAM,mBAASJ,MAAT,CAAgByB,KAAhB,CAAsBC,KADnB;AAETC,iBAAa;AAFJ;AA9Bb,CADwB,EAoCxB;AACEC,cAAY;AADd,CApCwB,CAAnB;;AAyCPhB,WAAWD,KAAX,CAAiB,EAAEW,QAAQ,CAAV,EAAaN,KAAK,CAAC,CAAnB,EAAjB;;AAEO,MAAMa,sBAAO,mBAASC,KAAT,CAAe,MAAf,EAAuBlB,UAAvB,CAAb;;AAEA,MAAMmB,0BAAS,sCAAoBF,IAApB,CAAf;;AAEPE,OAAOC,WAAP,CACE,UADF,EAEED,OAAOE,WAAP,CAAmB,UAAnB,EAA+BC,YAA/B,CAA4C;AAC1CrB,QAAM,aADoC;AAE1CT,QAAO;;;;;MAFmC;AAQ1CuB,eAAa,8BAR6B;AAS1CQ,SAAO,CAACC,QAAD,EAAWC,KAAX,EAAkBC,aAAlB,KAAoC;AAAE;AAC3C,QAAI,CAACD,MAAME,GAAP,IAAc,CAACF,MAAMG,GAArB,IAA4B,CAACH,MAAMI,QAAvC,EAAiD;AACjD;AACAL,aAAS,aAAT,IAA0B;AACxBM,aAAO;AACLC,mBAAW;AACTvC,gBAAM,OADG;AAETwC,uBAAa,CAACP,MAAME,GAAP,EAAYF,MAAMG,GAAlB;AAFJ,SADN;AAKLK,sBAAcR,MAAMI,QALf,CAKyB;AALzB;AADiB,KAA1B;AASD;AArByC,CAA5C;AAuBA;AACA;AACA;AACA;AACA;AACA;AA9BF",
+      "mappings": ";;;;;;;AAEA;;;;AACA;;;;;;AAEA,MAAMA,oBAAoB,IAAI,mBAASC,MAAb,CACxB;AACEC,YAAUC,MADZ;AAEEC,SAAO;AACLC,UAAMF,MADD;AAELG,UAAM,CAAC,MAAD,EAAS,MAAT,EAAiB,KAAjB;AAFD;AAFT,CADwB,EAQxB;AACEC,OAAK;AADP,CARwB,CAA1B;;AAaA,MAAMC,gBAAgB,IAAI,mBAASP,MAAb,CAAoB;AACxCQ,UAAQN,MADgC;AAExCO,OAAK;AACHL,UAAM,CAACM,MAAD,CADH,EACa;AAChBC,WAAO,UAFJ,CAEgB;AAFhB;AAFmC,CAApB,CAAtB;;AAQO,MAAMC,kCAAa,IAAI,mBAASZ,MAAb,CACxB;AACEa,QAAM;AACJT,UAAMU;AADF,GADR;AAIER,OAAI;AACFF,UAAMW;AADJ,GAJN;AAOEC,QAAM;AACJZ,UAAMF,MADF;AAEJS,WAAO;AAFH,GAPR;AAWEM,aAAW;AACTb,UAAMc,OADG;AAETP,WAAO;AAFE,GAXb;AAeEQ,UAAQ;AACNf,UAAMgB,IADA;AAENT,WAAO;AAFD,GAfV;AAmBEU,cAAY;AACVjB,UAAMgB,IADI;AAEVT,WAAO;AAFG,GAnBd;AAuBEW,YAAU;AACRC,cAAU;AACRC,wBAAkB;AAChBpB,cAAMc,OADU;AAEhBP,eAAO;AAFS;AADV;AADF,GAvBZ;AA+BEc,mBAAiB;AACfrB,UAAMsB,KADS;AAEff,WAAO;AAFQ,GA/BnB;AAmCEgB,iBAAe;AACbvB,UAAMsB,KADO;AAEbf,WAAO;AAFM,GAnCjB;AAuCEiB,OAAK;AACHxB,UAAMM,MADH;AAEHC,WAAO;AAFJ,GAvCP;AA2CEkB,eAAa;AACXzB,UAAM,CAACL,iBAAD,CADK;AAEX+B,aAAS;AAFE,GA3Cf;AA+CEC,YAAU;AACR;AACAC,WAAO9B,MAFC;AAGR+B,YAAQ,CAAC/B,MAAD,CAHA,CAGU;AAHV,GA/CZ;AAoDEgC,UAAQ;AACN;AACA9B,UAAMF,MAFA;AAGNG,UAAM,CAAC,MAAD,EAAS,QAAT,EAAmB,SAAnB,EAA8B,IAA9B,EAAoC,QAApC,EAA8C,SAA9C,EAAyD,OAAzD;AAHA,GApDV;AAyDE8B,WAAS;AACP/B,UAAMG;AADC,GAzDX;AA4DE6B,aAAW;AACThC,UAAM,mBAASJ,MAAT,CAAgBqC,KAAhB,CAAsBC,KADnB;AAETC,iBAAa;AAFJ;AA5Db,CADwB,EAkExB;AACEC,cAAY;AADd,CAlEwB,CAAnB;;AAuEP5B,WAAWD,KAAX,CAAiB,EAAEuB,QAAQ,CAAV,EAAaN,KAAK,CAAC,CAAnB,EAAjB;;AAEO,MAAMa,sBAAO,mBAASC,KAAT,CAAe,MAAf,EAAuB9B,UAAvB,CAAb;;AAEA,MAAM+B,0BAAS,oBAAoBF,IAApB,CAAf;;AAEP;;AAEA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;;AAEAE,OAAOC,WAAP,CACE,UADF,EAEED,OAAOE,WAAP,CAAmB,UAAnB,EAA+BC,YAA/B,CAA4C;AAC1C9B,QAAM,aADoC;AAE1CZ,QAAO;;;;;MAFmC;AAQ1CmC,eAAa,8BAR6B;AAS1CQ,SAAO,CAACC,QAAD,EAAWC,KAAX,EAAkBC,aAAlB,KAAoC;AAAE;AAC3C,QAAI,CAACD,MAAME,GAAP,IAAc,CAACF,MAAMG,GAArB,IAA4B,CAACH,MAAMI,QAAvC,EAAiD;AACjD;AACAL,aAAS,aAAT,IAA0B;AACxBM,aAAO;AACLC,mBAAW;AACTnD,gBAAM,OADG;AAEToD,uBAAa,CAACP,MAAME,GAAP,EAAYF,MAAMG,GAAlB;AAFJ,SADN;AAKLK,sBAAcR,MAAMI,QALf,CAKyB;AALzB;AADiB,KAA1B;AASD;AArByC,CAA5C;AAuBA;AACA;AACA;AACA;AACA;AACA;AA9BF",
       "file": "user.js",
       "sourceRoot": "/app/schema/models",
       "sourcesContent": [
-        "/* @flow */\n\nimport mongoose from 'mongoose';\nimport composeWithMongoose from 'graphql-compose-mongoose';\n\nconst AccountTypeSchema = new mongoose.Schema(\n  {\n    language: String,\n    skill: {\n      type: String,\n      enum: ['free', 'plus', 'pro'],\n    },\n  },\n  {\n    _id: false,\n  }\n);\n\nconst AddressSchema = new mongoose.Schema({\n  street: String,\n  geo: {\n    type: [Number], // [<longitude>, <latitude>]\n    index: '2dsphere', // create the geospatial index\n  },\n});\n\nexport const UserSchema = new mongoose.Schema(\n  {\n    name: {\n      type: String,\n      index: true,\n    },\n    is_active: {\n      type: Boolean,\n      index: true,\n    },\n    age: {\n      type: Number,\n      index: true,\n    },\n    accountType: {\n      type: [AccountTypeSchema],\n      default: [],\n    }, \n    contacts: {\n      // another mongoose way for providing embedded documents\n      email: String,\n      phones: [String], // array of strings\n    },\n    gender: {\n      // enum field with values\n      type: String,\n      enum: ['male', 'female', 'ladyboy'],\n    },\n    address: {\n      type: AddressSchema,\n    },\n    otherData: {\n      type: mongoose.Schema.Types.Mixed,\n      description: 'Some dynamic data',\n    },\n  },\n  {\n    collection: 'users',\n  }\n);\n\nUserSchema.index({ gender: 1, age: -1 });\n\nexport const User = mongoose.model('User', UserSchema);\n\nexport const UserTC = composeWithMongoose(User);\n\nUserTC.setResolver(\n  'findMany',\n  UserTC.getResolver('findMany').addFilterArg({\n    name: 'geoDistance',\n    type: `input GeoDistance {\n      lng: Float!\n      lat: Float!\n      # Distance in meters\n      distance: Float!\n    }`,\n    description: 'Search by distance in meters',\n    query: (rawQuery, value, resolveParams) => { // eslint-disable-line\n      if (!value.lng || !value.lat || !value.distance) return;\n      // read more https://docs.mongodb.com/manual/tutorial/query-a-2dsphere-index/\n      rawQuery['address.geo'] = {\n        $near: {\n          $geometry: {\n            type: 'Point',\n            coordinates: [value.lng, value.lat],\n          },\n          $maxDistance: value.distance, // <distance in meters>\n        },\n      };\n    },\n  })\n  // /* FOR DEBUG */\n  //   .debug()\n  // /* OR MORE PRECISELY */\n  //   .debugParams()\n  //   .debugPayload()\n  //   .debugExecTime()\n);"
+        "/* @flow */\n\nimport mongoose from 'mongoose';\nimport composeWithMongoose from 'graphql-compose-mongoose/node8';\n\nconst AccountTypeSchema = new mongoose.Schema(\n  {\n    language: String,\n    skill: {\n      type: String,\n      enum: ['free', 'plus', 'pro'],\n    },\n  },\n  {\n    _id: false,\n  }\n);\n\nconst AddressSchema = new mongoose.Schema({\n  street: String,\n  geo: {\n    type: [Number], // [<longitude>, <latitude>]\n    index: '2dsphere', // create the geospatial index\n  },\n});\n\nexport const UserSchema = new mongoose.Schema(\n  {\n    meta: {\n      type: Object\n    },\n    _id:{\n      type: Buffer,\n    },\n    name: {\n      type: String,\n      index: true,\n    },\n    is_active: {\n      type: Boolean,\n      index: true,\n    },\n    joined: {\n      type: Date,\n      index: false\n    },\n    last_login: {\n      type: Date,\n      index: false\n    },\n    settings: {\n      explorer: {\n        initial_searches: {\n          type: Boolean,\n          index: false\n        }\n      }\n    },\n    social_accounts: {\n      type: Array,\n      index: false\n    },\n    subscriptions: {\n      type: Array,\n      index: false\n    },\n    age: {\n      type: Number,\n      index: true,\n    },\n    accountType: {\n      type: [AccountTypeSchema],\n      default: [],\n    }, \n    contacts: {\n      // another mongoose way for providing embedded documents\n      email: String,\n      phones: [String], // array of strings\n    },\n    gender: {\n      // enum field with values\n      type: String,\n      enum: ['male', 'female', 'ladyboy', 'ai', 'animal', 'mineral', 'other'],\n    },\n    address: {\n      type: AddressSchema,\n    },\n    otherData: {\n      type: mongoose.Schema.Types.Mixed,\n      description: 'Some dynamic data',\n    },\n  },\n  {\n    collection: 'users',\n  }\n);\n\nUserSchema.index({ gender: 1, age: -1 });\n\nexport const User = mongoose.model('User', UserSchema);\n\nexport const UserTC = composeWithMongoose(User);\n\n// TODO: Buffer to Base64 encoding fix.\n\n// UserTC.addFields({\n//   id: { // extended\n//     type: 'String', // String, Int, Float, Boolean, ID, Json, array []\n//     description: 'uuid4 id',\n//     resolve: (source, args, context, info) => {\n//         console.log(source._id.buffer);\n//         // console.log(Buffer.from(source._id.buffer, 'base64').toString());\n//         // Buffer.from(source._id.buffer, 'base64').toString();\n//       },\n//     },\n// });\n\nUserTC.setResolver(\n  'findMany',\n  UserTC.getResolver('findMany').addFilterArg({\n    name: 'geoDistance',\n    type: `input GeoDistance {\n      lng: Float!\n      lat: Float!\n      # Distance in meters\n      distance: Float!\n    }`,\n    description: 'Search by distance in meters',\n    query: (rawQuery, value, resolveParams) => { // eslint-disable-line\n      if (!value.lng || !value.lat || !value.distance) return;\n      // read more https://docs.mongodb.com/manual/tutorial/query-a-2dsphere-index/\n      rawQuery['address.geo'] = {\n        $near: {\n          $geometry: {\n            type: 'Point',\n            coordinates: [value.lng, value.lat],\n          },\n          $maxDistance: value.distance, // <distance in meters>\n        },\n      };\n    },\n  })\n  // /* FOR DEBUG */\n  //   .debug()\n  // /* OR MORE PRECISELY */\n  //   .debugParams()\n  //   .debugPayload()\n  //   .debugExecTime()\n);"
       ]
     },
-    "mtime": 1521186953314
+    "mtime": 1521439147914
+  },
+  "{\"filename\":\"/app/schema/models/session.js\",\"env\":{},\"retainLines\":false,\"highlightCode\":true,\"suppressDeprecationMessages\":false,\"presets\":[],\"plugins\":[[[],null],[[],null],[[],{\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}],[[],{\"spec\":false,\"loose\":false}]],\"ignore\":[],\"code\":true,\"metadata\":true,\"ast\":true,\"comments\":true,\"compact\":\"auto\",\"minified\":false,\"sourceRoot\":\"/app/schema/models\",\"babelrc\":true,\"sourceType\":\"module\",\"moduleIds\":false,\"passPerPreset\":false,\"parserOpts\":false,\"generatorOpts\":false}:6.26.0": {
+    "metadata": {
+      "usedHelpers": [
+        "interopRequireDefault"
+      ],
+      "marked": [],
+      "modules": {
+        "imports": [
+          {
+            "source": "mongoose",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "mongoose"
+              }
+            ]
+          },
+          {
+            "source": "graphql-compose-mongoose/node8",
+            "imported": [
+              "default"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "default",
+                "local": "composeWithMongoose"
+              }
+            ]
+          },
+          {
+            "source": "./user",
+            "imported": [
+              "UserTC"
+            ],
+            "specifiers": [
+              {
+                "kind": "named",
+                "imported": "UserTC",
+                "local": "UserTC"
+              }
+            ]
+          }
+        ],
+        "exports": {
+          "exported": [
+            "SessionSchema",
+            "Session",
+            "SessionTC"
+          ],
+          "specifiers": [
+            {
+              "kind": "local",
+              "local": "SessionSchema",
+              "exported": "SessionSchema"
+            },
+            {
+              "kind": "local",
+              "local": "Session",
+              "exported": "Session"
+            },
+            {
+              "kind": "local",
+              "local": "SessionTC",
+              "exported": "SessionTC"
+            }
+          ]
+        }
+      }
+    },
+    "options": {
+      "filename": "/app/schema/models/session.js",
+      "filenameRelative": "/app/schema/models/session.js",
+      "env": {},
+      "retainLines": false,
+      "highlightCode": true,
+      "suppressDeprecationMessages": false,
+      "presets": [],
+      "plugins": [
+        [
+          [],
+          null
+        ],
+        [
+          [],
+          null
+        ],
+        [
+          [],
+          {
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ],
+        [
+          [],
+          {
+            "spec": false,
+            "loose": false
+          }
+        ]
+      ],
+      "ignore": [],
+      "code": true,
+      "metadata": true,
+      "ast": false,
+      "comments": true,
+      "compact": "auto",
+      "minified": false,
+      "sourceMaps": "both",
+      "sourceMapTarget": "session.js",
+      "sourceFileName": "session.js",
+      "sourceRoot": "/app/schema/models",
+      "babelrc": false,
+      "sourceType": "module",
+      "moduleRoot": "/app/schema/models",
+      "moduleIds": false,
+      "passPerPreset": false,
+      "parserOpts": false,
+      "generatorOpts": false,
+      "basename": "session"
+    },
+    "ignored": false,
+    "code": "'use strict';\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.SessionTC = exports.Session = exports.SessionSchema = undefined;\n\nvar _mongoose = require('mongoose');\n\nvar _mongoose2 = _interopRequireDefault(_mongoose);\n\nvar _node = require('graphql-compose-mongoose/node8');\n\nvar _node2 = _interopRequireDefault(_node);\n\nvar _user = require('./user');\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nconst SessionSchema = exports.SessionSchema = new _mongoose2.default.Schema({\n  meta: {\n    type: Object\n  },\n  token: {\n    type: String\n  },\n  csrf_secret: {\n    type: String\n  },\n  created: {\n    type: Date\n  },\n  expires: {\n    type: Date\n  },\n  persist: {\n    type: Boolean\n  },\n  ttl: {\n    type: Date\n  },\n  user_id: {\n    type: Buffer\n  }\n}, {\n  collection: 'sessions'\n});\n\nconst Session = exports.Session = _mongoose2.default.model('Session', SessionSchema);\n\nconst SessionTC = exports.SessionTC = (0, _node2.default)(Session);\n\nSessionTC.addRelation('user', {\n  resolver: () => _user.UserTC.getResolver('findById'),\n  prepareArgs: {\n    filter: source => ({ _id: source.user_id })\n  },\n  projection: { user_id: true }\n});\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNlc3Npb24uanMiXSwibmFtZXMiOlsiU2Vzc2lvblNjaGVtYSIsIlNjaGVtYSIsIm1ldGEiLCJ0eXBlIiwiT2JqZWN0IiwidG9rZW4iLCJTdHJpbmciLCJjc3JmX3NlY3JldCIsImNyZWF0ZWQiLCJEYXRlIiwiZXhwaXJlcyIsInBlcnNpc3QiLCJCb29sZWFuIiwidHRsIiwidXNlcl9pZCIsIkJ1ZmZlciIsImNvbGxlY3Rpb24iLCJTZXNzaW9uIiwibW9kZWwiLCJTZXNzaW9uVEMiLCJhZGRSZWxhdGlvbiIsInJlc29sdmVyIiwiZ2V0UmVzb2x2ZXIiLCJwcmVwYXJlQXJncyIsImZpbHRlciIsInNvdXJjZSIsIl9pZCIsInByb2plY3Rpb24iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7QUFFQTs7OztBQUNBOzs7O0FBRUE7Ozs7QUFFTyxNQUFNQSx3Q0FBZ0IsSUFBSSxtQkFBU0MsTUFBYixDQUMzQjtBQUNFQyxRQUFNO0FBQ0pDLFVBQU1DO0FBREYsR0FEUjtBQUlFQyxTQUFPO0FBQ0xGLFVBQU1HO0FBREQsR0FKVDtBQU9FQyxlQUFhO0FBQ1hKLFVBQU1HO0FBREssR0FQZjtBQVVFRSxXQUFTO0FBQ1BMLFVBQU1NO0FBREMsR0FWWDtBQWFFQyxXQUFTO0FBQ1BQLFVBQU1NO0FBREMsR0FiWDtBQWdCRUUsV0FBUztBQUNQUixVQUFNUztBQURDLEdBaEJYO0FBbUJFQyxPQUFLO0FBQ0hWLFVBQU1NO0FBREgsR0FuQlA7QUFzQkVLLFdBQVM7QUFDUFgsVUFBTVk7QUFEQztBQXRCWCxDQUQyQixFQTJCM0I7QUFDRUMsY0FBWTtBQURkLENBM0IyQixDQUF0Qjs7QUFnQ0EsTUFBTUMsNEJBQVUsbUJBQVNDLEtBQVQsQ0FBZSxTQUFmLEVBQTBCbEIsYUFBMUIsQ0FBaEI7O0FBRUEsTUFBTW1CLGdDQUFZLG9CQUFvQkYsT0FBcEIsQ0FBbEI7O0FBRVBFLFVBQVVDLFdBQVYsQ0FBc0IsTUFBdEIsRUFBOEI7QUFDNUJDLFlBQVUsTUFBTSxhQUFPQyxXQUFQLENBQW1CLFVBQW5CLENBRFk7QUFFNUJDLGVBQWE7QUFDWEMsWUFBUUMsV0FBVyxFQUFFQyxLQUFLRCxPQUFPWCxPQUFkLEVBQVg7QUFERyxHQUZlO0FBSzVCYSxjQUFZLEVBQUViLFNBQVMsSUFBWDtBQUxnQixDQUE5QiIsImZpbGUiOiJzZXNzaW9uLmpzIiwic291cmNlUm9vdCI6Ii9hcHAvc2NoZW1hL21vZGVscyIsInNvdXJjZXNDb250ZW50IjpbIi8qIEBmbG93ICovXG5cbmltcG9ydCBtb25nb29zZSBmcm9tICdtb25nb29zZSc7XG5pbXBvcnQgY29tcG9zZVdpdGhNb25nb29zZSBmcm9tICdncmFwaHFsLWNvbXBvc2UtbW9uZ29vc2Uvbm9kZTgnO1xuXG5pbXBvcnQgeyBVc2VyVEMgfSBmcm9tICcuL3VzZXInO1xuXG5leHBvcnQgY29uc3QgU2Vzc2lvblNjaGVtYSA9IG5ldyBtb25nb29zZS5TY2hlbWEoXG4gIHtcbiAgICBtZXRhOiB7XG4gICAgICB0eXBlOiBPYmplY3RcbiAgICB9LFxuICAgIHRva2VuOiB7XG4gICAgICB0eXBlOiBTdHJpbmdcbiAgICB9LFxuICAgIGNzcmZfc2VjcmV0OiB7XG4gICAgICB0eXBlOiBTdHJpbmdcbiAgICB9LFxuICAgIGNyZWF0ZWQ6IHtcbiAgICAgIHR5cGU6IERhdGVcbiAgICB9LFxuICAgIGV4cGlyZXM6IHtcbiAgICAgIHR5cGU6IERhdGVcbiAgICB9LFxuICAgIHBlcnNpc3Q6IHtcbiAgICAgIHR5cGU6IEJvb2xlYW5cbiAgICB9LFxuICAgIHR0bDoge1xuICAgICAgdHlwZTogRGF0ZVxuICAgIH0sXG4gICAgdXNlcl9pZDoge1xuICAgICAgdHlwZTogQnVmZmVyXG4gICAgfVxuICB9LFxuICB7XG4gICAgY29sbGVjdGlvbjogJ3Nlc3Npb25zJyxcbiAgfVxuKTtcblxuZXhwb3J0IGNvbnN0IFNlc3Npb24gPSBtb25nb29zZS5tb2RlbCgnU2Vzc2lvbicsIFNlc3Npb25TY2hlbWEpO1xuXG5leHBvcnQgY29uc3QgU2Vzc2lvblRDID0gY29tcG9zZVdpdGhNb25nb29zZShTZXNzaW9uKTtcblxuU2Vzc2lvblRDLmFkZFJlbGF0aW9uKCd1c2VyJywge1xuICByZXNvbHZlcjogKCkgPT4gVXNlclRDLmdldFJlc29sdmVyKCdmaW5kQnlJZCcpLFxuICBwcmVwYXJlQXJnczoge1xuICAgIGZpbHRlcjogc291cmNlID0+ICh7IF9pZDogc291cmNlLnVzZXJfaWQgfSksXG4gIH0sXG4gIHByb2plY3Rpb246IHsgdXNlcl9pZDogdHJ1ZSB9LFxufSk7Il19",
+    "ast": null,
+    "map": {
+      "version": 3,
+      "sources": [
+        "session.js"
+      ],
+      "names": [
+        "SessionSchema",
+        "Schema",
+        "meta",
+        "type",
+        "Object",
+        "token",
+        "String",
+        "csrf_secret",
+        "created",
+        "Date",
+        "expires",
+        "persist",
+        "Boolean",
+        "ttl",
+        "user_id",
+        "Buffer",
+        "collection",
+        "Session",
+        "model",
+        "SessionTC",
+        "addRelation",
+        "resolver",
+        "getResolver",
+        "prepareArgs",
+        "filter",
+        "source",
+        "_id",
+        "projection"
+      ],
+      "mappings": ";;;;;;;AAEA;;;;AACA;;;;AAEA;;;;AAEO,MAAMA,wCAAgB,IAAI,mBAASC,MAAb,CAC3B;AACEC,QAAM;AACJC,UAAMC;AADF,GADR;AAIEC,SAAO;AACLF,UAAMG;AADD,GAJT;AAOEC,eAAa;AACXJ,UAAMG;AADK,GAPf;AAUEE,WAAS;AACPL,UAAMM;AADC,GAVX;AAaEC,WAAS;AACPP,UAAMM;AADC,GAbX;AAgBEE,WAAS;AACPR,UAAMS;AADC,GAhBX;AAmBEC,OAAK;AACHV,UAAMM;AADH,GAnBP;AAsBEK,WAAS;AACPX,UAAMY;AADC;AAtBX,CAD2B,EA2B3B;AACEC,cAAY;AADd,CA3B2B,CAAtB;;AAgCA,MAAMC,4BAAU,mBAASC,KAAT,CAAe,SAAf,EAA0BlB,aAA1B,CAAhB;;AAEA,MAAMmB,gCAAY,oBAAoBF,OAApB,CAAlB;;AAEPE,UAAUC,WAAV,CAAsB,MAAtB,EAA8B;AAC5BC,YAAU,MAAM,aAAOC,WAAP,CAAmB,UAAnB,CADY;AAE5BC,eAAa;AACXC,YAAQC,WAAW,EAAEC,KAAKD,OAAOX,OAAd,EAAX;AADG,GAFe;AAK5Ba,cAAY,EAAEb,SAAS,IAAX;AALgB,CAA9B",
+      "file": "session.js",
+      "sourceRoot": "/app/schema/models",
+      "sourcesContent": [
+        "/* @flow */\n\nimport mongoose from 'mongoose';\nimport composeWithMongoose from 'graphql-compose-mongoose/node8';\n\nimport { UserTC } from './user';\n\nexport const SessionSchema = new mongoose.Schema(\n  {\n    meta: {\n      type: Object\n    },\n    token: {\n      type: String\n    },\n    csrf_secret: {\n      type: String\n    },\n    created: {\n      type: Date\n    },\n    expires: {\n      type: Date\n    },\n    persist: {\n      type: Boolean\n    },\n    ttl: {\n      type: Date\n    },\n    user_id: {\n      type: Buffer\n    }\n  },\n  {\n    collection: 'sessions',\n  }\n);\n\nexport const Session = mongoose.model('Session', SessionSchema);\n\nexport const SessionTC = composeWithMongoose(Session);\n\nSessionTC.addRelation('user', {\n  resolver: () => UserTC.getResolver('findById'),\n  prepareArgs: {\n    filter: source => ({ _id: source.user_id }),\n  },\n  projection: { user_id: true },\n});"
+      ]
+    },
+    "mtime": 1521479315873
   }
 }

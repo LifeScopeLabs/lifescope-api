@@ -2,14 +2,7 @@
 
 import schema from './schema';
 
-export default {
-  uri: '/user',
-  schema,
-  title: 'User: simple schema with one type.',
-  description:
-    'This schema implements all 13 CRUD operations available in graphql-compose-mongoose.',
-  github: 'https://github.com/nodkz/graphql-compose-examples/tree/master/examples/user',
-  queries: [
+const queries = [
     {
       title: 'Find by id',
       query: `
@@ -177,5 +170,15 @@ mutation {
 }
       `,
     },
-  ],
+  ]
+
+
+export default {
+  uri: '/gql',
+  schema,
+  title: 'LifeScope GraphQL API',
+  description:
+    'This schema implements all data collected, organized, and analyzed by the LifeScope platform',
+  github: 'https://github.com/bitscooplabs/lifescope',
+  queries: queries,
 };
