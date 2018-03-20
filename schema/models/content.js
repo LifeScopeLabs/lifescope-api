@@ -39,6 +39,11 @@ export const ContentSchema = new mongoose.Schema(
       index: false
     },
     
+    owner: {
+      type: String,
+      index: false
+    },
+    
     provider_name: {
       type: String,
       index: false
@@ -90,6 +95,13 @@ export const ContentSchema = new mongoose.Schema(
       type: Buffer,
       index: false
     },
+  },
+  {
+    collection: 'content',
   }
 );
   
+export const Content = mongoose.model('Content', ContentSchema);
+
+export const ContentTC = composeWithMongoose(Content);
+

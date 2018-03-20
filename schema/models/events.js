@@ -1,42 +1,54 @@
 /* @flow */
 
 // TODO: FIXXX
+// TODO: change source type
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 
-export const ContentSchema = new mongoose.Schema(
+export const EventsSchema = new mongoose.Schema(
   {
     connection: {
       type: Buffer,
       index: false
     },
+    
+    contact_interaction_type: {
+      type: String,
+      index: false
+    },
+    
+    contacts: {
+      type: [Buffer],
+      index: false
+    },
+    
+    content: {
+      type: [Buffer],
+      index: false
+    },
+    
+    context: {
+      type: String,
+      index: false
+    },
+    
     created: {
       type: Date,
       index: false
     },
-    embed_content: {
-      type: String,
+    
+    datetime: {
+      type: Date,
       index: false
     },
-    embed_format: {
-      type: String,
-      index: false
-    },
-    embed_thumbnail: {
-      type: String,
-      index: false
-    },
-    embeded_format: {
-      type: String,
-      index: false
-    },
+    
     identifier: {
       type: String,
       index: false
     },
     
-    mimetype: {
-      type: String,
+    provider: {
+      type: String, // null
       index: false
     },
     
@@ -45,35 +57,15 @@ export const ContentSchema = new mongoose.Schema(
       index: false
     },
     
-    remote_id: {
-      type: String,
+    /*
+    source: {
+      type: String, //null
       index: false
     },
-    tagMasks: {
-      source: {
-        type: [String],
-        index: false
-      }
-    },
-    
-    text: {
-      type: String,
-      index: false
-    },
-    
-    thumbnail: {
-      type: String,
-      index: false
-    },
-    
-    title: {
-      type: String,
-      index: false
-    },
-    
+    */
     
     type: { // name clash?
-      type: undefined, // String
+      type: String,
       index: false
     },
     
@@ -82,15 +74,19 @@ export const ContentSchema = new mongoose.Schema(
       index: false
     },
     
-    url: {
-      type: String,
-      index: false
-    },
-    
     user_id: {
       type: Buffer,
       index: false
     },
+  },
+  {
+    collection: 'events',
   }
 );
   
+
+  
+export const Events = mongoose.model('Events', EventsSchema);
+
+export const EventTC = composeWithMongoose(Events);
+

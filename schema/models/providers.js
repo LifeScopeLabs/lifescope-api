@@ -4,93 +4,525 @@
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 
-export const ContentSchema = new mongoose.Schema(
+export const ProvidersSchema = new mongoose.Schema(
   {
-    connection: {
+    
+    alt_sources: {
+      likes: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+    },
+    
+    remote_map_id: {
       type: Buffer,
       index: false
     },
-    created: {
-      type: Date,
-      index: false
-    },
-    embed_content: {
-      type: String,
-      index: false
-    },
-    embed_format: {
-      type: String,
-      index: false
-    },
-    embed_thumbnail: {
-      type: String,
-      index: false
-    },
-    embeded_format: {
-      type: String,
-      index: false
-    },
-    identifier: {
-      type: String,
-      index: false
-    },
     
-    mimetype: {
-      type: String,
-      index: false
+    sources: {
+      
+      achievements: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+      
+      boards: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      comments: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      direct_messages_received: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      direct_messages_sent: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      drive_changes: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      edits: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      events: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      games_owned: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      gilded_comments: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      gmail_inbox: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      messages_received: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      messages_sent: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      pins: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      playlists: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      posts: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      saved_albums: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      saved_comments: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      saved_tracks: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
+
+      submitted: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+      
+      threads_downvoted: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      threads_upvoted: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+      },
+
+      tweets: {
+        description: {
+          type: String,
+          index: false
+        },
+        enabled_by_default: {
+          type: Boolean,
+          index: false
+        },
+        mapping: {
+          type: String,
+          index: false
+        },
+        name: {
+          type: String,
+          index: false
+        },
+        population: {
+          type: String,
+          index: false
+        },
+      },
     },
-    
-    provider_name: {
-      type: String,
-      index: false
-    },
-    
-    remote_id: {
-      type: String,
-      index: false
-    },
-    tagMasks: {
-      source: {
-        type: [String],
-        index: false
-      }
-    },
-    
-    text: {
-      type: String,
-      index: false
-    },
-    
-    thumbnail: {
-      type: String,
-      index: false
-    },
-    
-    title: {
-      type: String,
-      index: false
-    },
-    
-    
-    type: { // name clash?
-      type: undefined, // String
-      index: false
-    },
-    
-    updated: {
-      type: Date,
-      index: false
-    },
-    
-    url: {
-      type: String,
-      index: false
-    },
-    
-    user_id: {
-      type: Buffer,
-      index: false
-    },
+  },
+  {
+    collection: 'providers',
   }
 );
   
+export const Providers = mongoose.model('Providers', ProvidersSchema);
+
+export const ProviderTC = composeWithMongoose(Providers);
+

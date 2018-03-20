@@ -6,10 +6,12 @@ import expressPlayground from 'graphql-playground-middleware-express';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import mongoose from 'mongoose';
 
+import cookieAuthorization from './middleware/cookie-authorization';
 import lifescopeSchema from './schema';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
+const Schema = mongoose.Schema;
 const server = express();
 const opts = {
   autoReconnect: true,
@@ -38,6 +40,8 @@ mongooseConnect.once('open', () => {
 server.use(
   lifescopeSchema.uri, 
   bodyParser.json(), 
+  cookieParser(),
+  cookieAuthorization,
   graphqlExpress({ 
     schema: lifescopeSchema.schema, 
     tracing: true,

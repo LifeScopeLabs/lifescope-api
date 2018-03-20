@@ -92,8 +92,26 @@ export const UserSchema = new mongoose.Schema(
   },
   {
     collection: 'users',
+    toObject: {
+      transform: function (doc, ret) {
+        ret._id = Buffer.from(ret._id, 'hex')[0];
+      }
+    },
+    toJSON: {
+      transform: function (doc, ret) {
+        ret._id = ret._id.toString('hex');
+      }
+    }
   }
 );
+
+// UserSchema.virtual('_id')
+//   .set(function (uuid4ID) {
+//     this._id = Buffer.from(uuid4ID, 'hex')[0];;
+//   })
+//   .get(function () {
+//     return this._id.toString('hex');
+//   });
 
 UserSchema.index({ gender: 1, age: -1 });
 
@@ -101,19 +119,17 @@ export const User = mongoose.model('User', UserSchema);
 
 export const UserTC = composeWithMongoose(User);
 
-// TODO: Buffer to Base64 encoding fix.
-
 // UserTC.addFields({
-//   id: { // extended
+//   _id: { // extended
 //     type: 'String', // String, Int, Float, Boolean, ID, Json, array []
 //     description: 'uuid4 id',
 //     resolve: (source, args, context, info) => {
-//         console.log(source._id.buffer);
-//         // console.log(Buffer.from(source._id.buffer, 'base64').toString());
-//         // Buffer.from(source._id.buffer, 'base64').toString();
-//       },
+//       return source._id.toString('hex');
 //     },
+//   }
 // });
+
+
 
 UserTC.setResolver(
   'findMany',
