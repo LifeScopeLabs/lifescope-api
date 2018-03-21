@@ -1,7 +1,9 @@
 /* @flow */
 
+import bson from 'bson';
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import uuidParse from 'uuid-parse';
 
 const AccountTypeSchema = new mongoose.Schema(
   {
@@ -24,13 +26,29 @@ const AddressSchema = new mongoose.Schema({
   },
 });
 
+
 export const UserSchema = new mongoose.Schema(
   {
     meta: {
       type: Object
     },
     _id:{
-      type: Buffer,
+      type: Buffer
+    },
+    id: {
+      type: String,
+      get: function() {
+        return this._id.toString('hex')
+      },
+      set: function(val) {
+        if (this._conditions && this._conditions.id) {
+          var uuidBuffer = new mongoose.Types.Buffer(uuidParse.parse(val));
+          uuidBuffer.subtype(bson.Binary.SUBTYPE_UUID);
+          this._conditions._id = uuidBuffer.toObject();
+          
+          delete this._conditions.id;
+        }
+      }
     },
     name: {
       type: String,
@@ -92,16 +110,24 @@ export const UserSchema = new mongoose.Schema(
   },
   {
     collection: 'users',
-    toObject: {
-      transform: function (doc, ret) {
-        ret._id = Buffer.from(ret._id, 'hex')[0];
-      }
-    },
-    toJSON: {
-      transform: function (doc, ret) {
-        ret._id = ret._id.toString('hex');
-      }
-    }
+//     toObject: {
+//       getters: true,
+//       transform: function (doc, ret) {
+//         console.log('Transforming UUID to buffer');
+//         ret._id = Buffer.from(ret._id, 'hex');
+
+//         return ret;
+//      }
+//     },
+//     toJSON: {
+//       getters: true,
+//       transform: function (doc, ret) {
+//         console.log('Transforming UUID to string');
+//         ret._id = ret._id.toString('hex');
+
+//         return ret;
+//       }
+//     }
   }
 );
 
@@ -130,6 +156,15 @@ export const UserTC = composeWithMongoose(User);
 // });
 
 
+UserTC.addFields({
+  id: {
+    type: 'String', 
+    description: 'uuid4 id',
+    resolve: (source, args, context, info) => {
+      return source._id.toString('hex');
+    },
+  }
+});
 
 UserTC.setResolver(
   'findMany',

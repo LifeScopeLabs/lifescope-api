@@ -1,13 +1,30 @@
 /* @flow */
 
+import bson from 'bson';
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import uuidParse from 'uuid-parse';
 
 import { UserTC } from './user';
 
 export const SessionSchema = new mongoose.Schema(
   {
-    
+    _id: Buffer,
+    id: {
+      type: String,
+      get: function() {
+        return this._id.toString('hex')
+      },
+      set: function(val) {
+        if (this._conditions && this._conditions.id) {
+          var uuidBuffer = new mongoose.Types.Buffer(uuidParse.parse(val));
+          uuidBuffer.subtype(bson.Binary.SUBTYPE_UUID);
+          this._conditions._id = uuidBuffer.toObject();
+          
+          delete this._conditions.id;
+        }
+      }
+    },
     created: {
       type: Date
     },
@@ -72,20 +89,10 @@ export const Session = mongoose.model('Session', SessionSchema);
 
 export const SessionTC = composeWithMongoose(Session);
 
-SessionTC.addFields({
-  id: {
-    type: 'String', 
-    description: 'uuid4 id',
-    resolve: (source, args, context, info) => {
-      return source._id.toString('hex');
-    },
-  }
-});
-
 SessionTC.addRelation('user', {
-  resolver: () => UserTC.getResolver('findById'),
+  resolver: () => UserTC.getResolver('findOne'),
   prepareArgs: {
-    filter: source => ({ _id: source.user_id }),
+    filter: source => ({ id: source.user_id.toString('hex') }),
   },
   projection: { user_id: true },
 });

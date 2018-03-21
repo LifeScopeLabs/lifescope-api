@@ -47,6 +47,7 @@
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
+    "bson": "^2.0.4",
     "config": "^1.30.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
@@ -63,6 +64,7 @@
     "mongoose": "^5.0.10",
     "mongoose-uuid2": "^2.1.0",
     "node-uuid": "^1.4.8",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "uuid-parse": "^1.0.0"
   }
 }

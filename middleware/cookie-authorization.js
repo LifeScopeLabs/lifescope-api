@@ -65,6 +65,23 @@ export default async function(req, res, next) {
   });
   
   console.log(result);
+  
+//   if (result.length > 1) {
+//     return Promise.reject(new Error('Duplicate session.'));
+//   }
+  
+//   if (result.length === 0) {
+//     req.session = null;
+//   }
+//   else {
+//     let session = _.omit(result[0], 'user');
+//     let user = result[0].user;
+    
+//     req.session = session;
+//     req.user = user || null;
+    
+//     next();
+//   }
 
   res.cookie(config.sessions.cookieName, '2EFCEBCFA93E42C7A722023AC5A664EE254502B5C96A41F9B0DDB43F2CEEC2697070D8997FAB4039A2FBDD788DA766CE', {
     domain: 'lifescope-api.glitch.me',

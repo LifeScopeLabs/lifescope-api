@@ -1,7 +1,8 @@
 /* @flow */
 
-import { SchemaComposer } from 'graphql-compose';
+import { SchemaComposer, TypeMapper } from 'graphql-compose';
 
+import uuid from './types/uuid';
 // import { ConnectionTC } from './models/connections';
 // import { ContactTC } from './models/contacts';
 // import { ContentTC } from './models/content';
@@ -9,13 +10,20 @@ import { SchemaComposer } from 'graphql-compose';
 // import { LocationTC } from './models/locations';
 // import { ProviderTC } from './models/providers';
 // import { SearchTC } from './models/searches';
-// import { SessionTC } from './models/session';
+import { SessionTC } from './models/session';
 // import { TagTC } from './models/tags';
 // import { ThingTC } from './models/things';
 
 import { UserTC } from './models/user';
 
 const GQC = new SchemaComposer();
+
+TypeMapper.set('UUID', uuid);
+console.log(TypeMapper);
+console.log(TypeMapper.get('UUID'));
+// const typeComposer = new TypeComposer();
+
+// console.log(typeComposer);
 
 // create GraphQL Schema with all available resolvers
 GQC.rootQuery().addFields({
@@ -86,7 +94,7 @@ GQC.rootQuery().addFields({
 //   sessionById: SessionTC.getResolver('findById'),
 //   sessionByIds: SessionTC.getResolver('findByIds'),
 //   sessionOne: SessionTC.getResolver('findOne'),
-//   sessionMany: SessionTC.getResolver('findMany'),
+  sessionMany: SessionTC.getResolver('findMany'),
 //   sessionTotal: SessionTC.getResolver('count'),
 //   sessionConnection: SessionTC.getResolver('connection'),
 //   sessionPagination: SessionTC.getResolver('pagination'),
@@ -125,93 +133,95 @@ GQC.rootMutation().addFields({
   
   /*
   // Connections
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
-  // template
-  Create: TC.getResolver('createOne'),
-  UpdateById: TC.getResolver('updateById'),
-  UpdateOne: TC.getResolver('updateOne'),
-  UpdateMany: TC.getResolver('updateMany'),
-  RemoveById: TC.getResolver('removeById'),
-  RemoveOne: TC.getResolver('removeOne'),
-  RemoveMany: TC.getResolver('removeMany'),
+  connectionCreate: ConnectionTC.getResolver('createOne'),
+  connectionUpdateById: ConnectionTC.getResolver('updateById'),
+  connectionUpdateOne: ConnectionTC.getResolver('updateOne'),
+  connectionUpdateMany: ConnectionTC.getResolver('updateMany'),
+  connectionRemoveById: ConnectionTC.getResolver('removeById'),
+  connectionRemoveOne: ConnectionTC.getResolver('removeOne'),
+  connectionRemoveMany: ConnectionTC.getResolver('removeMany'),
+  
+  // Contacts
+  contactCreate: ContactTC.getResolver('createOne'),
+  contactUpdateById: ContactTC.getResolver('updateById'),
+  contactUpdateOne: ContactTC.getResolver('updateOne'),
+  contactUpdateMany: ContactTC.getResolver('updateMany'),
+  contactRemoveById: ContactTC.getResolver('removeById'),
+  contactRemoveOne: ContactTC.getResolver('removeOne'),
+  contactRemoveMany: ContactTC.getResolver('removeMany'),
+  
+  // Content
+  contentCreate: ContentTC.getResolver('createOne'),
+  contentUpdateById: ContentTC.getResolver('updateById'),
+  contentUpdateOne: ContentTC.getResolver('updateOne'),
+  contentUpdateMany: ContentTC.getResolver('updateMany'),
+  contentRemoveById: ContentTC.getResolver('removeById'),
+  contentRemoveOne: ContentTC.getResolver('removeOne'),
+  contentRemoveMany: ContentTC.getResolver('removeMany'),
+  
+  // Events
+  eventCreate: EventTC.getResolver('createOne'),
+  eventUpdateById: EventTC.getResolver('updateById'),
+  eventUpdateOne: EventTC.getResolver('updateOne'),
+  eventUpdateMany: EventTC.getResolver('updateMany'),
+  eventRemoveById: EventTC.getResolver('removeById'),
+  eventRemoveOne: EventTC.getResolver('removeOne'),
+  eventRemoveMany: EventTC.getResolver('removeMany'),
+  
+  // Locations
+  locationCreate: LocationTC.getResolver('createOne'),
+  locationUpdateById: LocationTC.getResolver('updateById'),
+  locationUpdateOne: LocationTC.getResolver('updateOne'),
+  locationUpdateMany: LocationTC.getResolver('updateMany'),
+  locationRemoveById: LocationTC.getResolver('removeById'),
+  locationRemoveOne: LocationTC.getResolver('removeOne'),
+  locationRemoveMany: LocationTC.getResolver('removeMany'),
+  
+  // Providers
+  providerCreate: ProviderTC.getResolver('createOne'),
+  providerUpdateById: ProviderTC.getResolver('updateById'),
+  providerUpdateOne: ProviderTC.getResolver('updateOne'),
+  providerUpdateMany: ProviderTC.getResolver('updateMany'),
+  providerRemoveById: ProviderTC.getResolver('removeById'),
+  providerRemoveOne: ProviderTC.getResolver('removeOne'),
+  providerRemoveMany: ProviderTC.getResolver('removeMany'),
+  
+  // Searches
+  searchCreate: SearchTC.getResolver('createOne'),
+  searchUpdateById: SearchTC.getResolver('updateById'),
+  searchUpdateOne: SearchTC.getResolver('updateOne'),
+  searchUpdateMany: SearchTC.getResolver('updateMany'),
+  searchRemoveById: SearchTC.getResolver('removeById'),
+  searchRemoveOne: SearchTC.getResolver('removeOne'),
+  searchRemoveMany: SearchTC.getResolver('removeMany'),
+  
+  // Session
+  sessionCreate: SessionTC.getResolver('createOne'),
+  sessionUpdateById: SessionTC.getResolver('updateById'),
+  sessionUpdateOne: SessionTC.getResolver('updateOne'),
+  sessionUpdateMany: SessionTC.getResolver('updateMany'),
+  sessionRemoveById: SessionTC.getResolver('removeById'),
+  sessionRemoveOne: SessionTC.getResolver('removeOne'),
+  sessionRemoveMany: SessionTC.getResolver('removeMany'),
+  
+  // Tags
+  tagCreate: TagTC.getResolver('createOne'),
+  tagUpdateById: TagTC.getResolver('updateById'),
+  tagUpdateOne: TagTC.getResolver('updateOne'),
+  tagUpdateMany: TagTC.getResolver('updateMany'),
+  tagRemoveById: TagTC.getResolver('removeById'),
+  tagRemoveOne: TagTC.getResolver('removeOne'),
+  tagRemoveMany: TagTC.getResolver('removeMany'),
+  
+  // Things
+  thingCreate: ThingTC.getResolver('createOne'),
+  thingUpdateById: ThingTC.getResolver('updateById'),
+  thingUpdateOne: ThingTC.getResolver('updateOne'),
+  thingUpdateMany: ThingTC.getResolver('updateMany'),
+  thingRemoveById: ThingTC.getResolver('removeById'),
+  thingRemoveOne: ThingTC.getResolver('removeOne'),
+  thingRemoveMany: ThingTC.getResolver('removeMany'),
+  
   // template
   Create: TC.getResolver('createOne'),
   UpdateById: TC.getResolver('updateById'),
@@ -221,11 +231,10 @@ GQC.rootMutation().addFields({
   RemoveOne: TC.getResolver('removeOne'),
   RemoveMany: TC.getResolver('removeMany'),
   */
-  // UsersuserCreate: UserTC.getResolver('createOne'),
-  userUpdateById: UserTC.getResolver('updateById'),
+  // Users
+  userCreate: UserTC.getResolver('createOne'),
   userUpdateOne: UserTC.getResolver('updateOne'),
   userUpdateMany: UserTC.getResolver('updateMany'),
-  userRemoveById: UserTC.getResolver('removeById'),
   userRemoveOne: UserTC.getResolver('removeOne'),
   userRemoveMany: UserTC.getResolver('removeMany'),
 });
