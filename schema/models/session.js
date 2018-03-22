@@ -93,6 +93,7 @@ export const SessionSchema = new mongoose.Schema(
           
           delete this._conditions.user_id_string;
         }
+        
         this.user_id = uuid(val);
       }
     }

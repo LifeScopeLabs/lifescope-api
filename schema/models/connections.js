@@ -3,9 +3,31 @@
 // TODO: FIXXX
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import uuid from '../../lib/types/uuid';
+import nodeUUID from 'uuid/v4';
 
 export const ConnectionsSchema = new mongoose.Schema(
   {
+    _id: {
+      type: Buffer
+    },
+    id: {
+      type: String,
+      get: function() {
+        if (this._id) {
+          return this._id.toString('hex');
+        }
+      },
+      set: function(val) {
+        if (this._conditions && this._conditions.id) {
+          this._conditions._id = uuid(val);
+          
+          delete this._conditions.id;
+        }
+        
+        this._id = uuid(val);
+      }
+    },
     auth: {
       status: {
         authorized: {
@@ -15,7 +37,7 @@ export const ConnectionsSchema = new mongoose.Schema(
         complete: {
           type: Boolean,
           index: false
-      }
+        }
       }
     },
     enabled: {
@@ -336,6 +358,21 @@ export const ConnectionsSchema = new mongoose.Schema(
       type: Buffer,
       index: false
     },
+    provider_id_string: {
+      type: String,
+      get: function() {
+        return this.provider_id.toString('hex')
+      },
+      set: function(val) {
+        if (val && this._conditions && this._conditions.provider_id_string) {
+          this._conditions.provider_id = uuid(val);
+          
+          delete this._conditions.provider_id_string;
+        }
+        
+        this.provider_id = uuid(val);
+      }
+    },
     provider_name: {
       type: String,
       index: false
@@ -351,6 +388,21 @@ export const ConnectionsSchema = new mongoose.Schema(
     user_id: {
       type: Buffer,
       index: false
+    },
+    user_id_string: {
+      type: String,
+      get: function() {
+        return this._id.toString('hex')
+      },
+      set: function(val) {
+        if (val && this._conditions && this._conditions.user_id_string) {
+          this._conditions.user_id = uuid(val);
+          
+          delete this._conditions.user_id_string;
+        }
+        
+        this.user_id = uuid(val);
+      }
     }
   },
   {
@@ -363,15 +415,19 @@ export const Connections = mongoose.model('Connections', ConnectionsSchema);
 
 export const ConnectionTC = composeWithMongoose(Connections);
 
-
-ConnectionTC.addResolver({
-  name: 'initializeConnection',
-  kind: 'mutation',
-  type: ConnectionTC.getResolver('createOne').getType(),
-  args: ConnectionTC.getResolver('createOne').getArgs(),
-  resolve: async(source, args, context) => {
-    console.log(source);
-    console.log(args);
-    console.log(context);
-  }
-});
+// ConnectionTC.addResolver({
+//   name: 'initializeConnection',
+//   kind: 'mutation',
+//   type: ConnectionTC.getResolver('createOne').getType(),
+//   args: {
+//     provider_id_string: 'String!',
+//     name: 'String'
+//   },
+//   resolve: ({ source, args, context, info }) => {
+//     console.log(args);
+    
+//     return {
+//       cool: 'pants'
+//     };
+//   }
+// }); 

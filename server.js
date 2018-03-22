@@ -7,7 +7,7 @@ import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import mongoose from 'mongoose';
 
 import cookieAuthorization from './middleware/cookie-authorization';
-import { crudAPI } from './schema';
+import crudAPI from './schema';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
