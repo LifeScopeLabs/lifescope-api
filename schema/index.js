@@ -1,6 +1,7 @@
 /* @flow */
 
-import schema from './schema';
+import crudSchema from './crud-schema';
+import sessionSchema from './session-schema';
 
 const queries = [
     {
@@ -173,12 +174,18 @@ mutation {
   ]
 
 
-export default {
+export const crudAPI = {
   uri: '/gql',
-  schema,
+  crudSchema,
   title: 'LifeScope GraphQL API',
   description:
     'This schema implements all data collected, organized, and analyzed by the LifeScope platform',
   github: 'https://github.com/bitscooplabs/lifescope',
   queries: queries,
+};
+
+export const sessionAPI = {
+  uri: '/session',
+  sessionSchema,
+  title: 'LifeScope Session API'
 };

@@ -15,7 +15,6 @@ export const LocationsSchema = new mongoose.Schema(
       type: Date,
       index: false
     },
-    
     datetime: {
       type: Date,
       index: false
@@ -30,20 +29,14 @@ export const LocationsSchema = new mongoose.Schema(
       type: String,
       index: false
     },
-    
-    /*
     geolocation: {
-      type: [Double],
+      type: [Number],
       index: false
     },
-    */
-    
-    
     identifier: {
       type: String,
       index: false
     },
-       
     updated: {
       type: Date,
       index: false

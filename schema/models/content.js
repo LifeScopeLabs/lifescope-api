@@ -33,22 +33,18 @@ export const ContentSchema = new mongoose.Schema(
       type: String,
       index: false
     },
-    
     mimetype: {
       type: String,
       index: false
     },
-    
     owner: {
       type: String,
       index: false
     },
-    
     provider_name: {
       type: String,
       index: false
     },
-    
     remote_id: {
       type: String,
       index: false
@@ -59,38 +55,30 @@ export const ContentSchema = new mongoose.Schema(
         index: false
       }
     },
-    
     text: {
       type: String,
       index: false
     },
-    
     thumbnail: {
       type: String,
       index: false
     },
-    
     title: {
       type: String,
       index: false
     },
-    
-    
-    type: { // name clash?
-      type: undefined, // String
+    type: {
+      type: String, 
       index: false
     },
-    
     updated: {
       type: Date,
       index: false
     },
-    
     url: {
       type: String,
       index: false
     },
-    
     user_id: {
       type: Buffer,
       index: false

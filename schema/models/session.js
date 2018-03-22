@@ -1,28 +1,32 @@
 /* @flow */
 
-import bson from 'bson';
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
-import uuidParse from 'uuid-parse';
+import uuid from '../../lib/types/uuid';
+import nodeUUID from 'uuid/v4';
 
 import { UserTC } from './user';
 
 export const SessionSchema = new mongoose.Schema(
   {
-    _id: Buffer,
+    _id: {
+      type: Buffer
+    },
     id: {
       type: String,
       get: function() {
-        return this._id.toString('hex')
+        if (this._id) {
+          return this._id.toString('hex');
+        }
       },
       set: function(val) {
         if (this._conditions && this._conditions.id) {
-          var uuidBuffer = new mongoose.Types.Buffer(uuidParse.parse(val));
-          uuidBuffer.subtype(bson.Binary.SUBTYPE_UUID);
-          this._conditions._id = uuidBuffer.toObject();
+          this._conditions._id = uuid(val);
           
           delete this._conditions.id;
         }
+        
+        this._id = uuid(val);
       }
     },
     created: {
@@ -35,7 +39,7 @@ export const SessionSchema = new mongoose.Schema(
       type: Date
     },
     ip: {
-      type: String // null
+      type: String
     },
     meta: {
       agent: {
@@ -66,7 +70,6 @@ export const SessionSchema = new mongoose.Schema(
         },
       },
     },
-    
     persist: {
       type: Boolean
     },
@@ -78,6 +81,20 @@ export const SessionSchema = new mongoose.Schema(
     },
     user_id: {
       type: Buffer
+    },
+    user_id_string: {
+      type: String,
+      get: function() {
+        return this._id.toString('hex')
+      },
+      set: function(val) {
+        if (val && this._conditions && this._conditions.user_id_string) {
+          this._conditions.user_id = uuid(val);
+          
+          delete this._conditions.user_id_string;
+        }
+        this.user_id = uuid(val);
+      }
     }
   },
   {
@@ -94,5 +111,9 @@ SessionTC.addRelation('user', {
   prepareArgs: {
     filter: source => ({ id: source.user_id.toString('hex') }),
   },
-  projection: { user_id: true },
+  projection: {
+    id: true,
+    is_active: true,
+    user_id: true 
+  },
 });

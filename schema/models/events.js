@@ -21,50 +21,39 @@ export const EventsSchema = new mongoose.Schema(
       type: [Buffer],
       index: false
     },
-    
     content: {
       type: [Buffer],
       index: false
     },
-    
     context: {
       type: String,
       index: false
     },
-    
     created: {
       type: Date,
       index: false
     },
-    
     datetime: {
       type: Date,
       index: false
     },
-    
     identifier: {
       type: String,
       index: false
     },
-    
     provider: {
-      type: String, // null
+      type: String,
       index: false
     },
-    
     provider_name: {
       type: String,
       index: false
     },
-    
-    /*
     source: {
-      type: String, //null
+      type: String,
       index: false
     },
-    */
-    
-    type: { // name clash?
+    type: {
       type: String,
       index: false
     },
@@ -73,7 +62,6 @@ export const EventsSchema = new mongoose.Schema(
       type: Date,
       index: false
     },
-    
     user_id: {
       type: Buffer,
       index: false

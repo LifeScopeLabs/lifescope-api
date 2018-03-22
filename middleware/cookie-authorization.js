@@ -2,7 +2,9 @@ import _ from 'lodash';
 import config from 'config';
 import moment from 'moment';
 
+import uuid from '../lib/types/uuid';
 import { SessionTC } from '../schema/models/session';
+import { UserTC } from '../schema/models/user';
 
 
 let $lookup = {
@@ -44,9 +46,7 @@ export default async function(req, res, next) {
 		}
 	}
   
-  console.log(req.cookies);
-  
-  let result = await SessionTC.getResolver('findMany').resolve({
+  let sessionResult = await SessionTC.getResolver('findMany').resolve({
     args: {
       filter: {
         token: req.cookies['sessionid'],
@@ -56,32 +56,38 @@ export default async function(req, res, next) {
         logout: null
       }
     },
-    projection: {
-      user: true,
+    projection: { 
+      id: true,
       token: true,
       csrf_secret: true,
-      expires: true
+      expires: true,
+      user_id: true,
     }
   });
   
-  console.log(result);
+  if (sessionResult.length > 1) {
+    return Promise.reject(new Error('Duplicate session.'));
+  }
   
-//   if (result.length > 1) {
-//     return Promise.reject(new Error('Duplicate session.'));
-//   }
+  if (sessionResult.length === 0) {
+    req.session = null;
+  }
+  else {
+    let userResult = await UserTC.getResolver('findOne').resolve({
+      args: {
+        filter: {
+          id: sessionResult[0].user_id.toString('hex')
+        }
+      }
+    });
   
-//   if (result.length === 0) {
-//     req.session = null;
-//   }
-//   else {
-//     let session = _.omit(result[0], 'user');
-//     let user = result[0].user;
     
-//     req.session = session;
-//     req.user = user || null;
+    let session = sessionResult[0]
+    let user = userResult;
     
-//     next();
-//   }
+    req.session = session;
+    req.user = user || null;
+  }
 
   res.cookie(config.sessions.cookieName, '2EFCEBCFA93E42C7A722023AC5A664EE254502B5C96A41F9B0DDB43F2CEEC2697070D8997FAB4039A2FBDD788DA766CE', {
     domain: 'lifescope-api.glitch.me',
@@ -89,31 +95,6 @@ export default async function(req, res, next) {
     httpOnly: true,
     expires: 0
   });
-  
-  // console.log(result);
-
-//   mongo.db('live').collection('sessions').aggregate([$match, $lookup, $project]).toArray()
-//     .then(function(sessions) {
-//       if (sessions.length > 1) {
-//         return Promise.reject(new Error('Duplicate session.'));
-//       }
-
-//       if (sessions.length === 0) {
-//         req.session = null;
-//       }
-//       else {
-//         let session = _.omit(sessions[0], 'users');
-//         let user = sessions[0].users[0];
-
-//         req.session = session;
-//         req.user = user || null;
-//       }
-
-//       next();
-//     })
-//     .catch(function(err) {
-//       next(err);
-//     });
   
   next();
 };

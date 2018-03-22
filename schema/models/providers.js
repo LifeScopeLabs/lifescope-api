@@ -27,14 +27,11 @@ export const ProvidersSchema = new mongoose.Schema(
         },
       },
     },
-    
     remote_map_id: {
       type: Buffer,
       index: false
     },
-    
     sources: {
-      
       achievements: {
         description: {
           type: String,
@@ -76,7 +73,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       comments: {
         description: {
           type: String,
@@ -99,7 +95,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       direct_messages_received: {
         description: {
           type: String,
@@ -137,7 +132,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       drive_changes: {
         description: {
           type: String,
@@ -160,7 +154,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       edits: {
         description: {
           type: String,
@@ -202,7 +195,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       games_owned: {
         description: {
           type: String,
@@ -221,7 +213,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       gilded_comments: {
         description: {
           type: String,
@@ -240,7 +231,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       gmail_inbox: {
         description: {
           type: String,
@@ -263,7 +253,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       messages_received: {
         description: {
           type: String,
@@ -282,7 +271,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       messages_sent: {
         description: {
           type: String,
@@ -301,7 +289,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       pins: {
         description: {
           type: String,
@@ -324,7 +311,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       playlists: {
         description: {
           type: String,
@@ -347,7 +333,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       posts: {
         description: {
           type: String,
@@ -370,7 +355,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       saved_albums: {
         description: {
           type: String,
@@ -393,7 +377,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       saved_comments: {
         description: {
           type: String,
@@ -412,7 +395,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       saved_tracks: {
         description: {
           type: String,
@@ -435,7 +417,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       submitted: {
         description: {
           type: String,
@@ -454,7 +435,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-      
       threads_downvoted: {
         description: {
           type: String,
@@ -473,7 +453,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       threads_upvoted: {
         description: {
           type: String,
@@ -492,7 +471,6 @@ export const ProvidersSchema = new mongoose.Schema(
           index: false
         },
       },
-
       tweets: {
         description: {
           type: String,

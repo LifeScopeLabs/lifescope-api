@@ -363,3 +363,15 @@ export const Connections = mongoose.model('Connections', ConnectionsSchema);
 
 export const ConnectionTC = composeWithMongoose(Connections);
 
+
+ConnectionTC.addResolver({
+  name: 'initializeConnection',
+  kind: 'mutation',
+  type: ConnectionTC.getResolver('createOne').getType(),
+  args: ConnectionTC.getResolver('createOne').getArgs(),
+  resolve: async(source, args, context) => {
+    console.log(source);
+    console.log(args);
+    console.log(context);
+  }
+});

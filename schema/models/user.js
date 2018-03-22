@@ -1,9 +1,8 @@
 /* @flow */
 
-import bson from 'bson';
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
-import uuidParse from 'uuid-parse';
+import uuid from '../../lib/types/uuid';
 
 const AccountTypeSchema = new mongoose.Schema(
   {
@@ -41,10 +40,8 @@ export const UserSchema = new mongoose.Schema(
         return this._id.toString('hex')
       },
       set: function(val) {
-        if (this._conditions && this._conditions.id) {
-          var uuidBuffer = new mongoose.Types.Buffer(uuidParse.parse(val));
-          uuidBuffer.subtype(bson.Binary.SUBTYPE_UUID);
-          this._conditions._id = uuidBuffer.toObject();
+        if (val && this._conditions && this._conditions.id) {
+          this._conditions._id = uuid(val);
           
           delete this._conditions.id;
         }
@@ -156,15 +153,15 @@ export const UserTC = composeWithMongoose(User);
 // });
 
 
-UserTC.addFields({
-  id: {
-    type: 'String', 
-    description: 'uuid4 id',
-    resolve: (source, args, context, info) => {
-      return source._id.toString('hex');
-    },
-  }
-});
+// UserTC.addFields({
+//   id: {
+//     type: 'String', 
+//     description: 'uuid4 id',
+//     resolve: (source, args, context, info) => {
+//       return source._id.toString('hex');
+//     },
+//   }
+// });
 
 UserTC.setResolver(
   'findMany',

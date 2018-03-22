@@ -7,7 +7,7 @@ import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import mongoose from 'mongoose';
 
 import cookieAuthorization from './middleware/cookie-authorization';
-import lifescopeSchema from './schema';
+import { crudAPI } from './schema';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -38,13 +38,14 @@ mongooseConnect.once('open', () => {
 });
 
 server.use(
-  lifescopeSchema.uri, 
+  crudAPI.uri, 
   bodyParser.json(), 
   cookieParser(),
   cookieAuthorization,
-  graphqlExpress({ 
-    schema: lifescopeSchema.schema, 
+  graphqlExpress((req) => ({ 
+    schema: crudAPI.schema, 
     tracing: true,
+    context: req,
     // formatError: error => ({
     //   message: error.message,
     //   stack: !error.message.match(/for security reason/i) ? error.stack.split('\n') : null,
@@ -55,13 +56,13 @@ server.use(
       stack: error.stack ? error.stack.split('\n') : [],
       path: error.path
     })
-  }));
+})));
 
 // http://localhost:3000/gql-i/
-server.get(`${lifescopeSchema.uri}-i`, graphiqlExpress({ endpointURL: lifescopeSchema.uri }));
+server.get(`${crudAPI.uri}-i`, graphiqlExpress({ endpointURL: crudAPI.uri }));
 
 // http://localhost:3000/gql-p/
-server.get(`${lifescopeSchema.uri}-p`, expressPlayground({ endpoint: lifescopeSchema.uri }));
+server.get(`${crudAPI.uri}-p`, expressPlayground({ endpoint: crudAPI.uri }));
 
 // http://localhost:3000/user/
 server.listen(process.env.PORT);
