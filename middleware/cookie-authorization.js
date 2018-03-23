@@ -2,9 +2,8 @@ import _ from 'lodash';
 import config from 'config';
 import moment from 'moment';
 
-import uuid from '../lib/types/uuid';
-import { SessionTC } from '../schema/models/session';
-import { UserTC } from '../schema/models/user';
+import { SessionTC } from '../schema/models/sessions';
+import { UserTC } from '../schema/models/users';
 
 
 let $lookup = {
@@ -89,12 +88,12 @@ export default async function(req, res, next) {
     req.user = user || null;
   }
 
-  res.cookie(config.sessions.cookieName, '2EFCEBCFA93E42C7A722023AC5A664EE254502B5C96A41F9B0DDB43F2CEEC2697070D8997FAB4039A2FBDD788DA766CE', {
-    domain: 'lifescope-api.glitch.me',
-    secure: true,
-    httpOnly: true,
-    expires: 0
-  });
+  // res.cookie(config.sessions.cookieName, '2EFCEBCFA93E42C7A722023AC5A664EE254502B5C96A41F9B0DDB43F2CEEC2697070D8997FAB4039A2FBDD788DA766CE', {
+  //   domain: 'lifescope-api.glitch.me',
+  //   secure: true,
+  //   httpOnly: true,
+  //   expires: 0
+  // });
   
   next();
 };

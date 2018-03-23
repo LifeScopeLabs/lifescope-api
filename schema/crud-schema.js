@@ -11,11 +11,11 @@ import { ConnectionTC } from './models/connections';
 // import { LocationTC } from './models/locations';
 // import { ProviderTC } from './models/providers';
 // import { SearchTC } from './models/searches';
-import { SessionTC } from './models/session';
+import { SessionTC } from './models/sessions';
 // import { TagTC } from './models/tags';
 // import { ThingTC } from './models/things';
 
-import { UserTC } from './models/user';
+import { UserTC } from './models/users';
 
 const GQC = new SchemaComposer();
 
@@ -180,13 +180,13 @@ GQC.rootMutation().addFields({
   ...restrictToUser(Resolver, {
     sessionCreate: SessionTC.getResolver('createOne').wrapResolve(next => rp => {
       rp.args.record.id = uuid().replace(/-/g, '');
-      rp.args.record.user_id_string = rp.context.user._id.toString('hex');
+      rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
       
       return next(rp); 
     }),
-    
-    // initializeConnection: ConnectionTC.getResolver('initializeConnection')
   }),
+    
+  initializeConnection: ConnectionTC.getResolver('initializeConnection')
   
   // Users
   // userCreate: UserTC.getResolver('createOne'),

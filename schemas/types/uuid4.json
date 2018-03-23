@@ -1,0 +1,7 @@
+{
+  "id": "#/types/uuid4",
+  "title": "UUID4",
+  "description": "A valid UUID4 hex string (no dashes).",
+  "type": "string",
+  "pattern": "^[a-fA-F0-9]{32}$"
+}

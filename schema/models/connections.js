@@ -1,10 +1,17 @@
 /* @flow */
 
-// TODO: FIXXX
-import mongoose from 'mongoose';
+import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
-import uuid from '../../lib/types/uuid';
+import config from 'config';
+import httpErrors from 'http-errors';
+import moment from 'moment';
+import mongoose from 'mongoose';
 import nodeUUID from 'uuid/v4';
+
+import { AssociationSessionTC } from './association-sessions';
+import { ProviderTC } from './providers';
+
+import uuid from '../../lib/types/uuid';
 
 export const ConnectionsSchema = new mongoose.Schema(
   {
@@ -381,6 +388,21 @@ export const ConnectionsSchema = new mongoose.Schema(
       type: Buffer,
       index: false
     },
+    remote_connection_id_string: {
+      type: String,
+      get: function() {
+        return this.remote_connection_id.toString('hex')
+      },
+      set: function(val) {
+        if (val && this._conditions && this._conditions.remote_connection_id_string) {
+          this._conditions.remote_connection_id = uuid(val);
+          
+          delete this._conditions.remote_connection_id_string;
+        }
+        
+        this.remote_connection_id = uuid(val);
+      }
+    },
     status: {
       type: String,
       index: false
@@ -411,23 +433,230 @@ export const ConnectionsSchema = new mongoose.Schema(
 );
   
 
-export const Connections = mongoose.model('Connections', ConnectionsSchema);
+export const Connection = mongoose.model('Connections', ConnectionsSchema);
 
-export const ConnectionTC = composeWithMongoose(Connections);
+export const ConnectionTC = composeWithMongoose(Connection);
 
-// ConnectionTC.addResolver({
-//   name: 'initializeConnection',
-//   kind: 'mutation',
-//   type: ConnectionTC.getResolver('createOne').getType(),
-//   args: {
-//     provider_id_string: 'String!',
-//     name: 'String'
-//   },
-//   resolve: ({ source, args, context, info }) => {
-//     console.log(args);
+ConnectionTC.addResolver({
+  name: 'initializeConnection',
+  kind: 'mutation',
+  type: ConnectionTC.getResolver('createOne').getType(),
+  args: {
+    provider_id_string: 'String!',
+    name: 'String'
+  },
+  resolve: async ({ source, args, context, info }) => {
+    let bitscoop = env.bitscoop;
     
-//     return {
-//       cool: 'pants'
-//     };
-//   }
-// }); 
+    await env.validate('#/types/uuid4', args.provider_id_string)
+      .catch(function(err) {
+        throw new Error('provider_id_string must be a 32-character UUID4 without dashes')
+      })
+    
+    let provider = await ProviderTC.getResolver('findOne').resolve({
+      args: {
+        filter: {
+          id: args.provider_id_string
+        }
+      },
+      projection: {
+        sources: true,
+        remote_map_id: true,
+        reme_map_id_string: true
+      }
+    });
+    
+    if (provider == null) {
+      throw new httpErrors(404);
+    }
+    
+    let remoteProvider = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
+    
+    let endpoints = [];
+    let connection = {
+      frequency: 1,
+      enabled: true,
+      permissions: {},
+
+      provider: provider,
+      remote_provider: remoteProvider,
+      provider_id: provider._id
+    };
+
+    // Store valid endpoints.
+    _.each(provider.sources, function(source, name) {
+      if (_.has(context.req.body, name)) {
+        connection.permissions[name] = {
+          enabled: true,
+          frequency: 1
+        };
+
+        endpoints.push(source.mapping);
+      }
+    });
+
+    endpoints = _.uniq(endpoints);
+
+    let authObj = await bitscoop.createConnection(provider.remote_map_id.toString('hex'), {
+      name: args.name,
+      endpoints:endpoints,
+      redirect_url: remoteProvider.auth.redirect_url + '?map_id=' + provider.remote_map_id.toString('hex')
+    });
+
+    console.log(authObj);
+    await insertAssociationSessions(context, authObj);
+    
+    await ConnectionTC.getResolver('createOne').resolve({
+      args: {
+        record: {
+          id: uuid(),
+          auth: {
+              status: {
+                  complete: false
+              }
+          },
+          frequency: 1,
+          enabled: true,
+          permissions: connection.permissions,
+          provider_name: connection.remote_provider.name,
+          provider_id: connection.provider_id,
+          remote_connection_id: uuid(authObj.id),
+        }
+      }
+    });
+    
+    context.res.redirect(authObj.redirectUrl);
+  }
+}); 
+
+ConnectionTC.addResolver({
+  name: 'completeConnection',
+  kind: 'query',
+  type: ConnectionTC.getResolver('createOne').getType(),
+  args: {
+    provider_id_string: 'String!',
+    name: 'String'
+  },
+  resolve: async ({ source, args, context, info }) => {
+    console.log('Resolving Connection Creation');
+    console.log(args);
+    let bitscoop = env.bitscoop;
+    
+    await env.validate('#/types/uuid4', args.provider_id_string)
+      .catch(function(err) {
+        console.log(err);
+        throw new Error('provider_id_string must be a 32-character UUID4 without dashes')
+      })
+    
+    let provider = await ProviderTC.getResolver('findOne').resolve({
+      args: {
+        filter: {
+          id: args.provider_id_string
+        }
+      },
+      projection: {
+        sources: true,
+        remote_map_id: true,
+        reme_map_id_string: true
+      }
+    });
+    
+    if (provider == null) {
+      throw new httpErrors(404);
+    }
+    
+    let remoteProvider = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
+    
+    let endpoints = [];
+    let connection = {
+      frequency: 1,
+      enabled: true,
+      permissions: {},
+
+      provider: provider,
+      remote_provider: remoteProvider,
+      provider_id: provider._id
+    };
+
+    // Store valid endpoints.
+    _.each(provider.sources, function(source, name) {
+      if (_.has(context.req.body, name)) {
+        connection.permissions[name] = {
+          enabled: true,
+          frequency: 1
+        };
+
+        endpoints.push(source.mapping);
+      }
+    });
+
+    endpoints = _.uniq(endpoints);
+
+    let authObj = await bitscoop.createConnection(provider.remote_map_id.toString('hex'), {
+      name: args.name,
+      endpoints:endpoints,
+      redirect_url: remoteProvider.auth.redirect_url + '?map_id=' + provider.remote_map_id.toString('hex')
+    });
+
+    await insertAssociationSessions(context, authObj);
+    
+    await ConnectionTC.getResolver('createOne').resolve({
+      args: {
+        record: {
+          id: uuid(),
+          auth: {
+              status: {
+                  complete: false
+              }
+          },
+          frequency: 1,
+          enabled: true,
+          permissions: connection.permissions,
+          provider_name: connection.remote_provider.name,
+          provider_id: connection.provider_id,
+          remote_connection_id: uuid(authObj.id),
+        }
+      }
+    });
+    
+    // Promise.all([
+    //   validate
+    // ])
+  }
+}); 
+
+
+async function insertAssociationSessions(context, authObj) {
+    if (context.req.user == null) {    
+      // Only run if the user is not logged in
+      let connectionId = authObj.id;
+
+      let id = uuid();
+      let token = uuid();
+      let expiration = moment.utc().add(600, 'seconds').toDate();
+      // We don't need to have a different cookie for each provider.
+		  // Review if we do need to have a different cookie for each provider.
+      let cookieName = 'login_assoc';
+
+      await AssociationSessionTC.getResolver('createOne').resolve({
+        args: {
+          record: {
+            id: id,
+            token_string: token,
+            connection_id_string: connectionId,
+            ttl: expiration
+          }
+        }
+      })
+      
+      // Create cookie so user can login/signup after Oauth validation.
+        context.res.cookie(cookieName, token.toString('hex'), {
+            domain: config.domain,
+            secure: true,
+            httpOnly: true,
+            expires: expiration
+        });
+    }
+  
+    return Promise.resolve();
+}

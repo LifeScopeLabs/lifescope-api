@@ -8,7 +8,7 @@ export default function allowOnlyForLocalhost(Resolver, resolvers: { [name: stri
   
   Object.keys(resolvers).forEach(k => {
     secureResolvers[k] = resolvers[k].wrapResolve(next => rp => {
-      if (!rp.context.user) {
+      if (!rp.context.req.user) {
         throw new httpErrors(404, 'User is not authenticated');
       }
       else {
@@ -20,7 +20,7 @@ export default function allowOnlyForLocalhost(Resolver, resolvers: { [name: stri
           rp.args.filter = {};
         }
 
-        rp.args.filter.user_id_string = rp.context.user._id.toString('hex');
+        rp.args.filter.user_id_string = rp.context.req.user._id.toString('hex');
 
         return next(rp);
       }

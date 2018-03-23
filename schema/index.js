@@ -2,7 +2,6 @@
 
 import deepEqual from 'deep-equal';
 
-import schema from './schema';
 import crudSchema from './crud-schema';
 // import sessionSchema from './session-schema';
 
@@ -177,25 +176,25 @@ mutation {
   ]
 
 
-export default {
-  uri: '/gql',
-  crudSchema,
-  title: 'LifeScope GraphQL API',
-  description:
-    'This schema implements all data collected, organized, and analyzed by the LifeScope platform',
-  github: 'https://github.com/bitscooplabs/lifescope',
-  queries: queries,
-};
-
-// export const crudAPI = {
+// export default {
 //   uri: '/gql',
-//   crudSchema,
+//   schema: crudSchema,
 //   title: 'LifeScope GraphQL API',
 //   description:
 //     'This schema implements all data collected, organized, and analyzed by the LifeScope platform',
 //   github: 'https://github.com/bitscooplabs/lifescope',
 //   queries: queries,
 // };
+
+export const crudAPI = {
+  uri: '/gql',
+  schema: crudSchema,
+  title: 'LifeScope GraphQL API',
+  description:
+    'This schema implements all data collected, organized, and analyzed by the LifeScope platform',
+  github: 'https://github.com/bitscooplabs/lifescope',
+  queries: queries,
+};
 
 // export const sessionAPI = {
 //   uri: '/session',
