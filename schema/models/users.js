@@ -2,7 +2,7 @@
 
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
-import uuid from '../../lib/types/uuid';
+import uuid from '../../lib/util/uuid';
 
 const AccountTypeSchema = new mongoose.Schema(
   {
@@ -45,6 +45,8 @@ export const UserSchema = new mongoose.Schema(
           
           delete this._conditions.id;
         }
+
+        this._id = uuid(val);
       }
     },
     name: {

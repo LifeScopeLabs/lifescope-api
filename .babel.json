@@ -1130,7 +1130,7 @@
             ]
           },
           {
-            "source": "../../lib/types/uuid",
+            "source": "../../lib/util/uuid",
             "imported": [
               "default"
             ],
@@ -1348,7 +1348,7 @@
       "modules": {
         "imports": [
           {
-            "source": "../../lib/types/uuid",
+            "source": "../../lib/util/uuid",
             "imported": [
               "default"
             ],
@@ -2159,7 +2159,7 @@
             ]
           },
           {
-            "source": "../../lib/types/uuid",
+            "source": "../../lib/util/uuid",
             "imported": [
               "default"
             ],

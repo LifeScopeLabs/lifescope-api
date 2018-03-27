@@ -2,7 +2,7 @@
   "address": "http://localhost:8081",
   "objectMaxLimit": 100,
 
-  "domain": "lifescope-api.glitch.me",
+  "domain": "app.lifescope.io",
 
   "logging": {
     "severity": "trace",

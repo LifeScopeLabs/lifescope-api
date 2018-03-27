@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import config from 'config';
 import moment from 'moment';
 
@@ -35,15 +34,17 @@ let $project = {
 export default async function(req, res, next) {
   let cookieConsent = config.cookieConsent;
 
-	if (!req.cookies['cookieconsent']) {
-		if (req.cookies['sessionid']) {
-			res.clearCookie('sessionid', {
-				domain: config.domain,
-				secure: true,
-				httpOnly: true
-			});
-		}
+  console.log('C IS FOR COOKIE, THAT\'S GOOD ENOUGH FOR ME.');
+
+if (!req.cookies['cookieconsent']) {
+	if (req.cookies['sessionid']) {
+		res.clearCookie('sessionid', {
+			domain: config.domain,
+			secure: true,
+			httpOnly: true
+		});
 	}
+}
   
   let sessionResult = await SessionTC.getResolver('findMany').resolve({
     args: {
@@ -81,7 +82,7 @@ export default async function(req, res, next) {
     });
   
     
-    let session = sessionResult[0]
+    let session = sessionResult[0];
     let user = userResult;
     
     req.session = session;

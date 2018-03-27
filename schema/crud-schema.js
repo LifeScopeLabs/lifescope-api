@@ -9,7 +9,7 @@ import { ConnectionTC } from './models/connections';
 // import { ContentTC } from './models/content';
 // import { EventTC } from './models/events';
 // import { LocationTC } from './models/locations';
-// import { ProviderTC } from './models/providers';
+import { ProviderTC } from './models/providers';
 // import { SearchTC } from './models/searches';
 import { SessionTC } from './models/sessions';
 // import { TagTC } from './models/tags';
@@ -25,7 +25,7 @@ const { Resolver } = GQC;
 GQC.rootQuery().addFields({
   //Connections
 //   connectionOne: ConnectionTC.getResolver('findOne'),
-//   connectionMany: ConnectionTC.getResolver('findMany'),
+  connectionMany: ConnectionTC.getResolver('findMany'),
 //   connectionTotal: ConnectionTC.getResolver('count'),
 //   connectionConnection: ConnectionTC.getResolver('connection'),
 //   connectionPagination: ConnectionTC.getResolver('pagination'),
@@ -60,7 +60,7 @@ GQC.rootQuery().addFields({
   
 //   //Providers
 //   providerOne: ProviderTC.getResolver('findOne'),
-//   providerMany: ProviderTC.getResolver('findMany'),
+  providerMany: ProviderTC.getResolver('findMany'),
 //   providerTotal: ProviderTC.getResolver('count'),
 //   providerConnection: ProviderTC.getResolver('connection'),
 //   providerPagination: ProviderTC.getResolver('pagination'),
@@ -179,7 +179,7 @@ GQC.rootMutation().addFields({
   
   ...restrictToUser(Resolver, {
     sessionCreate: SessionTC.getResolver('createOne').wrapResolve(next => rp => {
-      rp.args.record.id = uuid().replace(/-/g, '');
+      rp.args.record.id = uuid();
       rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
       
       return next(rp); 

@@ -8,14 +8,15 @@ import expressPlayground from 'graphql-playground-middleware-express';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import mongoose from 'mongoose';
 
-import completeConnection from './lib/rest/complete-connection';
+import completeConnection from './lib/routes/complete-connection';
 import cookieAuthorization from './middleware/cookie-authorization';
+import meta from './middleware/meta';
 import { crudAPI } from './schema';
-import validator from './lib/validator';
+import { loadValidator } from './lib/validator';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = config.mongodb.address;
+const BITSCOOP_API_KEY = config.bitscoop.api_key;
 
-const Schema = mongoose.Schema;
 const server = express();
 const opts = {
   autoReconnect: true,
@@ -23,7 +24,7 @@ const opts = {
   reconnectInterval: 1000,
 };
 
-const bitscoop = new BitScoop(process.env.BITSCOOP_API_KEY, {
+const bitscoop = new BitScoop(BITSCOOP_API_KEY, {
 	allowUnauthorized: true
 });
 
@@ -46,20 +47,20 @@ mongooseConnect.once('open', () => {
   console.log(`MongoDB successfully connected to ${MONGODB_URI}`);
 });
 
-validator.load(config.validationSchemas)
+loadValidator(config.validationSchemas)
   .then(async function(validate) {
     global.env = {
       bitscoop: bitscoop,
       validate: validate
     };
-    
+
     server.use(
-      crudAPI.uri, 
-      bodyParser.json(), 
+      crudAPI.uri,
+      bodyParser.json(),
       cookieParser(),
       cookieAuthorization,
-      graphqlExpress((req, res) => ({ 
-        schema: crudAPI.schema, 
+      graphqlExpress((req, res) => ({
+        schema: crudAPI.schema,
         tracing: true,
         context: { req, res },
         // formatError: error => ({
@@ -73,7 +74,7 @@ validator.load(config.validationSchemas)
           path: error.path
         })
     })));
-  
+
     // server.use(
 
     // http://localhost:3000/gql-i/
@@ -81,12 +82,19 @@ validator.load(config.validationSchemas)
 
     // http://localhost:3000/gql-p/
     server.get(`${crudAPI.uri}-p`, expressPlayground({ endpoint: crudAPI.uri }));
-  
-    server.get('/connections/complete', completeConnection);
-  
+
+    server.get(
+        '/connections/complete',
+        meta,
+        bodyParser.json(),
+        cookieParser(),
+        cookieAuthorization,
+        completeConnection
+    );
+
 
     // http://localhost:3000/user/
-    server.listen(process.env.PORT);
+    server.listen(3000);
 
-    console.log('PORT: ' + process.env.PORT);
-  })
+    console.log('PORT: ' + 3000);
+  });

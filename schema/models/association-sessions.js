@@ -6,7 +6,7 @@ import nodeUUID from 'uuid/v4';
 
 import { UserTC } from './users';
 
-import uuid from '../../lib/types/uuid';
+import uuid from '../../lib/util/uuid';
 
 export const AssociationSessionSchema = new mongoose.Schema(
   {

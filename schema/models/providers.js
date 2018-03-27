@@ -1,7 +1,7 @@
 /* @flow */
 
 // TODO: FIXXX
-import uuid from '../../lib/types/uuid';
+import uuid from '../../lib/util/uuid';
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 
@@ -35,7 +35,7 @@ export const ProvidersSchema = new mongoose.Schema(
     remote_map_id: {
       type: Buffer
     },
-    remote_map_id_sttring: {
+    remote_map_id_string: {
       type: String,
       get: function() {
         if (this.remote_map_id) {

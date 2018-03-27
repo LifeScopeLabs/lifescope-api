@@ -1,6 +1,6 @@
 /* @flow */
 
-import uuid from '../../lib/types/uuid';
+import uuid from '../../lib/util/uuid';
 import mongoose from 'mongoose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 

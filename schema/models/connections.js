@@ -1,17 +1,27 @@
 /* @flow */
 
 import _ from 'lodash';
+import { graphql } from 'graphql-compose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import config from 'config';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
-import nodeUUID from 'uuid/v4';
 
 import { AssociationSessionTC } from './association-sessions';
 import { ProviderTC } from './providers';
 
-import uuid from '../../lib/types/uuid';
+import uuid from '../../lib/util/uuid';
+
+
+let initializeType = new graphql.GraphQLObjectType({
+	name: 'initializeConnection',
+	fields: {
+		id: graphql.GraphQLString,
+		redirectUrl: graphql.GraphQLString
+	}
+});
+
 
 export const ConnectionsSchema = new mongoose.Schema(
   {
@@ -53,68 +63,7 @@ export const ConnectionsSchema = new mongoose.Schema(
     },
     
     endpoint_data: {
-      direct_messages_received: {
-        since_id: {
-          type: String,
-          index: false
-        }
-      },
-      direct_messages_sent: {
-        since_id: {
-          type: String,
-          index: false
-        }
-      },
-      drive_changes: {
-        page_token: {
-          type: String,
-          index: false
-        }
-      },
-      edits: {
-        cursor: {
-          type: String,
-          index: false
-        }
-      },
-
-      
-      events: {
-        since: {
-          type: Number,
-          index: false
-        }
-      },
-      
-      
-      gmail_inbox: {
-        page_token: {
-          type: String,
-          index: false
-        },
-        q: {
-          type: String,
-          index: false
-        }
-      },
-      
-      posts: {
-        min_id: {
-          type: String,
-          index: false
-        },
-        since: {
-          type: Number,
-          index: false
-        }
-      },
-      
-      tweets: {
-        since_id: {
-          type: String,
-          index: false         
-        }
-      },
+      type: mongoose.Schema.Types.Mixed
   },
     
     frequency: {
@@ -128,237 +77,7 @@ export const ConnectionsSchema = new mongoose.Schema(
     },
     
     permissions: {
-      achievements: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      boards: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      comments: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      direct_messages_received: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      direct_messages_sent: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      drive_changes: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      edits: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      events: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      games_owned: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      gilded_comments: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      gmail_inbox: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      messages_received: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      messages_sent: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      pins: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      playlists: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      posts: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      saved_albums: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      saved_comments: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      saved_tracks: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      submitted: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      threads_downvoted: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      threads_upvoted: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
-      tweets: {
-        enabled: {
-          type: Boolean,
-          index: false
-        },
-        frequency: {
-          type: Number,
-          index: false
-        }
-      },
+      type: mongoose.Schema.Types.Mixed
     },
     
     provider_id: {
@@ -414,7 +133,7 @@ export const ConnectionsSchema = new mongoose.Schema(
     user_id_string: {
       type: String,
       get: function() {
-        return this._id.toString('hex')
+        return this.user_id.toString('hex')
       },
       set: function(val) {
         if (val && this._conditions && this._conditions.user_id_string) {
@@ -440,7 +159,7 @@ export const ConnectionTC = composeWithMongoose(Connection);
 ConnectionTC.addResolver({
   name: 'initializeConnection',
   kind: 'mutation',
-  type: ConnectionTC.getResolver('createOne').getType(),
+  type: initializeType,
   args: {
     provider_id_string: 'String!',
     name: 'String'
@@ -451,7 +170,7 @@ ConnectionTC.addResolver({
     await env.validate('#/types/uuid4', args.provider_id_string)
       .catch(function(err) {
         throw new Error('provider_id_string must be a 32-character UUID4 without dashes')
-      })
+      });
     
     let provider = await ProviderTC.getResolver('findOne').resolve({
       args: {
@@ -462,7 +181,7 @@ ConnectionTC.addResolver({
       projection: {
         sources: true,
         remote_map_id: true,
-        reme_map_id_string: true
+        remote_map_id_string: true
       }
     });
     
@@ -471,11 +190,11 @@ ConnectionTC.addResolver({
     }
     
     let remoteProvider = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
-    
+
     let endpoints = [];
     let connection = {
       frequency: 1,
-      enabled: true,
+      enabled: false,
       permissions: {},
 
       provider: provider,
@@ -499,13 +218,12 @@ ConnectionTC.addResolver({
 
     let authObj = await bitscoop.createConnection(provider.remote_map_id.toString('hex'), {
       name: args.name,
-      endpoints:endpoints,
+      endpoints: endpoints,
       redirect_url: remoteProvider.auth.redirect_url + '?map_id=' + provider.remote_map_id.toString('hex')
     });
 
-    console.log(authObj);
     await insertAssociationSessions(context, authObj);
-    
+
     await ConnectionTC.getResolver('createOne').resolve({
       args: {
         record: {
@@ -516,7 +234,7 @@ ConnectionTC.addResolver({
               }
           },
           frequency: 1,
-          enabled: true,
+          enabled: false,
           permissions: connection.permissions,
           provider_name: connection.remote_provider.name,
           provider_id: connection.provider_id,
@@ -524,106 +242,10 @@ ConnectionTC.addResolver({
         }
       }
     });
-    
-    context.res.redirect(authObj.redirectUrl);
+
+    return authObj;
   }
-}); 
-
-ConnectionTC.addResolver({
-  name: 'completeConnection',
-  kind: 'query',
-  type: ConnectionTC.getResolver('createOne').getType(),
-  args: {
-    provider_id_string: 'String!',
-    name: 'String'
-  },
-  resolve: async ({ source, args, context, info }) => {
-    console.log('Resolving Connection Creation');
-    console.log(args);
-    let bitscoop = env.bitscoop;
-    
-    await env.validate('#/types/uuid4', args.provider_id_string)
-      .catch(function(err) {
-        console.log(err);
-        throw new Error('provider_id_string must be a 32-character UUID4 without dashes')
-      })
-    
-    let provider = await ProviderTC.getResolver('findOne').resolve({
-      args: {
-        filter: {
-          id: args.provider_id_string
-        }
-      },
-      projection: {
-        sources: true,
-        remote_map_id: true,
-        reme_map_id_string: true
-      }
-    });
-    
-    if (provider == null) {
-      throw new httpErrors(404);
-    }
-    
-    let remoteProvider = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
-    
-    let endpoints = [];
-    let connection = {
-      frequency: 1,
-      enabled: true,
-      permissions: {},
-
-      provider: provider,
-      remote_provider: remoteProvider,
-      provider_id: provider._id
-    };
-
-    // Store valid endpoints.
-    _.each(provider.sources, function(source, name) {
-      if (_.has(context.req.body, name)) {
-        connection.permissions[name] = {
-          enabled: true,
-          frequency: 1
-        };
-
-        endpoints.push(source.mapping);
-      }
-    });
-
-    endpoints = _.uniq(endpoints);
-
-    let authObj = await bitscoop.createConnection(provider.remote_map_id.toString('hex'), {
-      name: args.name,
-      endpoints:endpoints,
-      redirect_url: remoteProvider.auth.redirect_url + '?map_id=' + provider.remote_map_id.toString('hex')
-    });
-
-    await insertAssociationSessions(context, authObj);
-    
-    await ConnectionTC.getResolver('createOne').resolve({
-      args: {
-        record: {
-          id: uuid(),
-          auth: {
-              status: {
-                  complete: false
-              }
-          },
-          frequency: 1,
-          enabled: true,
-          permissions: connection.permissions,
-          provider_name: connection.remote_provider.name,
-          provider_id: connection.provider_id,
-          remote_connection_id: uuid(authObj.id),
-        }
-      }
-    });
-    
-    // Promise.all([
-    //   validate
-    // ])
-  }
-}); 
+});
 
 
 async function insertAssociationSessions(context, authObj) {
@@ -647,7 +269,7 @@ async function insertAssociationSessions(context, authObj) {
             ttl: expiration
           }
         }
-      })
+      });
       
       // Create cookie so user can login/signup after Oauth validation.
         context.res.cookie(cookieName, token.toString('hex'), {
