@@ -7,7 +7,7 @@ import restrictToUser from '../middleware/restrict-to-user';
 import { ConnectionTC } from './models/connections';
 // import { ContactTC } from './models/contacts';
 // import { ContentTC } from './models/content';
-// import { EventTC } from './models/events';
+import { EventTC } from './models/events';
 // import { LocationTC } from './models/locations';
 import { ProviderTC } from './models/providers';
 // import { SearchTC } from './models/searches';
@@ -46,7 +46,7 @@ GQC.rootQuery().addFields({
   
 //   //Events
 //   eventOne: EventTC.getResolver('findOne'),
-//   eventMany: EventTC.getResolver('findMany'),
+  eventMany: EventTC.getResolver('findMany'),
 //   eventTotal: EventTC.getResolver('count'),
 //   eventConnection: EventTC.getResolver('connection'),
 //   eventPagination: EventTC.getResolver('pagination'),
@@ -129,6 +129,7 @@ GQC.rootMutation().addFields({
 //   contentRemoveMany: ContentTC.getResolver('removeMany'),
   
 //   // Events
+    eventSearch: EventTC.getResolver('searchEvents'),
 //   eventCreate: EventTC.getResolver('createOne'),
 //   eventUpdateOne: EventTC.getResolver('updateOne'),
 //   eventUpdateMany: EventTC.getResolver('updateMany'),

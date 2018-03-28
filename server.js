@@ -8,7 +8,7 @@ import expressPlayground from 'graphql-playground-middleware-express';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import mongoose from 'mongoose';
 
-import completeConnection from './lib/routes/complete-connection';
+import views from './lib/views';
 import cookieAuthorization from './middleware/cookie-authorization';
 import meta from './middleware/meta';
 import { crudAPI } from './schema';
@@ -83,13 +83,13 @@ loadValidator(config.validationSchemas)
     // http://localhost:3000/gql-p/
     server.get(`${crudAPI.uri}-p`, expressPlayground({ endpoint: crudAPI.uri }));
 
-    server.get(
-        '/connections/complete',
+    server.use(
+        '/',
         meta,
         bodyParser.json(),
         cookieParser(),
         cookieAuthorization,
-        completeConnection
+        views
     );
 
 
