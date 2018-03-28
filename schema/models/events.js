@@ -7,6 +7,7 @@ import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import uuid from "../../lib/util/uuid";
 
 import {ContactTC} from './contacts';
+import {ContentTC} from './content';
 import {UserTC} from "./users";
 import {SessionTC} from "./sessions";
 import deleteConnection from "../../lib/util/delete-connection";
@@ -732,15 +733,16 @@ EventTC.addResolver({
 			};
 		}
 
-		return {
-			count: count,
-			limit: limit,
-			offset: offset,
-			sortField: sortField,
-			sortOrder: sortOrder,
-			prev: prev,
-			next: next,
-			results: documents
-		};
+		return documents;
+		// return {
+		// 	count: count,
+		// 	limit: limit,
+		// 	offset: offset,
+		// 	sortField: sortField,
+		// 	sortOrder: sortOrder,
+		// 	prev: prev,
+		// 	next: next,
+		// 	results: documents
+		// };
 	}
 });

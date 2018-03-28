@@ -129,7 +129,7 @@ GQC.rootMutation().addFields({
 //   contentRemoveMany: ContentTC.getResolver('removeMany'),
   
 //   // Events
-    eventSearch: EventTC.getResolver('searchEvents'),
+//     eventSearch: EventTC.getResolver('searchEvents'),
 //   eventCreate: EventTC.getResolver('createOne'),
 //   eventUpdateOne: EventTC.getResolver('updateOne'),
 //   eventUpdateMany: EventTC.getResolver('updateMany'),
