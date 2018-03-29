@@ -5,7 +5,7 @@ import uuid from 'uuid/v4';
 
 import restrictToUser from '../middleware/restrict-to-user';
 import { ConnectionTC } from './models/connections';
-// import { ContactTC } from './models/contacts';
+import { ContactTC } from './models/contacts';
 // import { ContentTC } from './models/content';
 import { EventTC } from './models/events';
 // import { LocationTC } from './models/locations';
@@ -103,8 +103,6 @@ GQC.rootQuery().addFields({
   
 });
 // For debug purposes you may display resolver internals in the following manner:
-// console.log(UserTC.getResolver('findMany').toString());
-
 GQC.rootMutation().addFields({
   
   // Connections
@@ -129,7 +127,9 @@ GQC.rootMutation().addFields({
 //   contentRemoveMany: ContentTC.getResolver('removeMany'),
   
 //   // Events
-//     eventSearch: EventTC.getResolver('searchEvents'),
+    ...restrictToUser(Resolver, {
+      eventSearch: EventTC.getResolver('searchEvents'),
+    }),
 //   eventCreate: EventTC.getResolver('createOne'),
 //   eventUpdateOne: EventTC.getResolver('updateOne'),
 //   eventUpdateMany: EventTC.getResolver('updateMany'),

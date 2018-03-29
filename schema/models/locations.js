@@ -2,8 +2,10 @@
 
 // TODO: FIXXX
 // TODO: geolocation type [Double]
-import mongoose from 'mongoose';
+import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import mongoose from 'mongoose';
+
 import uuid from "../../lib/util/uuid";
 
 export const LocationsSchema = new mongoose.Schema(

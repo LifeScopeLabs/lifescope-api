@@ -1,11 +1,11 @@
 /* @flow */
 
 // TODO: FIXXX
-import uuid from '../../lib/util/uuid';
-import mongoose from 'mongoose';
+import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import mongoose from 'mongoose';
 
-import nodeUUID from 'uuid/v4';
+import uuid from '../../lib/util/uuid';
 
 export const ProvidersSchema = new mongoose.Schema(
 	{
