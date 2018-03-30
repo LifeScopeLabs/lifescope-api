@@ -13,6 +13,8 @@ import uuid from "../../lib/util/uuid";
 
 import {ContactTC} from './contacts';
 import {ContentTC} from './content';
+import {TagTC} from "./tags";
+import {add as addTags, remove as removeTags} from './templates/tag';
 import {UserTC} from "./users";
 import {SessionTC} from "./sessions";
 import deleteConnection from "../../lib/util/delete-connection";
@@ -257,6 +259,30 @@ let specialSorts = {
 };
 
 EventTC.addResolver({
+	name: 'addEventTags',
+	kind: 'mutation',
+	type: TagTC.getResolver('findOne').getType(),
+	args: {
+		tags: ['String']
+	},
+	resolve: async function({source, args, context, info}) {
+		await addTags(context.req, args, EventTC);
+	}
+});
+
+EventTC.addResolver({
+	name: 'removeEventTags',
+	kind: 'mutation',
+	type: TagTC.getResolver('findOne').getType(),
+	args: {
+		tags: ['String']
+	},
+	resolve: async function({source, args, context, info}) {
+		await removeTags(context.req, args, EventTC);
+	}
+});
+
+EventTC.addResolver({
 	name: 'searchEvents',
 	kind: 'mutation',
 	type: EventTC.getResolver('findMany').getType(),
@@ -268,7 +294,7 @@ EventTC.addResolver({
 		sortOrder: 'String',
 		filters: 'String'
 	},
-	resolve: async ({source, args, context, info}) => {
+	resolve: async function({source, args, context, info}) {
 		let count, documents;
 		let validate = env.validate;
 
@@ -539,6 +565,8 @@ EventTC.addResolver({
 					_id: true
 				}
 			});
+
+			console.log(contactResults);
 
 			let contactIds = _.map(contactResults, function(result) {
 				return result._id.toString('hex');

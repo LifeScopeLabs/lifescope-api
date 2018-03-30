@@ -54,6 +54,7 @@
     "config": "^1.30.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
+    "crypto": "^1.0.1",
     "csrf": "^3.0.6",
     "deep-equal": "^1.0.1",
     "express": "^4.16.3",
@@ -75,6 +76,7 @@
     "mongoose-uuid2": "^2.1.0",
     "node-uuid": "^1.4.8",
     "nuxt": "^1.4.0",
+    "type-detect": "^4.0.8",
     "useragent": "^2.3.0",
     "uuid": "^3.2.1",
     "uuid-parse": "^1.0.0"

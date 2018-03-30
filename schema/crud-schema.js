@@ -10,7 +10,7 @@ import { ContactTC } from './models/contacts';
 import { EventTC } from './models/events';
 // import { LocationTC } from './models/locations';
 import { ProviderTC } from './models/providers';
-// import { SearchTC } from './models/searches';
+import { SearchTC } from './models/searches';
 import { SessionTC } from './models/sessions';
 // import { TagTC } from './models/tags';
 // import { ThingTC } from './models/things';
@@ -151,6 +151,7 @@ GQC.rootMutation().addFields({
 //   providerRemoveMany: ProviderTC.getResolver('removeMany'),
   
 //   // Searches
+    searchUpsert: SearchTC.getResolver('upsertSearch'),
 //   searchCreate: SearchTC.getResolver('createOne'),
 //   searchUpdateOne: SearchTC.getResolver('updateOne'),
 //   searchUpdateMany: SearchTC.getResolver('updateMany'),

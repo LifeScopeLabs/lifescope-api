@@ -5,6 +5,8 @@ import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
 
 import uuid from "../../lib/util/uuid";
+import {add as addTags, remove as removeTags} from './templates/tag';
+import {TagTC} from "./tags";
 
 export const ContactsSchema = new mongoose.Schema(
 	{
@@ -150,3 +152,28 @@ export const Contacts = mongoose.model('Contacts', ContactsSchema);
 
 export const ContactTC = composeWithMongoose(Contacts);
 
+
+
+ContactTC.addResolver({
+	name: 'addContactTags',
+	kind: 'mutation',
+	type: TagTC.getResolver('findOne').getType(),
+	args: {
+		tags: ['String']
+	},
+	resolve: async function({source, args, context, info}) {
+		await addTags(context.req, args, ContactTC);
+	}
+});
+
+ContactTC.addResolver({
+	name: 'removeContactTags',
+	kind: 'mutation',
+	type: TagTC.getResolver('findOne').getType(),
+	args: {
+		tags: ['String']
+	},
+	resolve: async function({source, args, context, info}) {
+		await removeTags(context.req, args, ContactTC);
+	}
+});
