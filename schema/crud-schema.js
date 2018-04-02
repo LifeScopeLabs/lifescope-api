@@ -45,7 +45,7 @@ GQC.rootQuery().addFields({
 //   contentPagination: ContentTC.getResolver('pagination'),
   
 //   //Events
-//   eventOne: EventTC.getResolver('findOne'),
+  eventOne: EventTC.getResolver('findOne'),
   eventMany: EventTC.getResolver('findMany'),
 //   eventTotal: EventTC.getResolver('count'),
 //   eventConnection: EventTC.getResolver('connection'),

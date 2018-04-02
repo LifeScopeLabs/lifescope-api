@@ -125,9 +125,14 @@ export const ContentSchema = new mongoose.Schema(
 		},
 
 		tagMasks: {
+			added: {
+				type: [String]
+			},
+			removed: {
+				type: [String]
+			},
 			source: {
-				type: [String],
-				index: false
+				type: [String]
 			}
 		},
 

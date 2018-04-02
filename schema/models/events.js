@@ -154,6 +154,18 @@ export const EventsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		tagMasks: {
+			added: {
+				type: [String]
+			},
+			removed: {
+				type: [String]
+			},
+			source: {
+				type: [String]
+			}
+		},
+
 		type: {
 			type: String,
 			index: false

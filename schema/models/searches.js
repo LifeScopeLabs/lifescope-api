@@ -286,13 +286,7 @@ SearchTC.addResolver({
 	}
 });
 
-SearchTC.setResolver({
-	name: 'updateOne',
-	kind: 'mutation',
-	type: SearchTC.getResolver('updateOne').getType(),
-	args: SearchTC.getResolver('updateOne').getArgs(),
-	resolve: SearchTC.getResolver('updateOne').wrapResolve(next => rp => {
-		rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
-		rp.args.record.last_run = moment.utc().toDate()
-	})
-});
+SearchTC.setResolver('updateOne', SearchTC.getResolver('updateOne').wrapResolve(next => rp => {
+	rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
+	rp.args.record.last_run = moment.utc().toDate()
+}));

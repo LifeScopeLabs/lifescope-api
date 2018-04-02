@@ -25,9 +25,17 @@ let initializeType = new graphql.GraphQLObjectType({
 
 
 let eliminateType = new graphql.GraphQLObjectType({
-	name: 'initializeConnection',
+	name: 'eliminateConnection',
 	fields: {
 		id: graphql.GraphQLString
+	}
+});
+
+let patchType = new graphql.GraphQLObjectType({
+	name: 'patchConnection',
+	fields: {
+		connection: 'JSON',
+		reauthorize: 'Boolean'
 	}
 });
 
@@ -232,7 +240,7 @@ ConnectionTC.addResolver({
 		let endpoints = [];
 		let connection = {
 			frequency: 1,
-			enabled: false,
+			enabled: true,
 			permissions: {},
 
 			provider: provider,
@@ -272,7 +280,7 @@ ConnectionTC.addResolver({
 						}
 					},
 					frequency: 1,
-					enabled: false,
+					enabled: true,
 					permissions: connection.permissions,
 					provider_name: connection.remote_provider.name,
 					provider_id: connection.provider_id,
@@ -282,6 +290,180 @@ ConnectionTC.addResolver({
 		});
 
 		return authObj;
+	}
+});
+
+ConnectionTC.addResolver({
+	name: 'patchConnection',
+	kind: 'mutation',
+	type: patchType,
+	args: {
+		id: 'String',
+		sources: 'JSON'
+	},
+	resolve: async function({source, args, context, info}) {
+		let bitscoop = env.bitscoop;
+		let req = context.req;
+		let sources = req.body.sources;
+		let validate = env.validate;
+
+		if (sources) {
+			_.each(sources, function(enabled, source) {
+				if (type(enabled) !== 'boolean') {
+					throw httpErrors(400, 'Enabled must be a boolean');
+				}
+			});
+		}
+
+		try {
+			await validate('#/types/uuid4', args.id)
+		} catch(err) {
+			throw httpErrors(404);
+		}
+
+		let connection = await ConnectionTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		if (!connection) {
+			throw httpErrors(404);
+		}
+
+		let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
+
+		if (!bitscoopConnection) {
+			throw httpErrors(404);
+		}
+
+		let provider = await ProviderTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: connection.provider_id.toString('hex')
+				}
+			}
+		});
+
+		if (!provider) {
+			throw httpErrors(404);
+		}
+
+		let map = bitscoop.getMap(provider.remote_map_id.toString('hex'))
+
+		if (!map) {
+			throw httpErrors(404);
+		}
+
+		let explorerConnection = {
+			permissions: _.cloneDeep(connection.permissions)
+		};
+
+		if (args.name) {
+			bitscoopConnection.name = args.name;
+		}
+
+		if ('enabled' in args) {
+			explorerConnection.enabled = args.enabled;
+		}
+
+		let sourcesUpdated = false;
+
+		_.each(sources, function(value, name) {
+			if (!connection.permissions.hasOwnProperty(name)) {
+				explorerConnection.permissions[name] = {
+					enabled: value,
+					frequency: 1
+				};
+
+				if (value === true) {
+					sourcesUpdated = true;
+				}
+			}
+			else if (value !== connection.permissions[name].enabled) {
+				explorerConnection.permissions[name].enabled = value;
+				sourcesUpdated = true;
+			}
+		});
+
+		if (sourcesUpdated && map.auth.type === 'oauth2') {
+			explorerConnection['auth.status.authorized'] = bitscoopConnection.auth.status.authorized = false;
+		}
+
+		let scopes = [];
+
+		_.each(provider.sources, function(source, name) {
+			if (args.hasOwnProperty('sources') && args.sources.hasOwnProperty(name)) {
+				connection.permissions[name] = {
+					enabled: true,
+					frequency: 1
+				};
+
+				//endpoints.push(source.mapping);
+				//All of the below is only necessary until plat_190 is merged in. After that, you should be able to just use the above line and delete everything below.
+				let visited = new Set();
+
+				let handlers = map.endpoints[source.mapping];
+				let defaultGet = handlers.hasOwnProperty('route') || handlers.hasOwnProperty('single') || handlers.hasOwnProperty('collection');
+
+				if (defaultGet) {
+					handlers = {
+						GET: handlers
+					};
+				}
+
+				_.each(handlers, function(handler, method) {
+					let handlerScopes;
+
+					if (visited.has(handler)) {
+						return false;
+					}
+
+					visited.add(handler);
+
+					if (defaultGet) {
+						handlerScopes = handlers.scopes;
+					}
+					else {
+						handlerScopes = handlers[method].scopes;
+					}
+
+					if (Array.isArray(handlerScopes)) {
+						Array.prototype.push.apply(scopes, handlerScopes);
+					}
+				});
+			}
+		});
+
+		//bitscoopConnection.endpoints = _.uniq(endpoints);
+		bitscoopConnection.scopes = _.uniq(scopes);
+
+		delete bitscoopConnection.map_id;
+		delete bitscoopConnection.metadata;
+
+		await ConnectionTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: connection._id.toString('hex')
+				},
+				record: explorerConnection
+			}
+		});
+
+		try {
+			await bitscoopConnection.save()
+		} catch(err) {
+			console.log(err);
+
+			throw err;
+		}
+
+		return {
+			reauthorize: _.get(explorerConnection, 'auth.status.authorized', null) === false
+		};
 	}
 });
 

@@ -111,9 +111,14 @@ export const ContactsSchema = new mongoose.Schema(
 
 		tagMasks: {
 			added: {
-				type: [String],
-				index: false
+				type: [String]
 			},
+			removed: {
+				type: [String]
+			},
+			source: {
+				type: [String]
+			}
 		},
 
 		updated: {

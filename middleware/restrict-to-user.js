@@ -1,7 +1,5 @@
-import _ from 'lodash';
 import httpErrors from 'http-errors';
 
-import uuid from '../lib/util/uuid';
 
 export default function allowOnlyForLocalhost(Resolver, resolvers: { [name: string]: Resolver }) {
   const secureResolvers = {};
