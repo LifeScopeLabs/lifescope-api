@@ -4,7 +4,7 @@ import _ from 'lodash';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 
-import uuid from '../../../lib/utl/uuid';
+import uuid from '../../../lib/util/uuid';
 import {TagTC} from "../tags";
 
 
@@ -43,7 +43,7 @@ export const add = async function(req, args, TypeTC) {
 					record: {
 						id: uuid(),
 						created: moment.utc().toDate(),
-						updated: moment.utc().toDate()
+						updated: moment.utc().toDate(),
 						tag: tag
 					}
 				}
