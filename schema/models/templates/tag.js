@@ -4,6 +4,7 @@ import _ from 'lodash';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 
+import uuid from '../../../lib/utl/uuid';
 import {TagTC} from "../tags";
 
 
@@ -18,25 +19,36 @@ export const add = async function(req, args, TypeTC) {
 	}
 
 	_.each(args.tags, async function(tag) {
-		await TagTC.getResolver('updateOne').resolve({
+		let tagResult = await TagTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
 					tag: tag,
-					user_id: req.user._id
-				},
-				$set: {
-					updated: moment.utc().toDate()
-				},
-				$setOnInsert: {
-					_id: gid(),
-					created: moment.utc().toDate(),
-					tag: tag
+					user_id: req.user._id.toString('hex')
 				}
-			},
-			opts: {
-				upsert: true
 			}
 		});
+
+		if (tagResult) {
+			await TagTC.getResolver('updateOne').resolve({
+				args: {
+					record: {
+						updated: moment.utc().toDate()
+					}
+				}
+			})
+		}
+		else {
+			await TagTC.getResvoler('createOne').resolve({
+				args: {
+					record: {
+						id: uuid(),
+						created: moment.utc().toDate(),
+						updated: moment.utc().toDate()
+						tag: tag
+					}
+				}
+			})
+		}
 	});
 
 	let filter = {
@@ -59,6 +71,8 @@ export const add = async function(req, args, TypeTC) {
 			}
 		}
 	});
+
+	console.log(data);
 
 	if (data.result.n === 0) {
 		throw new httpErrors(404);

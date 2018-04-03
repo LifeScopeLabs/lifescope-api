@@ -129,6 +129,8 @@ GQC.rootMutation().addFields({
 //   // Events
     ...restrictToUser(Resolver, {
       eventSearch: EventTC.getResolver('searchEvents'),
+        tagEvent: EventTC.getResolver('addEventTags'),
+        untagEvent: EventTC.getResolver('removeEventTags')
     }),
 //   eventCreate: EventTC.getResolver('createOne'),
 //   eventUpdateOne: EventTC.getResolver('updateOne'),
