@@ -279,7 +279,7 @@ EventTC.addResolver({
 		tags: ['String']
 	},
 	resolve: async function({source, args, context, info}) {
-		await addTags(context.req, args, EventTC);
+		return await addTags(context.req, args, EventTC);
 	}
 });
 
@@ -292,7 +292,7 @@ EventTC.addResolver({
 		tags: ['String']
 	},
 	resolve: async function({source, args, context, info}) {
-		await removeTags(context.req, args, EventTC);
+		return await removeTags(context.req, args, EventTC);
 	}
 });
 

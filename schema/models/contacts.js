@@ -167,7 +167,7 @@ ContactTC.addResolver({
 		tags: ['String']
 	},
 	resolve: async function({source, args, context, info}) {
-		await addTags(context.req, args, ContactTC);
+		return await addTags(context.req, args, ContactTC);
 	}
 });
 
@@ -179,6 +179,6 @@ ContactTC.addResolver({
 		tags: ['String']
 	},
 	resolve: async function({source, args, context, info}) {
-		await removeTags(context.req, args, ContactTC);
+		return await removeTags(context.req, args, ContactTC);
 	}
 });

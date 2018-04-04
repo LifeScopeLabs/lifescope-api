@@ -7,6 +7,7 @@ import config from 'config';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
+import type from 'type-detect';
 
 import deleteConnection from '../../lib/util/delete-connection';
 import {AssociationSessionTC} from './association-sessions';
@@ -208,7 +209,8 @@ ConnectionTC.addResolver({
 	type: initializeType,
 	args: {
 		provider_id_string: 'String!',
-		name: 'String'
+		name: 'String',
+		permissions: 'JSON'
 	},
 	resolve: async ({source, args, context, info}) => {
 		let bitscoop = env.bitscoop;
@@ -250,7 +252,7 @@ ConnectionTC.addResolver({
 
 		// Store valid endpoints.
 		_.each(provider.sources, function (source, name) {
-			if (_.has(context.req.body, name)) {
+			if (_.has(args.permissions, name)) {
 				connection.permissions[name] = {
 					enabled: true,
 					frequency: 1
@@ -270,6 +272,7 @@ ConnectionTC.addResolver({
 
 		await insertAssociationSessions(context, authObj);
 
+		console.log(connection);
 		await ConnectionTC.getResolver('createOne').resolve({
 			args: {
 				record: {
@@ -304,7 +307,7 @@ ConnectionTC.addResolver({
 	resolve: async function({source, args, context, info}) {
 		let bitscoop = env.bitscoop;
 		let req = context.req;
-		let sources = req.body.sources;
+		let sources = args.sources;
 		let validate = env.validate;
 
 		if (sources) {
@@ -352,7 +355,7 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
-		let map = bitscoop.getMap(provider.remote_map_id.toString('hex'))
+		let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'))
 
 		if (!map) {
 			throw httpErrors(404);
@@ -389,6 +392,7 @@ ConnectionTC.addResolver({
 			}
 		});
 
+		console.log(map);
 		if (sourcesUpdated && map.auth.type === 'oauth2') {
 			explorerConnection['auth.status.authorized'] = bitscoopConnection.auth.status.authorized = false;
 		}
@@ -396,7 +400,7 @@ ConnectionTC.addResolver({
 		let scopes = [];
 
 		_.each(provider.sources, function(source, name) {
-			if (args.hasOwnProperty('sources') && args.sources.hasOwnProperty(name)) {
+			if (args.hasOwnProperty('sources') && _.has('args.sources', name)) {
 				connection.permissions[name] = {
 					enabled: true,
 					frequency: 1
@@ -461,6 +465,8 @@ ConnectionTC.addResolver({
 			throw err;
 		}
 
+		console.log(explorerConnection)
+
 		return {
 			reauthorize: _.get(explorerConnection, 'auth.status.authorized', null) === false
 		};
@@ -472,10 +478,11 @@ ConnectionTC.addResolver({
 	kind: 'mutation',
 	type: eliminateType,
 	args: {
-		id: String
+		id: 'String'
 	},
-	resolve: async ({source, args, context, info}) => {
+	resolve: async function({source, args, context, info}) {
 		let bitscoop = env.bitscoop;
+		let req = context.req;
 
 		await env.validate('#/types/uuid4', args.id)
 			.catch(function (err) {
@@ -483,7 +490,11 @@ ConnectionTC.addResolver({
 			});
 
 		let count = await ConnectionTC.getResolver('count').resolve({
-			user_id_string: req.user._id.toString('hex')
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
 		});
 
 		if (count === 1) {
@@ -491,8 +502,12 @@ ConnectionTC.addResolver({
 		}
 
 		let connection = await ConnectionTC.getResolver('findOne').resolve({
-			id: args.id,
-			user_id_string: req.user._id.toString('hex')
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
 		});
 
 		if (!connection) {

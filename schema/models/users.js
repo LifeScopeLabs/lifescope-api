@@ -240,25 +240,33 @@ UserTC.addResolver({
 	kind: 'mutation',
 	type: new graphql.GraphQLObjectType({
 		name: 'deleteAccount',
-		fields: {}
+		fields: {
+			id: 'String'
+		}
 	}),
-	args: {},
+	args: {
+		id: 'String'
+	},
 	resolve: async ({source, args, context, info}) => {
+		let req = context.req;
+
 		let connections = await ConnectionTC.getResolver('findMany').resolve({
 			args: {
 				filter: {
-					user_id_string: context.req.user._id.toString('hex')
+					user_id_string: req.user._id.toString('hex')
 				}
 			}
 		});
 
 		_.each(connections, async function (connection) {
-			await deleteConnection(connection._id.toString('hex'), context.req.user._id.toString('hex'));
+			await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
 		});
 
 		await UserTC.getResolver('removeOne').resolve({
 			args: {
-				id: req.user._id.toString('hex')
+				filter: {
+					id: req.user._id.toString('hex')
+				}
 			}
 		});
 

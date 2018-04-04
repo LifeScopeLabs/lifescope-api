@@ -206,7 +206,7 @@ ContentTC.addResolver({
 		tags: ['String']
 	},
 	resolve: async function({source, args, context, info}) {
-		await addTags(context.req, args, ContentTC);
+		return await addTags(context.req, args, ContentTC);
 	}
 });
 
@@ -218,6 +218,6 @@ ContentTC.addResolver({
 		tags: ['String']
 	},
 	resolve: async function({source, args, context, info}) {
-		await removeTags(context.req, args, ContentTC);
+		return await removeTags(context.req, args, ContentTC);
 	}
 });

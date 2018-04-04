@@ -45,8 +45,10 @@ GQC.rootQuery().addFields({
 //   contentPagination: ContentTC.getResolver('pagination'),
   
 //   //Events
-  eventOne: EventTC.getResolver('findOne'),
-  eventMany: EventTC.getResolver('findMany'),
+    ...restrictToUser(Resolver, {
+      eventOne: EventTC.getResolver('findOne'),
+      eventMany: EventTC.getResolver('findMany'),
+    }),
 //   eventTotal: EventTC.getResolver('count'),
 //   eventConnection: EventTC.getResolver('connection'),
 //   eventPagination: EventTC.getResolver('pagination'),
@@ -128,9 +130,13 @@ GQC.rootMutation().addFields({
   
 //   // Events
     ...restrictToUser(Resolver, {
+      connectionPatch: ConnectionTC.getResolver('patchConnection'),
+      connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
+
       eventSearch: EventTC.getResolver('searchEvents'),
         tagEvent: EventTC.getResolver('addEventTags'),
-        untagEvent: EventTC.getResolver('removeEventTags')
+        untagEvent: EventTC.getResolver('removeEventTags'),
+        deleteAccount: UserTC.getResolver('deleteAccount')
     }),
 //   eventCreate: EventTC.getResolver('createOne'),
 //   eventUpdateOne: EventTC.getResolver('updateOne'),
