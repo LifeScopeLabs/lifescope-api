@@ -3,7 +3,7 @@
 import { SchemaComposer } from 'graphql-compose';
 import uuid from 'uuid/v4';
 
-import restrictToUser from '../middleware/restrict-to-user';
+import restrictToUser from '../lib/middleware/restrict-to-user';
 import { ConnectionTC } from './models/connections';
 import { ContactTC } from './models/contacts';
 // import { ContentTC } from './models/content';

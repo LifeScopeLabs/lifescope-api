@@ -1,0 +1,66 @@
+<header>
+	<div>Menu</div>
+	<i id="close-menu" class="fa fa-times"></i>
+</header>
+
+<section>
+	<div class="views">
+		<div class="current active">
+			<i class="fa fa-caret-up"></i>
+			<span class="drawer-label">View &ndash;</span>
+			<span class="name"></span>
+		</div>
+		<div class="drawer">
+			<a data-view="feed"><i class="fa fa-clone"></i><span>Feed</span></a>
+			<a data-view="grid"><i class="fa fa-th"></i><span>Grid</span></a>
+			<a data-view="list"><i class="fa fa-list"></i><span>List</span></a>
+			{# <a data-view="map"><i class="fa fa-map-o"></i></a> #}
+		</div>
+	</div>
+
+	<div class="sort">
+		<div class="current">
+			<i class="fa fa-caret-down"></i>
+			<span class="drawer-label">Sort &ndash;</span>
+			<span class="name"></span>
+		</div>
+		<div class="fields drawer hidden"></div>
+	</div>
+
+	<div class="facets">
+		<div class="current">
+			<i class="fa fa-caret-down"></i>
+			<span class="drawer-label">Facet &ndash;</span>
+			<span class="name"></span>
+			<div class="flex-grow"></div>
+			<span class="count"></span>
+		</div>
+		<div class="drawer hidden"></div>
+	</div>
+
+	<a class="live" href="/explore"><i class="fa fa-rocket blue"></i> Search LifeScope</a>
+	<a class="providers" href="/providers"><i class="fa fa-plug"></i> Add Connections</a>
+	<a class="settings" href="/settings"><i class="fa fa-cog"></i> Settings</a>
+</section>
+
+<footer>
+	<div class="user-info">
+		{% if req.user.handle %}
+			<a href="/settings/account"><i class="fa fa-user"></i> {{ req.user.handle }}</a>
+		{% elif req.user.first_name or req.user.last_name %}
+			<a href="/settings/account"><i class="fa fa-user"></i> {{ req.user.first_name }} {{ req.user.last_name }}</a>
+		{% else %}
+			<a href="/settings/account"><i class="fa fa-user"></i> {{ req.user.email }}</a>
+		{% endif %}
+
+		<a href="/logout"><i class="fa fa-sign-out"></i> Logout</a>
+	</div>
+
+	<div>
+		<a href="https://www.bitscooplabs.com">&copy; 2017 BitScoop Labs, Inc.</a>
+		<span class="spacer">|</span>
+		<a href="https://www.bitscooplabs.com/privacy">Privacy</a>
+		<span class="spacer">|</span>
+		<a href="https://www.bitscooplabs.com/terms">Terms</a>
+	</div>
+</footer>

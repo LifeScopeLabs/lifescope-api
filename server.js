@@ -7,12 +7,14 @@ import express from 'express';
 import expressPlayground from 'graphql-playground-middleware-express';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import mongoose from 'mongoose';
+import { Nuxt, Builder } from 'nuxt';
 
 import views from './lib/views';
-import cookieAuthorization from './middleware/cookie-authorization';
-import meta from './middleware/meta';
+import cookieAuthorization from './lib/middleware/cookie-authorization';
+import meta from './lib/middleware/meta';
 import { crudAPI } from './schema';
 import { loadValidator } from './lib/validator';
+import nuxtConfig from './nuxt.config.js';
 
 const MONGODB_URI = config.mongodb.address;
 const BITSCOOP_API_KEY = config.bitscoop.api_key;
@@ -34,6 +36,10 @@ mongoose.connect(MONGODB_URI, opts);
 
 const mongooseConnect = mongoose.connection;
 
+const nuxt = new Nuxt(nuxtConfig);
+
+const builder = new Builder(nuxt);
+
 
 mongooseConnect.on('error', e => {
   if (e.message.code === 'ETIMEDOUT') {
@@ -53,6 +59,8 @@ loadValidator(config.validationSchemas)
       bitscoop: bitscoop,
       validate: validate
     };
+
+    builder.build();
 
     server.use(
       crudAPI.uri,
@@ -83,6 +91,8 @@ loadValidator(config.validationSchemas)
     // http://localhost:3000/gql-p/
     server.get(`${crudAPI.uri}-p`, expressPlayground({ endpoint: crudAPI.uri }));
 
+    server.use(nuxt.render);
+
     server.use(
         '/',
         meta,
@@ -91,7 +101,6 @@ loadValidator(config.validationSchemas)
         cookieAuthorization,
         views
     );
-
 
     // http://localhost:3000/user/
     server.listen(3000);

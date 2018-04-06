@@ -272,7 +272,6 @@ ConnectionTC.addResolver({
 
 		await insertAssociationSessions(context, authObj);
 
-		console.log(connection);
 		await ConnectionTC.getResolver('createOne').resolve({
 			args: {
 				record: {
@@ -392,7 +391,6 @@ ConnectionTC.addResolver({
 			}
 		});
 
-		console.log(map);
 		if (sourcesUpdated && map.auth.type === 'oauth2') {
 			explorerConnection['auth.status.authorized'] = bitscoopConnection.auth.status.authorized = false;
 		}
@@ -464,8 +462,6 @@ ConnectionTC.addResolver({
 
 			throw err;
 		}
-
-		console.log(explorerConnection)
 
 		return {
 			reauthorize: _.get(explorerConnection, 'auth.status.authorized', null) === false
