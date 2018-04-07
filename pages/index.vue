@@ -1,14 +1,16 @@
 <template>
-
 </template>
 
 <script>
 	export default {
 		asyncData({ store }) {
-			store.state.mode = 'providers'
+			store.state.mode = 'home';
+			store.state.pageName = 'providers';
 		},
 		data: function() {
-			return { name: 'world' }
+			return {
+				authenticated: this.$store.state.user != undefined
+			}
 		}
 	}
 </script>

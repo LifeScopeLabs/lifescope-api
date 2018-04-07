@@ -4,6 +4,9 @@ import cookieParser from 'cookie-parser';
 import cookieAuthorization from "./lib/middleware/cookie-authorization";
 
 module.exports = {
+	css: [
+		'./assets/css/site.min.css'
+	],
 	build: {
 		extend (config, { isDev, isClient }) {
 

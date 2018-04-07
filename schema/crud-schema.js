@@ -77,7 +77,7 @@ GQC.rootQuery().addFields({
   //Session
   sessionOne: SessionTC.getResolver('findOne'),
   ...restrictToUser(Resolver, {
-    sessionMany: SessionTC.getResolver('findMany'),
+    providerManyHydrated: ProviderTC.getResolver('providerManyHydrated')
   }),
 //   sessionTotal: SessionTC.getResolver('count'),
 //   sessionConnection: SessionTC.getResolver('connection'),

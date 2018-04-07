@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import moment from 'moment';
 
 Vue.use(Vuex);
 
@@ -9,6 +10,15 @@ const store = () => new Vuex.Store({
 	state: {
 		cookies: null,
 		user: null
+	},
+
+	getters: {
+		authenticated (state) {
+			return state.user != undefined;
+		},
+		dateJoined (state) {
+			return moment(state.user.date_join).format('MMMM DD, YYYY')
+		}
 	},
 
 	mutations: {
