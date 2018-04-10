@@ -11,13 +11,8 @@
 
             <div class="info">
                 <div>
-                    <i class="fa fa-envelope-o"></i>
-                    <span>{{ req.user.email }}</span>
-                </div>
-
-                <div>
                     <i class="fa fa-clock-o"></i>
-                    <span>Joined "$store.getters.dateJoined"</span>
+                    <span>Joined {{ $store.getters.dateJoined }}</span>
                 </div>
             </div>
 
@@ -25,17 +20,17 @@
 
             <div class="stats">
                 <a class="connections" href="/settings/connections">
-                    <div class="count">{{ counts.connections }}</div>
+                    <div class="count" v-model="connectionCount">{{ connectionCount }}</div>
                     <div class="label">Connections</div>
                 </a>
 
                 <a class="events" href="/explore">
-                    <div class="count">{{ counts.events }}</div>
+                    <div class="count" v-model="eventCount">{{ eventCount }}</div>
                     <div class="label">Events</div>
                 </a>
 
                 <a class="searches" href="/explore">
-                    <div class="count">{{ counts.searches }}</div>
+                    <div class="count" v-model="searchCount">{{ searchCount }}</div>
                     <div class="label">Searches</div>
                 </a>
             </div>
@@ -69,3 +64,33 @@
         </aside>
     </main>
 </template>
+
+<script>
+    import connectionCount from '../../apollo/queries/connectionCount.gql';
+    import eventCount from '../../apollo/queries/eventCount.gql';
+    import searchCount from '../../apollo/queries/searchCount.gql';
+
+    export default {
+    	data: function() {
+    		return {
+			    connectionCount: null,
+			    eventCount: null,
+			    searchCount: null
+		    };
+        },
+    	apollo: {
+    		connectionCount: {
+                prefetch: true,
+                query: connectionCount
+            },
+		    eventCount: {
+			    prefetch: true,
+			    query: eventCount
+		    },
+		    searchCount: {
+			    prefetch: true,
+			    query: searchCount
+		    },
+        }
+    }
+</script>

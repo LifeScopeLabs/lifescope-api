@@ -24,16 +24,11 @@ const { Resolver } = GQC;
 // create GraphQL Schema with all available resolvers
 GQC.rootQuery().addFields({
   //Connections
-//   connectionOne: ConnectionTC.getResolver('findOne'),
-  connectionMany: ConnectionTC.getResolver('findMany'),
 //   connectionTotal: ConnectionTC.getResolver('count'),
 //   connectionConnection: ConnectionTC.getResolver('connection'),
 //   connectionPagination: ConnectionTC.getResolver('pagination'),
   
 //   //Contacts
-//   contactOne: ContactTC.getResolver('findOne'),
-//   contactMany: ContactTC.getResolver('findMany'),
-//   contactTotal: ContactTC.getResolver('count'),
 //   contactConnection: ContactTC.getResolver('connection'),
 //   contactPagination: ContactTC.getResolver('pagination'),
   
@@ -45,11 +40,6 @@ GQC.rootQuery().addFields({
 //   contentPagination: ContentTC.getResolver('pagination'),
   
 //   //Events
-    ...restrictToUser(Resolver, {
-      eventOne: EventTC.getResolver('findOne'),
-      eventMany: EventTC.getResolver('findMany'),
-    }),
-//   eventTotal: EventTC.getResolver('count'),
 //   eventConnection: EventTC.getResolver('connection'),
 //   eventPagination: EventTC.getResolver('pagination'),
   
@@ -61,23 +51,37 @@ GQC.rootQuery().addFields({
 //   locationPagination: LocationTC.getResolver('pagination'),
   
 //   //Providers
-//   providerOne: ProviderTC.getResolver('findOne'),
+  providerOne: ProviderTC.getResolver('findOne'),
   providerMany: ProviderTC.getResolver('findMany'),
-//   providerTotal: ProviderTC.getResolver('count'),
-//   providerConnection: ProviderTC.getResolver('connection'),
+  providerTotal: ProviderTC.getResolver('count'),
+  //   providerConnection: ProviderTC.getResolver('connection'),
 //   providerPagination: ProviderTC.getResolver('pagination'),
   
 //   //Searches
-//   searchOne: SearchTC.getResolver('findOne'),
-//   searchMany: SearchTC.getResolver('findMany'),
-//   searchTotal: SearchTC.getResolver('count'),
 //   searchConnection: SearchTC.getResolver('connection'),
 //   searchPagination: SearchTC.getResolver('pagination'),
 
   //Session
   sessionOne: SessionTC.getResolver('findOne'),
+
   ...restrictToUser(Resolver, {
-    providerManyHydrated: ProviderTC.getResolver('providerManyHydrated')
+      connectionCount: ConnectionTC.getResolver('count'),
+      connectionMany: ConnectionTC.getResolver('findMany'),
+      connectionOne: ConnectionTC.getResolver('findOne'),
+
+      contactCount: ContactTC.getResolver('count'),
+	  contactMany: ContactTC.getResolver('findMany'),
+	  contactOne: ContactTC.getResolver('findOne'),
+
+	  eventCount: EventTC.getResolver('count'),
+	  eventMany: EventTC.getResolver('findMany'),
+	  eventOne: EventTC.getResolver('findOne'),
+
+      providerManyHydrated: ProviderTC.getResolver('providerManyHydrated'),
+
+	  searchCount: SearchTC.getResolver('count'),
+	  searchMany: SearchTC.getResolver('findMany'),
+	  searchOne: SearchTC.getResolver('findOne'),
   }),
 //   sessionTotal: SessionTC.getResolver('count'),
 //   sessionConnection: SessionTC.getResolver('connection'),

@@ -4,6 +4,14 @@ import cookieParser from 'cookie-parser';
 import cookieAuthorization from "./lib/middleware/cookie-authorization";
 
 module.exports = {
+	modules: ['@nuxtjs/apollo'],
+
+	apollo: {
+		clientConfigs: {
+			default: '../apollo/client-configs/default.js'
+		}
+	},
+
 	css: [
 		'./assets/css/site.min.css'
 	],
