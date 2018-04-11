@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
 import cookieAuthorization from "./lib/middleware/cookie-authorization";
+import initialSearches from "./lib/middleware/initial-searches";
 
 module.exports = {
 	modules: ['@nuxtjs/apollo'],
@@ -31,5 +32,6 @@ module.exports = {
 		bodyParser.json(),
 		cookieParser(),
 		cookieAuthorization,
+		initialSearches,
 	]
 };

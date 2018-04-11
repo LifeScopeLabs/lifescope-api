@@ -10,9 +10,7 @@
 
         <vue-aside></vue-aside>
 
-        <main>
-            <vue-main></vue-main>
-        </main>
+        <vue-main></vue-main>
 
         <cookie-consent></cookie-consent>
 

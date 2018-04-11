@@ -1,4 +1,4 @@
-<template v-if="$store.state.mode === 'app' || $store.state.mode === 'home'">
+<template slot="header" v-if="$store.state.mode === 'app' || $store.state.mode === 'home'">
 	<header>
 		<nav>
 			<a id="home" href="/"><img class="logo" src="~/assets/images/logo.png" /></a>

@@ -1,4 +1,4 @@
-<template>
+<template slot="menu">
 	<div class="menu">
 		<header>
 			<div>Menu</div>

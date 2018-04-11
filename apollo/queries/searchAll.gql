@@ -1,0 +1,17 @@
+{
+    searchMany {
+        id,
+        favorited,
+        icon,
+        icon_color,
+        filters {
+            data,
+            name,
+            type
+        },
+        count,
+        last_run,
+        query,
+        name
+    }
+}

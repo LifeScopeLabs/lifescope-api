@@ -1,4 +1,4 @@
-<template>
+<template slot="main">
     <main>
         <aside v-if="$store.state.user != undefined" id="profile">
             <div class="avatar">
@@ -46,7 +46,40 @@
 
             <div id="search-container">
                 <div class="scroller">
-                    <div id="searches"></div>
+                    <div id="searches">
+                        <a v-model="searchMany" v-for="search in searchMany" href="/explore"
+                           class="saved-search"
+                           v-bind:data-id="search.id"
+                           v-bind:data-favorited="search.favorited"
+                           v-bind:data-icon-color="search.iconColor"
+                           v-bind:data-icon="search.icon"
+                           v-bind:data-name="search.name">
+
+                            <div class="info">
+                                <i v-bind:class="searchIcon(search)" v-bind:style="{ color: searchColor(search) }"></i>
+                                <span class="name">{{ search.name }}</span>
+
+                                <span class="spacer"></span>
+
+                                <span class="last-run">{{ lastRunRelative(search) }}</span>
+
+                                <i v-bind:class="favoriteIcon(search)"></i>
+                            </div>
+
+                            <div v-if="search.query || (search.filters && search.filters.length > 0)" class="search">
+                                <div v-if="search.query" class="query">&quot;{{ query }}&quot;</div>
+
+                                <div v-if="search.filters && search.filters.length > 0" class="filters">
+                                    <div v-for="filter in search.filters" class="filter">{{ search.filter.name || search.filter.type }}</div>
+
+                                    <div class="filter-overflow-count"></div>
+                                </div>
+                            </div>
+
+                            <div v-bind:class="favoriteButton(search)"></div>
+                        </a>
+
+                    </div>
                 </div>
             </div>
         </section>
@@ -66,17 +99,37 @@
 </template>
 
 <script>
+    import moment from 'moment';
     import connectionCount from '../../apollo/queries/connectionCount.gql';
     import eventCount from '../../apollo/queries/eventCount.gql';
     import searchCount from '../../apollo/queries/searchCount.gql';
+    import searchAll from '../../apollo/queries/searchAll.gql';
 
     export default {
     	data: function() {
     		return {
 			    connectionCount: null,
 			    eventCount: null,
-			    searchCount: null
+			    searchCount: null,
+                searches: null
 		    };
+        },
+        methods: {
+    		searchIcon: function(search) {
+			    return search.favorited && search.icon ? search.icon : 'fa fa-circle-o';
+            },
+            searchColor: function(search) {
+    			return search.favorited && search.icon && search.icon_color ? search.icon_color : '#b6bbbf';
+            },
+            favoriteIcon: function(search) {
+	            return search.favorited ? 'favorite-edit fa fa-star subdue' : 'favorite-create fa fa-star-o subdue'
+            },
+            favoriteButton: function(search) {
+    			return search.favorited ? 'favorite-edit' : 'favorite-create'
+            },
+            lastRunRelative: function(search) {
+    			return moment(new Date(search.last_run)).fromNow();
+            }
         },
     	apollo: {
     		connectionCount: {
@@ -91,6 +144,10 @@
 			    prefetch: true,
 			    query: searchCount
 		    },
+            searchMany: {
+    			prefetch: true,
+                query: searchAll
+            }
         }
     }
 </script>

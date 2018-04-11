@@ -312,7 +312,6 @@ EventTC.addResolver({
 		let count, documents;
 		let validate = env.validate;
 
-		console.log(args.filters);
 		let filters = JSON.parse(args.filters);
 		let suppliedFilters = filters;
 
@@ -342,7 +341,6 @@ EventTC.addResolver({
 
 		let validationVal = query;
 
-		console.log(query);
 		let specialSort = false;
 
 		for (let key in specialSorts) {
@@ -377,8 +375,6 @@ EventTC.addResolver({
 				user_id_string: context.req.user._id.toString('hex')
 			};
 
-			console.log(_.has(query, 'filters.whoFilters'));
-			console.log(query.filters.whoFilters.length);
 			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
 				if (!contactOptions.hasOwnProperty('$and')) {
 					contactOptions.$and = [];
@@ -557,8 +553,6 @@ EventTC.addResolver({
 				eventOptions.intentionallyFail = true;
 			}
 
-			console.log(contactOptions);
-
 			let contactResults = await ContactTC.getResolver('findMany').resolve({
 				rawQuery: contactOptions,
 				projection: {
@@ -579,8 +573,6 @@ EventTC.addResolver({
 					_id: true
 				}
 			});
-
-			console.log(contactResults);
 
 			let contactIds = _.map(contactResults, function(result) {
 				return result._id.toString('hex');

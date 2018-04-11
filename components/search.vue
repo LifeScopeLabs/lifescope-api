@@ -1,4 +1,4 @@
-<template>
+<template slot="search">
 	<div id="search-bar" class="input-group">
 		<div v-if="!hide_advanced" id="advanced">
 			<i class="fa fa-caret-down"></i>

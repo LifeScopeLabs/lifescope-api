@@ -2,17 +2,13 @@
     <main>
         <div class="scroller">
             <div id="provider-grid">
-                {% for provider in providers %}
-                <div class="mix {% for tag in provider.tags %}{{ tag }} {% endfor %}{% if provider.assoc_count > 0 %}associated{% endif %}" data-id="{{ provider._id | hex }}" data-assoc-count="{{ provider.assoc_count }}">
+                <div v-for="provider in providers" v-bind:key="provider.id" v-bind:class="[{associated: provider.assoc_count > 0}, provider.tags]" class="mix" v-bind:data-id="provider.id" v-bind:data-assoc-count="provider.assoc_count">
                     <div>
-                        {% if provider.assoc_count > 1 %}
-                        <span>{{ provider.assoc_count }}</span>
-                        {% endif %}
-                        <h1><i class="fa fa-{{ provider.name | lower }}"></i></h1>
+                        <span v-if="provider.assoc_count > 1">{{ provider.assoc_count }}</span>
+                        <h1><i v-bind:class="providerIcon(provider.name)"></i></h1>
                         <p>{{ provider.name }}</p>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
 
@@ -31,7 +27,7 @@
 
                             <div class="padded paragraphed">
                                 <form action="/connections" method="POST">
-                                    <input type="hidden" name="csrftoken" value="{{ csrf_token }}" />
+                                    <!--<input type="hidden" name="csrftoken" value="{{ csrf_token }}" />-->
                                     <input type="hidden" name="provider_id" />
 
                                     <div class="align-center">
@@ -51,11 +47,8 @@
                         </div>
 
                         <div id="manage">
-                            {% if current_count == 1 %}
-                            <a class="primary" href="https://app.lifescope.io/settings/connections?provider={{ provider._id | hex }}">Manage {{ current_count }} {{ provider.name }} Connection</a>
-                            {% elif current_count > 1 %}
-                            <a class="primary" href="https://app.lifescope.io/settings/connections?provider={{ provider._id | hex }}">Manage {{ current_count }} {{ provider.name }} Connections</a>
-                            {% endif %}
+                            <a class="primary" v-bind:href="connectionLink(id)">Manage {{ provider.name }} Connections</a>
+
                         </div>
                     </div>
                 </div>
@@ -91,3 +84,16 @@
         </aside>
     </main>
 </template>
+
+<script>
+    export default {
+        computed: {
+        	providerIcon: function(name) {
+        		return 'fa fa-' + name.toLowerCase();
+            },
+            connectionLink: function(id) {
+        		return 'https://app.lifescope.io/settings/connections?provider=' + id;
+            }
+        }
+    }
+</script>
