@@ -18,7 +18,6 @@ module.exports = {
 	],
 	build: {
 		extend (config, { isDev, isClient }) {
-
 			config.node = {
 				dns: 'empty',
 				fs: 'empty',
@@ -26,8 +25,12 @@ module.exports = {
 				net: 'empty',
 				tls: 'empty'
 			}
-		}
+		},
+		vendor: ['mixitup', 'vue-js-modal']
 	},
+
+	plugins: ['./plugins/vue-js-modal'],
+
 	serverMiddleware: [
 		bodyParser.json(),
 		cookieParser(),

@@ -290,3 +290,38 @@ SearchTC.setResolver('updateOne', SearchTC.getResolver('updateOne').wrapResolve(
 	rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
 	rp.args.record.last_run = moment.utc().toDate()
 }));
+
+SearchTC.setResolver('findMany', SearchTC.getResolver('findMany')
+	.addFilterArg({
+		name: 'type',
+		type: 'String',
+		description: 'How to filter and sort the results',
+		query: function(query, value, resolveParams) {
+			if (value === 'favorites') {
+				query.favorited = true;
+			}
+		}
+	})
+	.addSortArg({
+		name: 'favorites',
+		description: 'Alphabetical sort on name, most recent first if names are the same',
+		value: {
+			name: 1,
+			last_run: -1
+		}
+	})
+	.addSortArg({
+		name: 'recent',
+		description: 'Most recent first',
+		value: {
+			last_run: -1
+		}
+	})
+	.addSortArg({
+		name: 'top',
+		description: 'Descending in order of times run',
+		value: {
+			count: -1
+		}
+	})
+);

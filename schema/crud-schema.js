@@ -77,7 +77,7 @@ GQC.rootQuery().addFields({
 	  eventMany: EventTC.getResolver('findMany'),
 	  eventOne: EventTC.getResolver('findOne'),
 
-      providerManyHydrated: ProviderTC.getResolver('providerManyHydrated'),
+      providerHydratedMany: ProviderTC.getResolver('providerHydratedMany'),
 
 	  searchCount: SearchTC.getResolver('count'),
 	  searchMany: SearchTC.getResolver('findMany'),

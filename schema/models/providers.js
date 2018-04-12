@@ -102,10 +102,9 @@ export const ProviderTC = composeWithMongoose(Providers);
 
 
 ProviderTC.addResolver({
-	name: 'providerManyHydrated',
+	name: 'providerHydratedMany',
 	kind: 'query',
 	type: [hydratedProviderType],
-	args: {},
 	resolve: async function({source, args, context, info}) {
 		let bitscoop = env.bitscoop;
 
