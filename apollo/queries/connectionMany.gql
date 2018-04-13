@@ -1,9 +1,0 @@
-{
-    connectionMany: {
-        id,
-        remote_connection_id,
-        remote_connection_id_string,
-        user_id,
-        user_id_string
-    }
-}

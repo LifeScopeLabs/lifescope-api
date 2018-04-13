@@ -225,8 +225,6 @@ SearchTC.addResolver({
 			})
 		}
 
-		console.log(result.record);
-
 		return result.record;
 	}
 });

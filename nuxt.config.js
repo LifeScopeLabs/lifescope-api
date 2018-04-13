@@ -29,7 +29,10 @@ module.exports = {
 		vendor: ['mixitup', 'vue-js-modal']
 	},
 
-	plugins: ['./plugins/vue-js-modal'],
+	plugins: [
+		'./plugins/vue-js-modal',
+		'./plugins/vue2-filters'
+	],
 
 	serverMiddleware: [
 		bodyParser.json(),

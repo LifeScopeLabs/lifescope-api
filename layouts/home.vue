@@ -2,21 +2,13 @@
     <div id="body" v-bind:class="[{ authenticated: $store.getters.authenticated }, $store.state.pageName]">
         <vue-header></vue-header>
 
-        <aside id="menu">
-            <section class="scroller">
-                <vue-menu></vue-menu>
-            </section>
-        </aside>
+        <vue-menu></vue-menu>
 
         <vue-aside></vue-aside>
 
         <vue-main></vue-main>
 
         <cookie-consent></cookie-consent>
-
-        <footer>
-            <!--<vue-footer></vue-footer>-->
-        </footer>
     </div>
 </template>
 

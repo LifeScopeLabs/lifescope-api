@@ -1,0 +1,15 @@
+{
+    connectionMany {
+        id,
+        auth {
+            status {
+                authorized,
+                complete
+            }
+        },
+        enabled,
+        last_run,
+        permissions,
+        provider_name
+    }
+}

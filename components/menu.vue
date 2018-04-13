@@ -1,65 +1,78 @@
 <template slot="menu">
-	<div class="menu">
-		<header>
-			<div>Menu</div>
-			<i id="close-menu" class="fa fa-times"></i>
-		</header>
+	<aside id="menu" v-if="$store.state.menu.open" v-on-clickaway="clickaway">
+		<section class="scroller">
+			<div class="menu">
+				<header>
+					<div>Menu</div>
+					<i id="close-menu" class="fa fa-times" v-on:click="$store.state.menu.open = false"></i>
+				</header>
 
-		<section>
-			<div class="views">
-				<div class="current active">
-					<i class="fa fa-caret-up"></i>
-					<span class="drawer-label">View &ndash;</span>
-					<span class="name"></span>
-				</div>
-				<div class="drawer">
-					<a data-view="feed"><i class="fa fa-clone"></i><span>Feed</span></a>
-					<a data-view="grid"><i class="fa fa-th"></i><span>Grid</span></a>
-					<a data-view="list"><i class="fa fa-list"></i><span>List</span></a>
-				</div>
+				<section>
+					<div class="views">
+						<div class="current active">
+							<i class="fa fa-caret-up"></i>
+							<span class="drawer-label">View &ndash;</span>
+							<span class="name"></span>
+						</div>
+						<div class="drawer">
+							<a data-view="feed"><i class="fa fa-clone"></i><span>Feed</span></a>
+							<a data-view="grid"><i class="fa fa-th"></i><span>Grid</span></a>
+							<a data-view="list"><i class="fa fa-list"></i><span>List</span></a>
+						</div>
+					</div>
+
+					<div class="sort">
+						<div class="current">
+							<i class="fa fa-caret-down"></i>
+							<span class="drawer-label">Sort &ndash;</span>
+							<span class="name"></span>
+						</div>
+						<div class="fields drawer hidden"></div>00
+					</div>
+
+					<div class="facets">
+						<div class="current">
+							<i class="fa fa-caret-down"></i>
+							<span class="drawer-label">Facet &ndash;</span>
+							<span class="name"></span>
+							<div class="flex-grow"></div>
+							<span class="count"></span>
+						</div>
+						<div class="drawer hidden"></div>
+					</div>
+
+					<a class="live" href="/explore"><i class="fa fa-rocket blue"></i> Search LifeScope</a>
+					<a class="providers" href="/providers"><i class="fa fa-plug"></i> Add Connections</a>
+					<a class="settings" href="/settings/account"><i class="fa fa-cog"></i> Settings</a>
+				</section>
+
+				<footer>
+					<div class="user-info">
+						<a href="/logout"><i class="fa fa-sign-out"></i> Logout</a>
+					</div>
+
+					<div>
+						<a href="https://www.bitscooplabs.com">&copy; 2017 BitScoop Labs, Inc.</a>
+						<span class="spacer">|</span>
+						<a href="https://www.bitscooplabs.com/privacy">Privacy</a>
+						<span class="spacer">|</span>
+						<a href="https://www.bitscooplabs.com/terms">Terms</a>
+					</div>
+				</footer>
 			</div>
-
-			<div class="sort">
-				<div class="current">
-					<i class="fa fa-caret-down"></i>
-					<span class="drawer-label">Sort &ndash;</span>
-					<span class="name"></span>
-				</div>
-				<div class="fields drawer hidden"></div>
-			</div>
-
-			<div class="facets">
-				<div class="current">
-					<i class="fa fa-caret-down"></i>
-					<span class="drawer-label">Facet &ndash;</span>
-					<span class="name"></span>
-					<div class="flex-grow"></div>
-					<span class="count"></span>
-				</div>
-				<div class="drawer hidden"></div>
-			</div>
-
-			<a class="live" href="/explore"><i class="fa fa-rocket blue"></i> Search LifeScope</a>
-			<a class="providers" href="/providers"><i class="fa fa-plug"></i> Add Connections</a>
-			<a class="settings" href="/settings"><i class="fa fa-cog"></i> Settings</a>
 		</section>
-
-		<footer>
-			<div class="user-info">
-				<a href="/logout"><i class="fa fa-sign-out"></i> Logout</a>
-			</div>
-
-			<div>
-				<a href="https://www.bitscooplabs.com">&copy; 2017 BitScoop Labs, Inc.</a>
-				<span class="spacer">|</span>
-				<a href="https://www.bitscooplabs.com/privacy">Privacy</a>
-				<span class="spacer">|</span>
-				<a href="https://www.bitscooplabs.com/terms">Terms</a>
-			</div>
-		</footer>
-	</div>
+	</aside>
 </template>
 
 <script>
-	export default {}
+	import { mixin as clickaway } from 'vue-clickaway';
+
+	export default {
+		mixins: [ clickaway ],
+		methods: {
+			clickaway: function() {
+				this.$store.state.menu.open = false;
+			}
+		}
+	}
 </script>

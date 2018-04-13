@@ -9,7 +9,10 @@ require('whatwg-fetch');
 const store = () => new Vuex.Store({
 	state: {
 		cookies: null,
-		user: null
+		user: null,
+		menu: {
+			open: false
+		}
 	},
 
 	getters: {

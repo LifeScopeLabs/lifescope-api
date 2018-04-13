@@ -5,24 +5,24 @@
                 <div class="flexbox flex-x-center">
                     <i v-bind:class="providerIcon(provider.name)"></i>
                     <div class="header flex-grow">New {{ provider.name }} Connection</div>
-                    <i v-bind:class="providerIcon(provider.name)" style="color: transparent;"></i>
+                    <i class="fa fa-times-circle" v-on:click="$emit('close')"></i>
                 </div>
             </div>
 
             <div class="padded paragraphed">
-                <form action="/connections" method="POST">
+                <form action="/connections" method="POST" v-on:submit.self.prevent="createConnection">
                     <!--<input type="hidden" name="csrftoken" value="{{ csrf_token }}" />-->
-                    <input type="hidden" name="provider_id" v-bind:val="provider.id"/>
+                    <input type="hidden" name="provider_id" v-bind:val="provider.id" v-model="connectionForm.provider_id"/>
 
                     <div class="align-center">
-                        <input class="line-entry align-center" type="text" name="name" v-bind:placeholder="getPlaceholder(provider)" style="padding-top: 0;" autofocus />
+                        <input class="line-entry align-center" type="text" name="name" v-bind:placeholder="getPlaceholder(provider)" v-model="connectionForm.name" style="padding-top: 0;" autofocus />
                     </div>
 
                     <div class="source-container" style="margin-top: 25px;">
                         <div class="label">What would you like?</div>
                         <div class="sources">
                             <div v-for="source, name in provider.sources" class="paragraph source-checkbox">
-                                <label><input type="checkbox" v-bind:name="name" v-bind:checked="source.enabled_by_default" />{{ name | capitalize }}</label>
+                                <label><input type="checkbox" v-bind:value="name" v-model="connectionForm.sources"/>{{ name | formatNames }}</label>
                                 <div class="tooltip">{{ source.description }}</div>
                             </div>
 
@@ -45,14 +45,36 @@
 
 
 <script>
+    import _ from 'lodash';
+    import initializeConnection from '../../apollo/mutations/initialize-connection.gql';
+
 	export default {
+		data: function(context) {
+			let sources = _.map(context.provider.sources, function(source, name) {
+				return source.enabled_by_default ? name : null;
+            });
+
+            return {
+            	connectionForm: {
+		            provider_id: context.provider.id,
+		            name: '',
+		            sources: sources
+	            }
+            }
+        },
 		filters: {
-			capitalize: function(value) {
+			formatNames: function(value) {
 				if (!value) return '';
 
 				value = value.toString();
 
-				return value.charAt(0).toUpperCase() + value.slice(1);
+				let pieces = value.split('_');
+
+				let capitalized = _.map(pieces, function(value) {
+					return value.charAt(0).toUpperCase() + value.slice(1);
+                });
+
+				return capitalized.join(' ');
             }
         },
         props: ['provider'],
@@ -61,8 +83,28 @@
 				return 'fa fa-' + name.toLowerCase();
 			},
 			getPlaceholder: function(provider) {
-				return 'My ' + provider.name + 'Account';
-			}
+				return 'My ' + provider.name + ' Account';
+			},
+            createConnection: async function() {
+				let form = this.$data.connectionForm;
+
+				let permissions = {};
+
+				_.each(form.sources, function(source) {
+					permissions[source] = true;
+                });
+
+                let response = await this.$apollo.mutate({
+                    mutation: initializeConnection,
+                    variables: {
+                    	name: form.name,
+                        provider_id_string: form.provider_id,
+                        permissions: permissions
+                    }
+                });
+
+                window.location = response.data.initializeConnection.redirectUrl;
+            }
 		}
 	}
 </script>

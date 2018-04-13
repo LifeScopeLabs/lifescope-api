@@ -244,9 +244,6 @@ UserTC.addResolver({
 			id: 'String'
 		}
 	}),
-	args: {
-		id: 'String'
-	},
 	resolve: async ({source, args, context, info}) => {
 		let req = context.req;
 

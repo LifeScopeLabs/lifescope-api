@@ -1,4 +1,4 @@
-<template slot="main">
+<template>
     <main>
         <aside v-if="$store.state.user != undefined" id="profile">
             <div class="avatar">
@@ -100,10 +100,10 @@
 
 <script>
     import moment from 'moment';
-    import connectionCount from '../../apollo/queries/connectionCount.gql';
-    import eventCount from '../../apollo/queries/eventCount.gql';
-    import searchCount from '../../apollo/queries/searchCount.gql';
-    import searchAll from '../../apollo/queries/searchAll.gql';
+    import connectionCount from '../../apollo/queries/connection-count.gql';
+    import eventCount from '../../apollo/queries/event-count.gql';
+    import searchCount from '../../apollo/queries/search-count.gql';
+    import searchAll from '../../apollo/queries/search-all.gql';
 
     export default {
     	data: function() {

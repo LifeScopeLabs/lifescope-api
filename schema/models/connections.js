@@ -300,7 +300,8 @@ ConnectionTC.addResolver({
 	kind: 'mutation',
 	type: patchType,
 	args: {
-		id: 'String',
+		id: 'String!',
+		enabled: 'Boolean',
 		sources: 'JSON'
 	},
 	resolve: async function({source, args, context, info}) {

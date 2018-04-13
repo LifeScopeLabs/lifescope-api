@@ -4,8 +4,6 @@
 
         <vue-menu></vue-menu>
 
-        <vue-aside></vue-aside>
-
         <vue-main></vue-main>
 
         <cookie-consent></cookie-consent>
@@ -13,16 +11,14 @@
 </template>
 
 <script>
-	import CookieConsent from '../components/cookie-consent';
-	import VueHeader from '../components/header';
-	import VueMenu from '../components/menu';
-	import VueAside from '../components/aside';
-	import VueMain from '../components/main/providers';
+	import CookieConsent from '../../components/cookie-consent';
+	import VueHeader from '../../components/header';
+	import VueMenu from '../../components/menu';
+	import VueMain from '../../components/main/settings';
 
 	export default {
 		components: {
 			CookieConsent: CookieConsent,
-			VueAside: VueAside,
 			VueHeader: VueHeader,
 			VueMenu: VueMenu,
 			VueMain: VueMain

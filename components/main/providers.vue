@@ -2,7 +2,7 @@
     <main>
         <div class="scroller">
             <div id="provider-grid">
-                <div v-model="providerHydratedMany"  v-for="provider in providerHydratedMany" @click="showConnectionModal(provider)" v-bind:key="provider.id" v-bind:class="[{associated: provider.assoc_count > 0}, provider.tags]" class="mix" v-bind:data-id="provider.id" v-bind:data-assoc-count="provider.assoc_count">
+                <div v-model="providerHydratedMany"  v-for="provider in providerHydratedMany" v-on:click="showConnectionModal(provider)" v-bind:key="provider.id" v-bind:class="[{associated: provider.assoc_count > 0}, provider.tags]" class="mix" v-bind:data-id="provider.id" v-bind:data-assoc-count="provider.assoc_count">
                     <div>
                         <span v-if="provider.assoc_count > 1">{{ provider.assoc_count }}</span>
                         <h1><i v-bind:class="providerIcon(provider.name)"></i></h1>
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-    import providerHydratedMany from '../../apollo/queries/providerHydratedMany.gql';
+    import providerHydratedMany from '../../apollo/queries/provider-hydrated-many.gql';
     import connectionCreateModal from '../../components/modals/connection-create';
     import loginHelpModal from '../../components/modals/login-help';
 
@@ -46,13 +46,13 @@
                 }, {
         			height: 'auto',
                     scrollable: true
-                })
+                });
             }
         },
         apollo: {
         	providerHydratedMany: {
-        		prefetch: true,
                 query: providerHydratedMany,
+		        prefetch: true,
             }
         },
         mounted() {
