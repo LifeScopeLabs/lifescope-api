@@ -26,21 +26,18 @@
 
 
 <script>
-    import deleteAccount from '../../apollo/mutations/delete-account.gql';
+    import eliminateConnection from '../../apollo/mutations/eliminate-connection.gql';
 
 	export default {
-		data: function() {
-			return {
-				connection: null
-            }
-        },
+		props: ['connection'],
 		methods: {
             deleteConnection: async function(connection) {
                 await this.$apollo.mutate({
-                    mutation: deleteConnection
+                    mutation: eliminateConnection,
+                    variables: {
+                    	id: connection.id
+                    }
                 });
-
-                window.location = '/';
             }
 		}
 	}

@@ -8,7 +8,7 @@
 		},
 		asyncData({ store }) {
 			store.state.mode = 'account';
-			store.state.pageName = 'settings';
+			store.state.pageName = 'settings account';
 		},
 		data: function() {
 			return {

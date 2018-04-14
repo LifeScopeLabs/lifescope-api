@@ -1,0 +1,5 @@
+mutation initializeConnection($provider_id_string: String!, $permissions: JSON, $name: String) {
+    initializeConnection(provider_id_string: $provider_id_string, permissions: $permissions, name: $name) {
+        redirectUrl
+    }
+}

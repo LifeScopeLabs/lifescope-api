@@ -1,5 +1,5 @@
 {
-    connectionMany {
+    connectionMany(filter: { auth: { status: { complete: true } } }) {
         id,
         auth {
             status {
@@ -7,9 +7,18 @@
                 complete
             }
         },
+        name,
         enabled,
         last_run,
         permissions,
-        provider_name
+        provider_id,
+        provider {
+            id,
+            name,
+            auth_type,
+            sources
+        },
+        provider_name,
+        remote_connection_id
     }
 }

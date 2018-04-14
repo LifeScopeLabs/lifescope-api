@@ -1,5 +1,5 @@
 mutation patchConnection($id: String!, $enabled: Boolean, $sources: JSON) {
-    patchConnection(id: $id, enabled: $enabled, sources: $sources) {
+    connectionPatch(id: $id, enabled: $enabled, sources: $sources) {
         connection,
         reauthorize
     }

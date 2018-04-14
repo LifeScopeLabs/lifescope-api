@@ -8,7 +8,7 @@
 		},
 		asyncData({ store }) {
 			store.state.mode = 'connections';
-			store.state.pageName = 'settings';
+			store.state.pageName = 'settings connections';
 		},
 		data: function() {
 			return {

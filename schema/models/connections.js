@@ -14,6 +14,8 @@ import {AssociationSessionTC} from './association-sessions';
 import {ProviderTC} from './providers';
 
 import uuid from '../../lib/util/uuid';
+import {EventTC} from "./events";
+import {ContactTC} from "./contacts";
 
 
 let initializeType = new graphql.GraphQLObjectType({
@@ -116,6 +118,17 @@ export const ConnectionsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		name: {
+			type: String,
+			get: async function() {
+				let bitscoop = env.bitscoop;
+
+				let bitscoopConnection = await bitscoop.getConnection(this.remote_connection_id.toString('hex'));
+
+				return bitscoopConnection.name;
+			}
+		},
+
 		permissions: {
 			type: mongoose.Schema.Types.Mixed
 		},
@@ -202,6 +215,18 @@ export const ConnectionsSchema = new mongoose.Schema(
 export const Connection = mongoose.model('Connections', ConnectionsSchema);
 
 export const ConnectionTC = composeWithMongoose(Connection);
+
+
+ConnectionTC.addRelation('provider', {
+	resolver: () => ProviderTC.getResolver('providerWithMapOne'),
+	prepareArgs: {
+		filter: function(source) {
+			return {
+				id: source.provider_id.toString('hex')
+			}
+		},
+	}
+});
 
 ConnectionTC.addResolver({
 	name: 'initializeConnection',
@@ -393,7 +418,7 @@ ConnectionTC.addResolver({
 		});
 
 		if (sourcesUpdated && map.auth.type === 'oauth2') {
-			explorerConnection['auth.status.authorized'] = bitscoopConnection.auth.status.authorized = false;
+			explorerConnection['auth.status.authorized'] = bitscoopConnection['auth.status.authorized'] = false;
 		}
 
 		let scopes = [];
@@ -446,6 +471,7 @@ ConnectionTC.addResolver({
 
 		delete bitscoopConnection.map_id;
 		delete bitscoopConnection.metadata;
+		delete bitscoopConnection.auth;
 
 		await ConnectionTC.getResolver('updateOne').resolve({
 			args: {
@@ -465,6 +491,7 @@ ConnectionTC.addResolver({
 		}
 
 		return {
+			connection: explorerConnection,
 			reauthorize: _.get(explorerConnection, 'auth.status.authorized', null) === false
 		};
 	}

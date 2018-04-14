@@ -54,6 +54,8 @@ GQC.rootQuery().addFields({
   providerOne: ProviderTC.getResolver('findOne'),
   providerMany: ProviderTC.getResolver('findMany'),
   providerTotal: ProviderTC.getResolver('count'),
+    providerWithMapMany: ProviderTC.getResolver('providerWithMapMany'),
+	providerWithMapOne: ProviderTC.getResolver('providerWithMapOne'),
   //   providerConnection: ProviderTC.getResolver('connection'),
 //   providerPagination: ProviderTC.getResolver('pagination'),
   
@@ -134,10 +136,10 @@ GQC.rootMutation().addFields({
   
 //   // Events
     ...restrictToUser(Resolver, {
-      connectionPatch: ConnectionTC.getResolver('patchConnection'),
-      connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
+        connectionPatch: ConnectionTC.getResolver('patchConnection'),
+        connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
 
-      eventSearch: EventTC.getResolver('searchEvents'),
+        eventSearch: EventTC.getResolver('searchEvents'),
         tagEvent: EventTC.getResolver('addEventTags'),
         untagEvent: EventTC.getResolver('removeEventTags'),
         deleteAccount: UserTC.getResolver('deleteAccount')

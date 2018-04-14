@@ -26,7 +26,11 @@ module.exports = {
 				tls: 'empty'
 			}
 		},
-		vendor: ['mixitup', 'vue-js-modal']
+		vendor: [
+			'mixitup',
+			'vue-js-modal',
+			'vue2-filters'
+		]
 	},
 
 	plugins: [

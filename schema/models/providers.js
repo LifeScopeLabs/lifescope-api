@@ -22,6 +22,18 @@ let hydratedProviderType = TypeComposer.create(`
 	}
 `);
 
+let providerWithMapType = TypeComposer.create(`
+	type providerWithMapType {
+		id: String,
+		auth_type: String,
+		sources: JSON,
+		remote_map_id: Buffer,
+		remote_map_id_string: String,
+		name: String,
+		tags: [String]
+	}
+`);
+
 export const ProvidersSchema = new mongoose.Schema(
 	{
 		_id: {
@@ -135,5 +147,54 @@ ProviderTC.addResolver({
 		}));
 
 		return providers;
+	}
+});
+
+ProviderTC.addResolver({
+	name: 'providerWithMapMany',
+	kind: 'query',
+	type: [providerWithMapType],
+	resolve: async function({source, args, context, info}) {
+		let bitscoop = env.bitscoop;
+
+		let providers = await ProviderTC.getResolver('findMany').resolve({
+			args: args
+		});
+
+		await Promise.all(_.map(providers, async function (provider) {
+			let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
+
+			provider.name = map.name;
+			provider.tags = map.tags;
+			provider.auth_type = map.auth.type;
+
+			return Promise.resolve();
+		}));
+
+		return providers;
+	}
+});
+
+ProviderTC.addResolver({
+	name: 'providerWithMapOne',
+	kind: 'query',
+	type: providerWithMapType,
+	args: {
+		id: 'String'
+	},
+	resolve: async function({source, args, context, info}) {
+		let bitscoop = env.bitscoop;
+
+		let provider = await ProviderTC.getResolver('findOne').resolve({
+			args: args
+		});
+
+		let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
+
+		provider.name = map.name;
+		provider.tags = map.tags;
+		provider.auth_type = map.auth.type;
+
+		return provider;
 	}
 });
