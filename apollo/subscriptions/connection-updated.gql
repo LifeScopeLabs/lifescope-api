@@ -1,0 +1,24 @@
+subscription connectionUpdated {
+    connectionUpdated {
+        id,
+        auth {
+            status {
+                authorized,
+                complete
+            }
+        },
+        name,
+        enabled,
+        last_run,
+        permissions,
+        provider_id,
+        provider {
+            id,
+            name,
+            auth_type,
+            sources
+        },
+        provider_name,
+        remote_connection_id
+    }
+}

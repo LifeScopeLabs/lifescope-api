@@ -1,6 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
+import { withFilter } from 'graphql-subscriptions';
 import {graphql} from 'graphql-compose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import config from 'config';
@@ -14,8 +15,11 @@ import {AssociationSessionTC} from './association-sessions';
 import {ProviderTC} from './providers';
 
 import uuid from '../../lib/util/uuid';
-import {EventTC} from "./events";
-import {ContactTC} from "./contacts";
+
+const filtered = (asyncIterator, filter) => withFilter(
+	() => asyncIterator,
+	filter,
+);
 
 
 let initializeType = new graphql.GraphQLObjectType({
@@ -490,6 +494,8 @@ ConnectionTC.addResolver({
 			throw err;
 		}
 
+		env.pubSub.publish('connectionUpdated', explorerConnection);
+
 		return {
 			connection: explorerConnection,
 			reauthorize: _.get(explorerConnection, 'auth.status.authorized', null) === false
@@ -548,6 +554,17 @@ ConnectionTC.addResolver({
 
 		context.res.status = 204;
 	}
+});
+
+ConnectionTC.addResolver({
+	name: 'connectionUpdated',
+	kind: 'subscription',
+	type: ConnectionTC.getResolver('findOne').getType(),
+	// args: {
+	// 	id: 'String!'
+	// },
+	resolve: (payload) => payload,
+	subscribe: (_, args, context, info) => filtered(env.pubsub.asyncIterator('connectionUpdated'), (payload, variables) => payload.id === variables.id)(_, args, context, info)
 });
 
 

@@ -116,6 +116,7 @@
     import moment from 'moment';
 
     import connectionMany from '../../apollo/queries/connection-many.gql';
+    import connectionUpdated from '../../apollo/subscriptions/connection-updated.gql';
     import deleteAccountModal from '../modals/delete-account';
     import deleteConnectionModal from '../modals/delete-connection';
     import disableConnectionModal from '../modals/disable-connection';
@@ -219,6 +220,23 @@
 					    	return connection.permissions.hasOwnProperty(name) ? name : null;
                         });
                     });
+                },
+                subscribeToMore: {
+			    	document: connectionUpdated,
+                    variables () {
+			    		console.log(this.param);
+			    		return {
+			    			param: this.param
+                        }
+                    },
+                    updateQuery: function(previousResult, { subscriptionData}) {
+                        console.log('Previous result:');
+                        console.log(previousResult);
+                        console.log('New subscription data:');
+                        console.log(subscriptionData);
+
+                        return previousResult;
+                    }
                 }
 		    }
 	    },

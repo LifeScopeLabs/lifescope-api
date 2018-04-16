@@ -193,14 +193,14 @@ GQC.rootMutation().addFields({
 //   thingRemoveOne: ThingTC.getResolver('removeOne'),
 //   thingRemoveMany: ThingTC.getResolver('removeMany'),
   
-  ...restrictToUser(Resolver, {
-    sessionCreate: SessionTC.getResolver('createOne').wrapResolve(next => rp => {
-      rp.args.record.id = uuid();
-      rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
-      
-      return next(rp); 
-    }),
-  }),
+  // ...restrictToUser(Resolver, {
+  //   sessionCreate: SessionTC.getResolver('createOne').wrapResolve(next => rp => {
+  //     rp.args.record.id = uuid();
+  //     rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
+  //
+  //     return next(rp);
+  //   }),
+  // }),
     
   initializeConnection: ConnectionTC.getResolver('initializeConnection')
   
@@ -210,6 +210,10 @@ GQC.rootMutation().addFields({
   // userUpdateMany: UserTC.getResolver('updateMany'),
   // userRemoveOne: UserTC.getResolver('removeOne'),
   // userRemoveMany: UserTC.getResolver('removeMany'),
+});
+
+GQC.rootSubscription().addFields({
+	connectionUpdated: ConnectionTC.getResolver('connectionUpdated'),
 });
 
 const graphqlSchema = GQC.buildSchema();

@@ -6,6 +6,9 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import expressPlayground from 'graphql-playground-middleware-express';
 import {graphqlExpress, graphiqlExpress} from 'apollo-server-express';
+import { PubSub } from 'graphql-subscriptions';
+import { execute, subscribe } from 'graphql';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
 import mongoose from 'mongoose';
 import {Nuxt, Builder} from 'nuxt';
 
@@ -40,6 +43,8 @@ const nuxt = new Nuxt(nuxtConfig);
 
 const builder = new Builder(nuxt);
 
+const pubSub = new PubSub();
+
 
 mongooseConnect.on('error', e => {
 	if (e.message.code === 'ETIMEDOUT') {
@@ -57,7 +62,8 @@ loadValidator(config.validationSchemas)
 	.then(async function (validate) {
 		global.env = {
 			bitscoop: bitscoop,
-			validate: validate
+			validate: validate,
+			pubSub: pubSub
 		};
 
 		builder.build();
@@ -98,7 +104,27 @@ loadValidator(config.validationSchemas)
 		server.use(nuxt.render);
 
 		// http://localhost:3000/user/
+		// server.listen(3000);
 		server.listen(3000);
+
+		SubscriptionServer.create({
+			schema: crudAPI.schema,
+			execute: execute,
+			subscribe: subscribe,
+			onOperation: function(message, params, webSocket) {
+				console.log(message);
+				console.log(params);
+				console.log(webSocket);
+			},
+			onConnect: function(connectionParams, webSocket) {
+				console.log('Subscriptions connected');
+				console.log(connectionParams);
+				console.log(webSocket);
+			}
+		}, {
+			server: server,
+			path: '/subscriptions'
+		});
 
 		console.log('PORT: ' + 3000);
 	});
