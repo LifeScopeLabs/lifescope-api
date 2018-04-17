@@ -1,6 +1,7 @@
 /* @flow */
 
 import { SchemaComposer } from 'graphql-compose';
+import { withFilter } from 'graphql-subscriptions';
 import uuid from 'uuid/v4';
 
 import restrictToUser from '../lib/middleware/restrict-to-user';
@@ -212,8 +213,33 @@ GQC.rootMutation().addFields({
   // userRemoveMany: UserTC.getResolver('removeMany'),
 });
 
+
+const filtered = (asyncIterator, filter) => withFilter(
+	() => asyncIterator,
+	filter,
+);
+
 GQC.rootSubscription().addFields({
-	connectionUpdated: ConnectionTC.getResolver('connectionUpdated'),
+	// connectionUpdated: ConnectionTC.getResolver('connectionUpdated'),
+	connectionUpdated: {
+		type: ConnectionTC.getResolver('findOne').getType(),
+		// args: {
+		// 	channelId: "ID!"
+		// },
+		description: "Subscribe to connectionUpdated",
+		resolve: (payload) => payload,
+		subscribe: (_, args, context, info) =>
+			filtered(env.pubSub.asyncIterator('connectionUpdated'),
+				function(payload, variables) {
+					console.log('Payload:');
+					console.log(payload);
+					console.log('Variables:');
+					console.log(variables);
+
+					return true;
+					// payload.channelId === variables.channelId
+				})(_, args, context, info)
+	}
 });
 
 const graphqlSchema = GQC.buildSchema();

@@ -477,7 +477,7 @@ ConnectionTC.addResolver({
 		delete bitscoopConnection.metadata;
 		delete bitscoopConnection.auth;
 
-		await ConnectionTC.getResolver('updateOne').resolve({
+		let updateResult = await ConnectionTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
 					id: connection._id.toString('hex')
@@ -494,7 +494,8 @@ ConnectionTC.addResolver({
 			throw err;
 		}
 
-		env.pubSub.publish('connectionUpdated', explorerConnection);
+		console.log(updateResult.record);
+		env.pubSub.publish('connectionUpdated', updateResult.record);
 
 		return {
 			connection: explorerConnection,
@@ -554,17 +555,6 @@ ConnectionTC.addResolver({
 
 		context.res.status = 204;
 	}
-});
-
-ConnectionTC.addResolver({
-	name: 'connectionUpdated',
-	kind: 'subscription',
-	type: ConnectionTC.getResolver('findOne').getType(),
-	// args: {
-	// 	id: 'String!'
-	// },
-	resolve: (payload) => payload,
-	subscribe: (_, args, context, info) => filtered(env.pubsub.asyncIterator('connectionUpdated'), (payload, variables) => payload.id === variables.id)(_, args, context, info)
 });
 
 

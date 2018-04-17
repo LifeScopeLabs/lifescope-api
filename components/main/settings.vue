@@ -185,24 +185,6 @@
                     variables: {
                     	id: connection.id,
                         enabled: true
-                    },
-                    update (store, { data }) {
-	                    let clone = _.cloneDeep(connection);
-
-	                    clone.enabled = true;
-	                    clone.permissions = {};
-
-                    	let updatedConnection = _.find(self.$data.connectionMany, function(item) {
-                    		return connection.id === item.id;
-                        });
-
-                    	console.log(updatedConnection);
-
-                    	console.log(self.$data.connectionMany);
-                    	// updatedConnection = null;
-                        // self.$data.connectionMany = null;
-
-                    	console.log(updatedConnection)
                     }
                 });
             }
@@ -230,10 +212,15 @@
                         }
                     },
                     updateQuery: function(previousResult, { subscriptionData}) {
-                        console.log('Previous result:');
-                        console.log(previousResult);
-                        console.log('New subscription data:');
-                        console.log(subscriptionData);
+			    		let newData = subscriptionData.data.connectionUpdated;
+
+			    		let id = newData.id;
+
+			    		let replacing = _.find(previousResult.connectionMany, function(item) {
+			    			return item.id === id;
+                        });
+
+			    		replacing = newData;
 
                         return previousResult;
                     }

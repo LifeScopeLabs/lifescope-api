@@ -46,7 +46,6 @@ export default (ctx) => {
 	});
 
 	return {
-		// link: middlewareLink.concat(httpLink),
 		link: middlewareLink.concat(link),
 		cache: new InMemoryCache()
 	}

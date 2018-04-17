@@ -1,3 +1,5 @@
+import { createServer } from 'http';
+
 import BitScoop from 'bitscoop-sdk';
 import bodyParser from 'body-parser';
 import config from 'config';
@@ -23,6 +25,23 @@ const MONGODB_URI = config.mongodb.address;
 const BITSCOOP_API_KEY = config.bitscoop.api_key;
 
 const server = express();
+const wsServer = createServer(function(req, res) {
+	res.writeHead(200);
+	res.end();
+});
+
+wsServer.listen(3001, function() {
+	console.log('WS Server running on ' + 3001);
+	SubscriptionServer.create({
+		schema: crudAPI.schema,
+		execute: execute,
+		subscribe: subscribe
+	}, {
+		server: wsServer,
+		path: '/subscriptions'
+	});
+});
+
 const opts = {
 	autoReconnect: true,
 	reconnectTries: Number.MAX_VALUE,
@@ -87,7 +106,10 @@ loadValidator(config.validationSchemas)
 
 
 		// http://localhost:3000/gql-i/
-		server.get(`${crudAPI.uri}-i`, graphiqlExpress({endpointURL: crudAPI.uri}));
+		server.get(`${crudAPI.uri}-i`, graphiqlExpress({
+			endpointURL: crudAPI.uri,
+			subscriptionsEndpoint: 'wss://app.lifescope.io/subscriptions'
+		}));
 
 		// http://localhost:3000/gql-p/
 		server.get(`${crudAPI.uri}-p`, expressPlayground({endpoint: crudAPI.uri}));
@@ -107,24 +129,5 @@ loadValidator(config.validationSchemas)
 		// server.listen(3000);
 		server.listen(3000);
 
-		SubscriptionServer.create({
-			schema: crudAPI.schema,
-			execute: execute,
-			subscribe: subscribe,
-			onOperation: function(message, params, webSocket) {
-				console.log(message);
-				console.log(params);
-				console.log(webSocket);
-			},
-			onConnect: function(connectionParams, webSocket) {
-				console.log('Subscriptions connected');
-				console.log(connectionParams);
-				console.log(webSocket);
-			}
-		}, {
-			server: server,
-			path: '/subscriptions'
-		});
-
-		console.log('PORT: ' + 3000);
+		console.log('Lifescope API listening on: ' + 3000);
 	});
