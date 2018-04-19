@@ -108,6 +108,7 @@
     export default {
     	data: function() {
     		return {
+    			searchMany: [],
 			    connectionCount: null,
 			    eventCount: null,
 			    searchCount: null,

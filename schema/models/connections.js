@@ -16,25 +16,19 @@ import {ProviderTC} from './providers';
 
 import uuid from '../../lib/util/uuid';
 
-const filtered = (asyncIterator, filter) => withFilter(
-	() => asyncIterator,
-	filter,
-);
 
+let eliminateType = new graphql.GraphQLObjectType({
+	name: 'eliminateConnection',
+	fields: {
+		id: graphql.GraphQLString
+	}
+});
 
 let initializeType = new graphql.GraphQLObjectType({
 	name: 'initializeConnection',
 	fields: {
 		id: graphql.GraphQLString,
 		redirectUrl: graphql.GraphQLString
-	}
-});
-
-
-let eliminateType = new graphql.GraphQLObjectType({
-	name: 'eliminateConnection',
-	fields: {
-		id: graphql.GraphQLString
 	}
 });
 
@@ -100,6 +94,10 @@ export const ConnectionsSchema = new mongoose.Schema(
 					type: Boolean,
 					index: false
 				}
+			},
+			redirectUrl: {
+				type: String,
+				index: false
 			}
 		},
 
@@ -331,16 +329,16 @@ ConnectionTC.addResolver({
 	args: {
 		id: 'String!',
 		enabled: 'Boolean',
-		sources: 'JSON'
+		permissions: 'JSON'
 	},
 	resolve: async function({source, args, context, info}) {
 		let bitscoop = env.bitscoop;
 		let req = context.req;
-		let sources = args.sources;
+		let permissions = args.permissions;
 		let validate = env.validate;
 
-		if (sources) {
-			_.each(sources, function(enabled, source) {
+		if (permissions) {
+			_.each(permissions, function(enabled, source) {
 				if (type(enabled) !== 'boolean') {
 					throw httpErrors(400, 'Enabled must be a boolean');
 				}
@@ -384,7 +382,7 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
-		let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'))
+		let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
 
 		if (!map) {
 			throw httpErrors(404);
@@ -402,9 +400,9 @@ ConnectionTC.addResolver({
 			explorerConnection.enabled = args.enabled;
 		}
 
-		let sourcesUpdated = false;
+		let permissionsUpdated = false;
 
-		_.each(sources, function(value, name) {
+		_.each(permissions, function(value, name) {
 			if (!connection.permissions.hasOwnProperty(name)) {
 				explorerConnection.permissions[name] = {
 					enabled: value,
@@ -412,23 +410,24 @@ ConnectionTC.addResolver({
 				};
 
 				if (value === true) {
-					sourcesUpdated = true;
+					permissionsUpdated = true;
 				}
 			}
 			else if (value !== connection.permissions[name].enabled) {
 				explorerConnection.permissions[name].enabled = value;
-				sourcesUpdated = true;
+				permissionsUpdated = true;
 			}
 		});
 
-		if (sourcesUpdated && map.auth.type === 'oauth2') {
-			explorerConnection['auth.status.authorized'] = bitscoopConnection['auth.status.authorized'] = false;
+		if (permissionsUpdated && map.auth.type === 'oauth2') {
+			explorerConnection['auth.status.authorized'] = false;
 		}
 
 		let scopes = [];
+		let endpoints = [];
 
 		_.each(provider.sources, function(source, name) {
-			if (args.hasOwnProperty('sources') && _.has('args.sources', name)) {
+			if (permissions && _.has(permissions, name) && permissions[name] === true) {
 				connection.permissions[name] = {
 					enabled: true,
 					frequency: 1
@@ -470,12 +469,32 @@ ConnectionTC.addResolver({
 			}
 		});
 
-		//bitscoopConnection.endpoints = _.uniq(endpoints);
+		_.each(provider.sources, function(source, name) {
+			if (explorerConnection.permissions.hasOwnProperty(name) && explorerConnection.permissions[name].enabled) {
+				endpoints.push(source.mapping);
+			}
+		});
+
+		bitscoopConnection.endpoints = _.uniq(endpoints);
 		bitscoopConnection.scopes = _.uniq(scopes);
 
 		delete bitscoopConnection.map_id;
 		delete bitscoopConnection.metadata;
 		delete bitscoopConnection.auth;
+
+		let response;
+
+		try {
+			response = await bitscoopConnection.save()
+		} catch(err) {
+			console.log(err);
+
+			throw err;
+		}
+
+		console.log(response);
+
+		explorerConnection['auth.redirectUrl'] = response.redirectUrl;
 
 		let updateResult = await ConnectionTC.getResolver('updateOne').resolve({
 			args: {
@@ -486,15 +505,7 @@ ConnectionTC.addResolver({
 			}
 		});
 
-		try {
-			await bitscoopConnection.save()
-		} catch(err) {
-			console.log(err);
 
-			throw err;
-		}
-
-		console.log(updateResult.record);
 		env.pubSub.publish('connectionUpdated', updateResult.record);
 
 		return {
@@ -551,7 +562,9 @@ ConnectionTC.addResolver({
 			throw new httpErrors(404);
 		}
 
-		await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
+		let result = await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
+
+		env.pubSub.publish('connectionDeleted', { id: connection._id.toString('hex'), user_id: req.user._id });
 
 		context.res.status = 204;
 	}

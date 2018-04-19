@@ -4,7 +4,7 @@
 <script>
     export default {
     	middleware: function({ redirect }) {
-    		return redirect('/settings/account');
+    		return redirect('/settings/connections');
         }
     }
 </script>

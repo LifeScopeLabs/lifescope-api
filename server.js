@@ -1,13 +1,14 @@
 import { createServer } from 'http';
 
 import BitScoop from 'bitscoop-sdk';
+import _ from 'lodash';
 import bodyParser from 'body-parser';
 import config from 'config';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import expressPlayground from 'graphql-playground-middleware-express';
-import {graphqlExpress, graphiqlExpress} from 'apollo-server-express';
+import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import { PubSub } from 'graphql-subscriptions';
 import { execute, subscribe } from 'graphql';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
@@ -16,6 +17,7 @@ import {Nuxt, Builder} from 'nuxt';
 
 import views from './lib/views';
 import cookieAuthorization from './lib/middleware/cookie-authorization';
+import wsCookieAuthorization from './lib/middleware/ws-cookie-authorization';
 import meta from './lib/middleware/meta';
 import {crudAPI} from './schema';
 import {loadValidator} from './lib/validator';
@@ -28,18 +30,6 @@ const server = express();
 const wsServer = createServer(function(req, res) {
 	res.writeHead(200);
 	res.end();
-});
-
-wsServer.listen(3001, function() {
-	console.log('WS Server running on ' + 3001);
-	SubscriptionServer.create({
-		schema: crudAPI.schema,
-		execute: execute,
-		subscribe: subscribe
-	}, {
-		server: wsServer,
-		path: '/subscriptions'
-	});
 });
 
 const opts = {
@@ -130,4 +120,42 @@ loadValidator(config.validationSchemas)
 		server.listen(3000);
 
 		console.log('Lifescope API listening on: ' + 3000);
+
+		wsServer.listen(3001, function() {
+			console.log('WS Server running on ' + 3001);
+			SubscriptionServer.create({
+				schema: crudAPI.schema,
+				execute: execute,
+				subscribe: subscribe,
+				onConnect: async function(connectionParams, webSocket, context) {
+					let cookies = {};
+					let cookie = _.get(context, 'request.headers.cookie');
+
+					if (cookie == null) {
+						throw new Error('No cookie header detected.');
+					}
+
+					let split = cookie.split('; ');
+
+					_.each(split, function(item) {
+						let split = item.split('=');
+
+						cookies[split[0]] = split[1];
+					});
+
+					if (cookies.sessionid == null) {
+						throw new Error('No user cookie detected.')
+					}
+
+					let user = await wsCookieAuthorization(cookies.sessionid);
+
+					return {
+						user: user
+					};
+				}
+			}, {
+				server: wsServer,
+				path: '/subscriptions'
+			});
+		});
 	});

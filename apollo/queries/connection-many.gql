@@ -5,7 +5,8 @@
             status {
                 authorized,
                 complete
-            }
+            },
+            redirectUrl
         },
         name,
         enabled,

@@ -39,14 +39,6 @@
 					}
 				});
 
-                let cloned = _.cloneDeep(connection);
-
-                cloned.enabled = false;
-
-                connection = cloned;
-
-                console.log(this.$data);
-
 				this.$emit('close');
 			}
 		}

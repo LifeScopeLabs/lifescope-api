@@ -27,7 +27,7 @@
                             </p>
 
                             <div>
-                                <button id="delete" class="danger" v-on:click="showDeleteModal">Delete Account</button>
+                                <button id="delete" class="danger" v-on:click="showAccountDeleteModal">Delete Account</button>
                             </div>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                             <i class="fa fa-caret-down expand-indicator"></i>
                         </div>
 
-                        <form class="auto">
+                        <form class="auto" v-on:submit.prevent="">
                             <div class="padded paragraphed">
                                 <div>
                                     <div class="flexbox flex-x-center label">
@@ -73,7 +73,7 @@
                                     <div>
                                         <div v-for="permission, name in orderBy(connection.provider.sources, 'name')" class="paragraph ">
                                             <div class="flexbox flex-x-center">
-                                                <label><input class="flag" type="checkbox" v-bind:value="permission.$key" v-model="permissions[connection.id][name]" />{{ permission.$value.name }} {{permission.$key}}</label>
+                                                <label><input class="flag" type="checkbox" v-bind:value="permission.$key" v-model="permissions[connection.id]" v-on:change="updatePermissions(connection)"/>{{ permission.$value.name }}</label>
                                                 <i class="fa fa-check-circle flex-grow success-icon" v-bind:data-for="name" v-bind:data-namespace="connection.id"></i>
                                             </div>
                                             <div class="tooltip" data-for="">{{ permission.$value.description }}</div>
@@ -84,7 +84,7 @@
                                 <input class="hidden" type="submit" />
 
                                 <div v-if="connection.provider.auth_type === 'oauth2' && connection.auth.status.authorized !== true" class="reauthorize">
-                                    <button class="primary">Reauthorize</button>
+                                    <button class="primary" v-on:click="getConnectionReauthorization(connection)">Reauthorize</button>
                                     <div>The changes you have made require you to re-authorize this connection to {{ connection.provider.name }}.</div>
                                     <div>Retrieval of your data may not work properly until you re-authorize.</div>
                                 </div>
@@ -94,7 +94,7 @@
                                     <button v-else class="primary enable" v-on:click.prevent="enableConnection(connection)">Enable</button>
 
                                     <span class="flex-grow"></span>
-                                    <button class="danger delete" v-on:click.prevent="showDeleteModal(connection)">Delete</button>
+                                    <button class="danger delete" v-on:click.prevent="showConnectionDeleteModal(connection)">Delete</button>
                                 </div>
                             </div>
                         </form>
@@ -116,10 +116,11 @@
     import moment from 'moment';
 
     import connectionMany from '../../apollo/queries/connection-many.gql';
+    import connectionDeleted from '../../apollo/subscriptions/connection-deleted.gql';
     import connectionUpdated from '../../apollo/subscriptions/connection-updated.gql';
-    import deleteAccountModal from '../modals/delete-account';
-    import deleteConnectionModal from '../modals/delete-connection';
-    import disableConnectionModal from '../modals/disable-connection';
+    import deleteAccountModal from '../modals/account-delete';
+    import deleteConnectionModal from '../modals/connection-delete';
+    import disableConnectionModal from '../modals/connection-disable';
     import patchConnection from '../../apollo/mutations/patch-connection.gql'
 
     function isBefore(value) {
@@ -169,7 +170,13 @@
 				    scrollable: true
 			    });
 		    },
-		    showDeleteModal: function(connection) {
+            showAccountDeleteModal: function() {
+    		    this.$modal.show(deleteAccountModal, {}, {
+    		    	height: 'auto',
+                    scrollable: true
+                })
+            },
+		    showConnectionDeleteModal: function(connection) {
 			    this.$modal.show(deleteConnectionModal, {
 				    connection: connection
 			    }, {
@@ -178,8 +185,6 @@
 			    });
 		    },
             enableConnection: async function(connection) {
-    			let self = this;
-
     			await this.$apollo.mutate({
                     mutation: patchConnection,
                     variables: {
@@ -187,7 +192,36 @@
                         enabled: true
                     }
                 });
-            }
+            },
+            getConnectionReauthorization: async function(connection) {
+    		    window.location.href = connection.auth.redirectUrl;
+            },
+            updatePermissions: _.debounce(async function(connection) {
+            	console.log(this.$data.permissions);
+            	let sources = connection.provider.sources;
+
+	            let permissions = {};
+
+	            _.each(sources, function(source, name) {
+	            	permissions[name] = false;
+                });
+
+	            console.log(connection);
+
+	            _.each(this.$data.permissions[connection.id], function(source) {
+	            	if (typeof source === 'string') {
+			            permissions[source] = true;
+		            }
+	            });
+
+	            await this.$apollo.mutate({
+		            mutation: patchConnection,
+		            variables: {
+		            	id: connection.id,
+			            permissions: permissions
+		            }
+	            });
+            }, 1000)
         },
 	    apollo: {
 		    connectionMany: {
@@ -199,32 +233,48 @@
 
                     _.each(connections, function(connection) {
 					    self.$data.permissions[connection.id] = _.map(connection.provider.sources, function(source, name) {
-					    	return connection.permissions.hasOwnProperty(name) ? name : null;
+					    	return connection.permissions.hasOwnProperty(name) && connection.permissions[name].enabled === true ? name : null;
                         });
                     });
                 },
-                subscribeToMore: {
-			    	document: connectionUpdated,
-                    variables () {
-			    		console.log(this.param);
-			    		return {
-			    			param: this.param
+                subscribeToMore: [
+                	{
+                        document: connectionUpdated,
+                        updateQuery: function(previousResult, { subscriptionData }) {
+                            let newData = subscriptionData.data.connectionUpdated;
+
+                            if (newData) {
+                                let id = newData.id;
+
+                                let replacing = _.find(previousResult.connectionMany, function(item) {
+                                    return item.id === id;
+                                });
+
+                                replacing = newData;
+                            }
+
+                            return previousResult;
                         }
                     },
-                    updateQuery: function(previousResult, { subscriptionData}) {
-			    		let newData = subscriptionData.data.connectionUpdated;
+                    {
+                    	document: connectionDeleted,
+                        updateQuery: function(previousResult, { subscriptionData }) {
+                    		let returned = previousResult;
+                    		let newData = subscriptionData.data.connectionDeleted;
 
-			    		let id = newData.id;
+                    		if (newData) {
+                    			let id = newData.id;
+                    			let copy = _.clone(previousResult);
 
-			    		let replacing = _.find(previousResult.connectionMany, function(item) {
-			    			return item.id === id;
-                        });
+                    			copy.connectionMany = copy.connectionMany.filter(item => item.id !== id);
 
-			    		replacing = newData;
+                    			returned = copy;
+                            }
 
-                        return previousResult;
+                            return returned;
+                        }
                     }
-                }
+                ]
 		    }
 	    },
     }

@@ -104,11 +104,11 @@ GQC.rootQuery().addFields({
 //   ThingPagination: ThingTC.getResolver('pagination'),
   
   //Users
-  userOne: UserTC.getResolver('findOne'),
-  userMany: UserTC.getResolver('findMany'), // .debug(), // debug info to console for this resolver
-  userTotal: UserTC.getResolver('count'),
-  userConnection: UserTC.getResolver('connection'),
-  userPagination: UserTC.getResolver('pagination'),
+  // userOne: UserTC.getResolver('findOne'),
+  // userMany: UserTC.getResolver('findMany'), // .debug(), // debug info to console for this resolver
+  // userTotal: UserTC.getResolver('count'),
+  // userConnection: UserTC.getResolver('connection'),
+  // userPagination: UserTC.getResolver('pagination'),
   
 });
 // For debug purposes you may display resolver internals in the following manner:
@@ -220,24 +220,33 @@ const filtered = (asyncIterator, filter) => withFilter(
 );
 
 GQC.rootSubscription().addFields({
-	// connectionUpdated: ConnectionTC.getResolver('connectionUpdated'),
 	connectionUpdated: {
 		type: ConnectionTC.getResolver('findOne').getType(),
-		// args: {
-		// 	channelId: "ID!"
-		// },
 		description: "Subscribe to connectionUpdated",
 		resolve: (payload) => payload,
 		subscribe: (_, args, context, info) =>
 			filtered(env.pubSub.asyncIterator('connectionUpdated'),
 				function(payload, variables) {
-					console.log('Payload:');
-					console.log(payload);
-					console.log('Variables:');
-					console.log(variables);
+					if (context.user == null) {
+						return false;
+					}
 
-					return true;
-					// payload.channelId === variables.channelId
+					return context.user._id.toString('hex') === payload.user_id.toString('hex');
+				})(_, args, context, info)
+	},
+
+	connectionDeleted: {
+		type: ConnectionTC.getResolver('findOne').getType(),
+		description: "Subscribe to connectionDeleted",
+		resolve: (payload) => payload,
+		subscribe: (_, args, context, info) =>
+			filtered(env.pubSub.asyncIterator('connectionDeleted'),
+				function(payload, variables) {
+					if (context.user == null) {
+						return false;
+					}
+
+					return context.user._id.toString('hex') === payload.user_id.toString('hex');
 				})(_, args, context, info)
 	}
 });
