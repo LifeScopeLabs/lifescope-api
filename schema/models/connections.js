@@ -388,6 +388,10 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
+		if (!connection.hasOwnProperty('permissions')) {
+			connection.permissions = {};
+		}
+
 		let explorerConnection = {
 			permissions: _.cloneDeep(connection.permissions)
 		};
@@ -485,16 +489,20 @@ ConnectionTC.addResolver({
 		let response;
 
 		try {
-			response = await bitscoopConnection.save()
+			response = await bitscoopConnection.save();
 		} catch(err) {
 			console.log(err);
 
 			throw err;
 		}
 
-		console.log(response);
+		if (response.redirectUrl) {
+			if (!explorerConnection.auth) {
+				explorerConnection.auth = {};
+			}
 
-		explorerConnection['auth.redirectUrl'] = response.redirectUrl;
+			explorerConnection.auth.redirectUrl = response.redirectUrl;
+		}
 
 		let updateResult = await ConnectionTC.getResolver('updateOne').resolve({
 			args: {
@@ -505,6 +513,7 @@ ConnectionTC.addResolver({
 			}
 		});
 
+		console.log(updateResult.record);
 
 		env.pubSub.publish('connectionUpdated', updateResult.record);
 

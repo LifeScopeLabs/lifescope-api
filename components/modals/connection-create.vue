@@ -108,3 +108,5 @@
 		}
 	}
 </script>
+
+https://accounts.spotify.com/authorize?redirect_uri=https%3A%2F%2Fauth.api.bitscoop.com%2Fdone%2F7d535efa1c4f49feaab4e2d92fd40ef9&response_type=code&state=f89383bd8f0a4b4f8bc5e108d09b4e52&scope=playlist-read-collaborative%20playlist-read-private%20user-library-read&client_id=2463bbece7ab4127b640f3f7e00a2076

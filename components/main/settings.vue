@@ -35,8 +35,8 @@
                     <modals-container />
                 </section>
                 <section id="connections" v-if="$store.state.mode === 'connections'">
-                    <div v-for="connection in orderBy(connectionMany, 'provider.name')" v-bind:class="{active : $data.activeConnection === connection.name}" class="connection boxed-group" v-bind:data-id="connection.id" v-bind:data-provider-id="connection.provider.id">
-                        <div class="flexbox flex-x-center title" v-on:click="toggleActive(connection.name)">
+                    <div v-for="connection in orderBy(connectionMany, 'provider.name')" v-bind:class="{active : $data.activeConnection === connection.id}" class="connection boxed-group" v-bind:data-id="connection.id" v-bind:data-provider-id="connection.provider.id">
+                        <div class="flexbox flex-x-center title" v-on:click="toggleActive(connection.id)">
                             <div class="icon-name">
                                 <i v-bind:class="getIcon(connection.provider.name)"></i>
                                 <div class="flex-grow name">{{ connection.name }}</div>
@@ -158,8 +158,8 @@
             getUpdated: function(lastRun) {
     			return (isBefore(lastRun) ? 'Updated ' : 'Updating ') + relativeTime(lastRun);
             },
-            toggleActive: function(name) {
-    			this.$data.activeConnection = (this.$data.activeConnection === name) ? null : name;
+            toggleActive: function(id) {
+    			this.$data.activeConnection = (this.$data.activeConnection === id) ? null : id;
             },
 		    showDisableModal: function(connection) {
 			    this.$modal.show(disableConnectionModal, {
@@ -197,7 +197,6 @@
     		    window.location.href = connection.auth.redirectUrl;
             },
             updatePermissions: _.debounce(async function(connection) {
-            	console.log(this.$data.permissions);
             	let sources = connection.provider.sources;
 
 	            let permissions = {};
@@ -205,8 +204,6 @@
 	            _.each(sources, function(source, name) {
 	            	permissions[name] = false;
                 });
-
-	            console.log(connection);
 
 	            _.each(this.$data.permissions[connection.id], function(source) {
 	            	if (typeof source === 'string') {
@@ -233,7 +230,7 @@
 
                     _.each(connections, function(connection) {
 					    self.$data.permissions[connection.id] = _.map(connection.provider.sources, function(source, name) {
-					    	return connection.permissions.hasOwnProperty(name) && connection.permissions[name].enabled === true ? name : null;
+					    	return connection.permissions && connection.permissions.hasOwnProperty(name) && connection.permissions[name].enabled === true ? name : null;
                         });
                     });
                 },
@@ -244,6 +241,7 @@
                             let newData = subscriptionData.data.connectionUpdated;
 
                             if (newData) {
+                            	console.log(newData);
                                 let id = newData.id;
 
                                 let replacing = _.find(previousResult.connectionMany, function(item) {

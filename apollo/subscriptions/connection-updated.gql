@@ -5,7 +5,8 @@ subscription connectionUpdated {
             status {
                 authorized,
                 complete
-            }
+            },
+            redirectUrl
         },
         name,
         enabled,

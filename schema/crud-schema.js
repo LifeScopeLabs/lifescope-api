@@ -231,6 +231,7 @@ GQC.rootSubscription().addFields({
 						return false;
 					}
 
+					console.log(payload);
 					return context.user._id.toString('hex') === payload.user_id.toString('hex');
 				})(_, args, context, info)
 	},
