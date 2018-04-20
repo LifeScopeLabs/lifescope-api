@@ -20,16 +20,10 @@
     }
   },
 
-  "databases": {
-    "mongo": {
-      "address": "mongodb://127.0.0.1",
-      "options": {
-        "poolSize": 5
-      }
-    },
-
-    "elastic": {
-      "address": "http://localhost:9200"
+  "mongo": {
+    "address": "mongodb://127.0.0.1",
+    "options": {
+      "poolSize": 5
     }
   },
 
