@@ -40,3 +40,4 @@ node_modules
 # Transpiled code
 /es
 /coverage
+dev.json
