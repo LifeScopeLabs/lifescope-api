@@ -125,6 +125,8 @@ export const ConnectionsSchema = new mongoose.Schema(
 			get: async function() {
 				let bitscoop = env.bitscoop;
 
+				console.log(this);
+
 				let bitscoopConnection = await bitscoop.getConnection(this.remote_connection_id.toString('hex'));
 
 				return bitscoopConnection.name;

@@ -1,0 +1,51 @@
+{
+    eventMany {
+        id,
+        connection,
+        hydratedConnection {
+            id,
+            name,
+            provider_id,
+            provider {
+                id,
+                name
+            },
+            remote_connection_id
+        },
+        contact_interaction_type,
+        context,
+        datetime,
+        provider_name,
+        type,
+        content,
+        contacts,
+        hydratedContent {
+            id,
+            embed_content,
+            embed_format,
+            embed_thumbnail,
+            mimetype,
+            tagMasks {
+                added,
+                removed,
+                source
+            },
+            text,
+            thumbnail,
+            title,
+            type,
+            url
+        },
+        hydratedContacts {
+            id,
+            avatar_url,
+            handle,
+            name,
+            tagMasks {
+                added,
+                removed,
+                source
+            }
+        }
+    }
+}

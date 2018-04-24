@@ -94,11 +94,6 @@ export const ContentSchema = new mongoose.Schema(
 			index: false
 		},
 
-		embeded_format: {
-			type: String,
-			index: false
-		},
-
 		identifier: {
 			type: String,
 			index: false

@@ -19,6 +19,7 @@ import {UserTC} from "./users";
 import {SessionTC} from "./sessions";
 import deleteConnection from "../../lib/util/delete-connection";
 import {ConnectionTC} from "./connections";
+import {ProviderTC} from "./providers";
 
 
 
@@ -243,6 +244,17 @@ EventTC.addRelation('hydratedContent', {
 			});
 
 			return returned;
+		},
+	}
+});
+
+EventTC.addRelation('hydratedConnection', {
+	resolver: () => ConnectionTC.getResolver('findOne'),
+	prepareArgs: {
+		filter: function(source) {
+			return {
+				id: source.connection.toString('hex')
+			}
 		},
 	}
 });

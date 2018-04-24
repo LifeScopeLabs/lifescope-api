@@ -36,49 +36,59 @@
             </div>
         </aside>
 
-        <section v-if="$store.state.user != undefined"  id="content">
-            <nav id="tabs">
-                <div class="tab" name="favorites">Favorites</div>
-                <div class="tab" name="recent">Recent</div>
-                <div class="tab" name="top">Top</div>
-                <div class="tab" name="tags">Tags</div>
-            </nav>
+        <!--<section v-if="$store.state.user != undefined"  id="content">-->
+            <!--<nav id="tabs">-->
+                <!--<div class="tab" name="favorites">Favorites</div>-->
+                <!--<div class="tab" name="recent">Recent</div>-->
+                <!--<div class="tab" name="top">Top</div>-->
+                <!--<div class="tab" name="tags">Tags</div>-->
+            <!--</nav>-->
 
-            <div id="search-container">
+            <!--<div id="search-container">-->
+                <!--<div class="scroller">-->
+                    <!--<div id="searches">-->
+                        <!--<a v-model="searchMany" v-for="search in searchMany" href="/explore"-->
+                           <!--class="saved-search"-->
+                           <!--v-bind:data-id="search.id"-->
+                           <!--v-bind:data-favorited="search.favorited"-->
+                           <!--v-bind:data-icon-color="search.iconColor"-->
+                           <!--v-bind:data-icon="search.icon"-->
+                           <!--v-bind:data-name="search.name">-->
+
+                            <!--<div class="info">-->
+                                <!--<i v-bind:class="searchIcon(search)" v-bind:style="{ color: searchColor(search) }"></i>-->
+                                <!--<span class="name">{{ search.name }}</span>-->
+
+                                <!--<span class="spacer"></span>-->
+
+                                <!--<span class="last-run">{{ lastRunRelative(search) }}</span>-->
+
+                                <!--<i v-bind:class="favoriteIcon(search)"></i>-->
+                            <!--</div>-->
+
+                            <!--<div v-if="search.query || (search.filters && search.filters.length > 0)" class="search">-->
+                                <!--<div v-if="search.query" class="query">&quot;{{ query }}&quot;</div>-->
+
+                                <!--<div v-if="search.filters && search.filters.length > 0" class="filters">-->
+                                    <!--<div v-for="filter in search.filters" class="filter">{{ search.filter.name || search.filter.type }}</div>-->
+
+                                    <!--<div class="filter-overflow-count"></div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+
+                            <!--<div v-bind:class="favoriteButton(search)"></div>-->
+                        <!--</a>-->
+
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</section>-->
+
+        <section v-if="$store.state.user != undefined" id="content">
+            <div id="event-container">
                 <div class="scroller">
-                    <div id="searches">
-                        <a v-model="searchMany" v-for="search in searchMany" href="/explore"
-                           class="saved-search"
-                           v-bind:data-id="search.id"
-                           v-bind:data-favorited="search.favorited"
-                           v-bind:data-icon-color="search.iconColor"
-                           v-bind:data-icon="search.icon"
-                           v-bind:data-name="search.name">
-
-                            <div class="info">
-                                <i v-bind:class="searchIcon(search)" v-bind:style="{ color: searchColor(search) }"></i>
-                                <span class="name">{{ search.name }}</span>
-
-                                <span class="spacer"></span>
-
-                                <span class="last-run">{{ lastRunRelative(search) }}</span>
-
-                                <i v-bind:class="favoriteIcon(search)"></i>
-                            </div>
-
-                            <div v-if="search.query || (search.filters && search.filters.length > 0)" class="search">
-                                <div v-if="search.query" class="query">&quot;{{ query }}&quot;</div>
-
-                                <div v-if="search.filters && search.filters.length > 0" class="filters">
-                                    <div v-for="filter in search.filters" class="filter">{{ search.filter.name || search.filter.type }}</div>
-
-                                    <div class="filter-overflow-count"></div>
-                                </div>
-                            </div>
-
-                            <div v-bind:class="favoriteButton(search)"></div>
-                        </a>
-
+                    <div id="events">
+                        <user-event v-for="event in eventMany" v-bind:key="event.id" v-bind:event="event"></user-event>
                     </div>
                 </div>
             </div>
@@ -102,8 +112,10 @@
     import moment from 'moment';
     import connectionCount from '../../apollo/queries/connection-count.gql';
     import eventCount from '../../apollo/queries/event-count.gql';
+    import eventMany from '../../apollo/queries/event-many.gql';
     import searchCount from '../../apollo/queries/search-count.gql';
     import searchAll from '../../apollo/queries/search-all.gql';
+    import UserEvent from '../objects/event.vue';
 
     export default {
     	data: function() {
@@ -111,9 +123,13 @@
     			searchMany: [],
 			    connectionCount: null,
 			    eventCount: null,
+                eventMany: null,
 			    searchCount: null,
                 searches: null
 		    };
+        },
+        components: {
+            UserEvent
         },
         methods: {
     		searchIcon: function(search) {
@@ -141,6 +157,10 @@
 			    prefetch: true,
 			    query: eventCount
 		    },
+            eventMany: {
+    			prefetch: true,
+                query: eventMany
+            },
 		    searchCount: {
 			    prefetch: true,
 			    query: searchCount
