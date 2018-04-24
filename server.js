@@ -56,7 +56,6 @@ const mongooseConnect = mongoose.connection;
 
 const pubSub = new PubSub();
 
-
 mongooseConnect.on('error', e => {
 	if (e.message.code === 'ETIMEDOUT') {
 		console.log(e);
