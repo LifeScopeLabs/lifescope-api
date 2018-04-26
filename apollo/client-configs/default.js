@@ -13,12 +13,12 @@ export default (ctx) => {
 		fetchOptions: {
 			agent: new https.Agent({ rejectUnauthorized: false })
 		},
-		uri: 'https://app.lifescope.io/gql',
+		uri: 'https://api.lifescope.io/gql',
 		credentials: 'same-origin'
 	});
 
 	const wsLink = process.client ? new WebSocketLink({
-		uri: 'wss://app.lifescope.io/subscriptions',
+		uri: 'wss://api.lifescope.io/subscriptions',
 		options: {
 			reconnect: true
 		}

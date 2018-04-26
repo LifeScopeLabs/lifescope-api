@@ -241,7 +241,6 @@
                             let newData = subscriptionData.data.connectionUpdated;
 
                             if (newData) {
-                            	console.log(newData);
                                 let id = newData.id;
 
                                 let replacing = _.find(previousResult.connectionMany, function(item) {

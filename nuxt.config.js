@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import cookieAuthorization from "./lib/middleware/cookie-authorization";
 import initialSearches from "./lib/middleware/initial-searches";
 
-module.exports = {
+export default {
 	modules: ['@nuxtjs/apollo'],
 
 	apollo: {

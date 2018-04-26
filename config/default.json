@@ -2,7 +2,7 @@
   "address": "http://localhost:8081",
   "objectMaxLimit": 100,
 
-  "domain": "app.lifescope.io",
+  "domain": "lifescope.io",
 
   "logging": {
     "severity": "trace",

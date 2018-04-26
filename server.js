@@ -23,14 +23,17 @@ import {crudAPI} from './schema';
 import {loadValidator} from './lib/validator';
 import nuxtConfig from './nuxt.config.js';
 
-const MONGODB_URI = config.mongodb.address;
 const BITSCOOP_API_KEY = config.bitscoop.api_key;
+const MONGODB_URI = config.mongodb.address;
 
 const server = express();
 const wsServer = createServer(function(req, res) {
 	res.writeHead(200);
 	res.end();
 });
+
+const httpListenPort = 3000;
+const wsListenPort = 3001;
 
 const opts = {
 	autoReconnect: true,
@@ -42,15 +45,14 @@ const bitscoop = new BitScoop(BITSCOOP_API_KEY, {
 	allowUnauthorized: true
 });
 
-server.use(cors());
+server.use(cors({
+	origin: 'https://app.lifescope.io',
+	credentials: true
+}));
 
 mongoose.connect(MONGODB_URI, opts);
 
 const mongooseConnect = mongoose.connection;
-
-const nuxt = new Nuxt(nuxtConfig);
-
-const builder = new Builder(nuxt);
 
 const pubSub = new PubSub();
 
@@ -75,8 +77,6 @@ loadValidator(config.validationSchemas)
 			pubSub: pubSub
 		};
 
-		builder.build();
-
 		server.use(
 			crudAPI.uri,
 			bodyParser.json(),
@@ -98,7 +98,7 @@ loadValidator(config.validationSchemas)
 		// http://localhost:3000/gql-i/
 		server.get(`${crudAPI.uri}-i`, graphiqlExpress({
 			endpointURL: crudAPI.uri,
-			subscriptionsEndpoint: 'wss://app.lifescope.io/subscriptions'
+			subscriptionsEndpoint: 'wss://api.lifescope.io/subscriptions'
 		}));
 
 		// http://localhost:3000/gql-p/
@@ -113,16 +113,14 @@ loadValidator(config.validationSchemas)
 			views
 		);
 
-		server.use(nuxt.render);
-
 		// http://localhost:3000/user/
 		// server.listen(3000);
-		server.listen(3000);
+		server.listen(httpListenPort);
 
-		console.log('Lifescope API listening on: ' + 3000);
+		console.log('Lifescope API listening on: ' + httpListenPort);
 
-		wsServer.listen(3001, function() {
-			console.log('WS Server running on ' + 3001);
+		wsServer.listen(wsListenPort, function() {
+			console.log('WS Server running on ' + wsListenPort);
 			SubscriptionServer.create({
 				schema: crudAPI.schema,
 				execute: execute,

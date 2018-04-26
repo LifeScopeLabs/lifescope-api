@@ -4,10 +4,12 @@
     "transform-flow-strip-types"
   ],
   "presets": [
-    ["env", {
+    [
+      "env", {
       "targets": {
         "node": 6
-      },
-    }]
-  ],
+      }
+    }
+    ]
+  ]
 }

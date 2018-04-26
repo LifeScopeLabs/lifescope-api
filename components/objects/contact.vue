@@ -73,7 +73,6 @@
 		},
 		methods: {
 			getContentTypeIcon: function(type) {
-				console.log(type);
 				return icons('content', type)
 			},
 			getProviderIcon: function(provider) {
