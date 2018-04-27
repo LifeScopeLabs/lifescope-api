@@ -64,7 +64,7 @@ export const SearchesSchema = new mongoose.Schema(
 			index: false
 		},
 
-		filters: {
+		filters: [{
 			data: {
 				type: JSON
 			},
@@ -76,7 +76,7 @@ export const SearchesSchema = new mongoose.Schema(
 				type: String,
 				index: false
 			},
-		},
+		}],
 
 		hash: {
 			type: String,
@@ -191,6 +191,15 @@ SearchTC.addResolver({
 		let result;
 
 		if (current) {
+			let found = await SearchTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						hash: hash,
+						user_id_string: req.user._id.toString('hex')
+					}
+				}
+			});
+
 			result = await SearchTC.getResolver('updateOne').resolve({
 				args: {
 					filter: {
@@ -280,14 +289,18 @@ SearchTC.addResolver({
 			}
 		});
 
-		return result? result.record: null;
+		return result ? result: null;
 	}
 });
 
-SearchTC.setResolver('updateOne', SearchTC.getResolver('updateOne').wrapResolve(next => rp => {
-	rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
-	rp.args.record.last_run = moment.utc().toDate()
-}));
+// SearchTC.setResolver('updateOne', SearchTC.getResolver('updateOne').wrapResolve(next => rp => {
+// 	console.log('Search updateOne wrapper rp:');
+// 	console.log(rp);
+// 	if (_.has(rp, 'context.req.user._id')) {
+// 		rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
+// 	}
+// 	rp.args.record.last_run = moment.utc().toDate()
+// }));
 
 SearchTC.setResolver('findMany', SearchTC.getResolver('findMany')
 	.addFilterArg({

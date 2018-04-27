@@ -143,7 +143,11 @@ GQC.rootMutation().addFields({
         eventSearch: EventTC.getResolver('searchEvents'),
         tagEvent: EventTC.getResolver('addEventTags'),
         untagEvent: EventTC.getResolver('removeEventTags'),
-        deleteAccount: UserTC.getResolver('deleteAccount')
+        deleteAccount: UserTC.getResolver('deleteAccount'),
+
+	    searchFind: SearchTC.getResolver('findSearch'),
+	    searchUpdateOne: SearchTC.getResolver('updateOne'),
+	    searchUpsert: SearchTC.getResolver('upsertSearch'),
     }),
 //   eventCreate: EventTC.getResolver('createOne'),
 //   eventUpdateOne: EventTC.getResolver('updateOne'),
@@ -166,7 +170,6 @@ GQC.rootMutation().addFields({
 //   providerRemoveMany: ProviderTC.getResolver('removeMany'),
   
 //   // Searches
-    searchUpsert: SearchTC.getResolver('upsertSearch'),
 //   searchCreate: SearchTC.getResolver('createOne'),
 //   searchUpdateOne: SearchTC.getResolver('updateOne'),
 //   searchUpdateMany: SearchTC.getResolver('updateMany'),

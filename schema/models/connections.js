@@ -388,7 +388,7 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
-		if (!connection.hasOwnProperty('permissions')) {
+		if (!connection.permissions) {
 			connection.permissions = {};
 		}
 
