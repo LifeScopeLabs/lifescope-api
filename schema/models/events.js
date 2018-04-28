@@ -614,6 +614,7 @@ EventTC.addResolver({
 				},
 				projection: {
 					id: true,
+					connection: true,
 					connection_id_string: true,
 					contacts: true,
 					contact_interaction_type: true,
@@ -646,6 +647,7 @@ EventTC.addResolver({
 				},
 				projection: {
 					id: true,
+					connection: true,
 					connection_id_string: true,
 					contacts: true,
 					contact_interaction_type: true,
@@ -679,6 +681,7 @@ EventTC.addResolver({
 				// sort: sort,
 				projection: {
 					id: true,
+					connection: true,
 					connection_id_string: true,
 					contacts: true,
 					contact_interaction_type: true,
@@ -758,6 +761,7 @@ EventTC.addResolver({
 				},
 				projection: {
 					id: true,
+					connection: true,
 					connection_id_string: true,
 					contacts: true,
 					contact_interaction_type: true,
