@@ -1,7 +1,4 @@
 {
-  "address": "http://localhost:8081",
-  "objectMaxLimit": 100,
-
   "domain": "lifescope.io",
 
   "logging": {
@@ -14,11 +11,13 @@
     ]
   },
 
-  "caches": {
-    "jobs": {
-      "address": "redis://localhost:6379/0"
-    }
+  "cors":
+  {
+    "address": "https://app.lifescope.io",
+    "credentials": true
   },
+  
+  "objectMaxLimit": 100,
 
   "mongo": {
     "address": "mongodb://127.0.0.1",

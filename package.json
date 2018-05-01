@@ -1,7 +1,12 @@
 {
   "name": "lifescope-api",
   "version": "0.1.0",
-  "description": "",
+  "description": "lifescope.io",
+  "author": "(https://lifescope.io)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lifescopelabs/lifescope-api.git"
+  },
   "main": "/server.js",
   "engines": {
     "node": "9.8.0",
@@ -12,10 +17,8 @@
   ],
   "scripts": {
     "build": "npm run buildSchema",
-    "seed": "./node_modules/.bin/babel-node ./scripts/seed.js",
-    "start-seed": "npm run seed && babel-node server.js",
     "debug": "babel-node server.js --inspect-brk=localhost:3333",
-    "start": "babel-node server.js --inspect=localhost:3333",
+    "start": "babel-node server.js",
     "start:watch": "nodemon server.js -e js --exec babel-node",
     "watch": "jest --watch",
     "coverage": "jest --coverage --maxWorkers 2",
@@ -26,11 +29,6 @@
     "nuxt-build": "nuxt build",
     "nuxt-start": "nuxt start",
     "nuxt-generate": "nuxt generate"
-  },
-  "author": "Liam Broza <liam.broza@gmail.com> (https://lifescope.io)",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mrhegemon/lifescope-api.git"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.1",

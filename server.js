@@ -46,8 +46,8 @@ const bitscoop = new BitScoop(BITSCOOP_API_KEY, {
 });
 
 server.use(cors({
-	origin: 'https://app.lifescope.io',
-	credentials: true
+	origin: config.cors.address,
+	credentials: config.cors.credentials
 }));
 
 mongoose.connect(MONGODB_URI, opts);
@@ -101,7 +101,8 @@ loadValidator(config.validationSchemas)
 		}));
 
 		// http://localhost:3000/gql-p/
-		server.get(`${crudAPI.uri}-p`, expressPlayground({endpoint: crudAPI.uri}));
+		server.get(`${crudAPI.uri}-p`, expressPlayground({endpoint: crudAPI.uri,
+			subscriptionsEndpoint: 'wss://api.lifescope.io/subscriptions'}));
 
 		server.use(
 			'/',
@@ -112,8 +113,6 @@ loadValidator(config.validationSchemas)
 			views
 		);
 
-		// http://localhost:3000/user/
-		// server.listen(3000);
 		server.listen(httpListenPort);
 
 		console.log('Lifescope API listening on: ' + httpListenPort);
