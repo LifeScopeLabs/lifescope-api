@@ -273,7 +273,7 @@ SearchTC.addResolver({
 			filters: unnamedFilters
 		};
 
-		if (args.query != null) {
+		if (args.query != null && args.query.length > 0) {
 			hashObj.query = args.query;
 		}
 
