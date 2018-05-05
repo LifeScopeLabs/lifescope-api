@@ -53,6 +53,7 @@ export const EventsSchema = new mongoose.Schema(
 				}
 			},
 			set: function (val) {
+				console.log(this._conditions);
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -374,18 +375,12 @@ EventTC.addResolver({
 			}
 		}
 
-		if (query.q != null || (query.filters != null && Object.keys(query.filters).length > 0)) {
-			let contactOptions = {
-				user_id_string: context.req.user._id.toString('hex')
-			};
+		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
+			let contactOptions = {};
 
-			let contentOptions = {
-				user_id_string: context.req.user._id.toString('hex')
-			};
+			let contentOptions = {};
 
-			let eventOptions = {
-				user_id_string: context.req.user._id.toString('hex')
-			};
+			let eventOptions = {};
 
 			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
 				if (!contactOptions.hasOwnProperty('$and')) {
@@ -539,7 +534,7 @@ EventTC.addResolver({
 				});
 			}
 
-			if (query.q != null) {
+			if (query.q != null && query.q.length > 0) {
 				contactOptions.$text = {
 					$search: query.q
 				};
@@ -565,6 +560,16 @@ EventTC.addResolver({
 				eventOptions.intentionallyFail = true;
 			}
 
+			contactOptions.user_id = context.req.user._id;
+			contentOptions.user_id = context.req.user._id;
+			eventOptions.user_id = context.req.user._id;
+
+			console.log('contactOptions:');
+			console.log(contactOptions);
+			console.log('contentOptions:');
+			console.log(contentOptions);
+			console.log('eventOptions:');
+			console.log(eventOptions);
 			let contactResults = await ContactTC.getResolver('findMany').resolve({
 				rawQuery: contactOptions,
 				projection: {
@@ -587,26 +592,47 @@ EventTC.addResolver({
 			});
 
 			let contactIds = _.map(contactResults, function(result) {
-				return result._id.toString('hex');
+				return result._id;
 			});
 
 			let contentIds = _.map(contentResults, function(result) {
-				return result._id.toString('hex');
+				return result._id;
 			});
 
 			let eventIds = _.map(eventResults, function(result) {
-				return result._id.toString('hex');
+				return result._id;
 			});
 
+			console.log(contactIds);
+			console.log(contentIds);
+			console.log(eventIds);
 			let eventMatches = await EventTC.getResolver('findMany').resolve({
 				args: {
 					filter: {
 						user_id_string: context.req.user._id.toString('hex'),
-						id: {
-							$in: _.map(eventIds, function(id) {
-								return id.toString('hex')
-							})
-						}
+						OR: [
+							{
+								id: {
+									$in: _.map(eventIds, function (id) {
+										return id.toString('hex');
+									})
+								}
+							},
+							{
+								contacts: {
+									$in: _.map(contactIds, function(id) {
+										return id;
+									})
+								}
+							},
+							{
+								content: {
+									$in: _.map(contentIds, function(id) {
+										return id;
+									})
+								}
+							}
+						]
 					},
 					sort: sort,
 					limit: query.limit,
@@ -631,82 +657,100 @@ EventTC.addResolver({
 				}
 			});
 
-			let contactMatches = await EventTC.getResolver('findMany').resolve({
-				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex'),
-						id: {
-							$in: _.map(contactIds, function(id) {
-								return id.toString('hex')
-							})
-						}
-					},
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
-				},
-				projection: {
-					id: true,
-					connection: true,
-					connection_id_string: true,
-					contacts: true,
-					contact_interaction_type: true,
-					content: true,
-					context: true,
-					created: true,
-					datetime: true,
-					hydratedContacts: true,
-					hydratedContent: true,
-					provider_name: true,
-					source: true,
-					type: true,
-					updated: true
-				}
-			});
-
-			let contentMatches = await EventTC.getResolver('findMany').resolve({
-				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex'),
-						id: {
-							$in: _.map(contentIds, function(id) {
-								return id.toString('hex')
-							})
-						}
-					},
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
-				},
-				// sort: sort,
-				projection: {
-					id: true,
-					connection: true,
-					connection_id_string: true,
-					contacts: true,
-					contact_interaction_type: true,
-					content: true,
-					context: true,
-					created: true,
-					datetime: true,
-					hydratedContacts: true,
-					hydratedContent: true,
-					provider_name: true,
-					source: true,
-					type: true,
-					updated: true
-				}
-			});
+			// let contactMatches = await EventTC.getResolver('findMany').resolve({
+			// 	args: {
+			// 		filter: {
+			// 			user_id_string: context.req.user._id.toString('hex'),
+			// 			contacts: {
+			// 				$in: _.map(contactIds, function(id) {
+			// 					return id;
+			// 				})
+			// 			}
+			// 		},
+			// 		sort: sort,
+			// 		limit: query.limit,
+			// 		offset: query.offset
+			// 	},
+			// 	projection: {
+			// 		id: true,
+			// 		connection: true,
+			// 		connection_id_string: true,
+			// 		contacts: true,
+			// 		contact_interaction_type: true,
+			// 		content: true,
+			// 		context: true,
+			// 		created: true,
+			// 		datetime: true,
+			// 		hydratedContacts: true,
+			// 		hydratedContent: true,
+			// 		provider_name: true,
+			// 		source: true,
+			// 		type: true,
+			// 		updated: true
+			// 	}
+			// });
+			//
+			// let contentMatches = await EventTC.getResolver('findMany').resolve({
+			// 	args: {
+			// 		filter: {
+			// 			user_id_string: context.req.user._id.toString('hex'),
+			// 			content: {
+			// 				$in: _.map(contentIds, function(id) {
+			// 					return id;
+			// 				})
+			// 			}
+			// 		},
+			// 		sort: sort,
+			// 		limit: query.limit,
+			// 		offset: query.offset
+			// 	},
+			// 	// sort: sort,
+			// 	projection: {
+			// 		id: true,
+			// 		connection: true,
+			// 		connection_id_string: true,
+			// 		contacts: true,
+			// 		contact_interaction_type: true,
+			// 		content: true,
+			// 		context: true,
+			// 		created: true,
+			// 		datetime: true,
+			// 		hydratedContacts: true,
+			// 		hydratedContent: true,
+			// 		provider_name: true,
+			// 		source: true,
+			// 		type: true,
+			// 		updated: true
+			// 	}
+			// });
 
 			let eventMatchCount = await EventTC.getResolver('count').resolve({
 				args: {
 					filter: {
 						user_id_string: context.req.user._id.toString('hex'),
-						id: {
-							$in: _.map(eventIds, function(id) {
-								return id.toString('hex')
-							})
-						}
+						OR: [
+							{
+								id: {
+									$in: _.map(eventIds, function (id) {
+										return id.toString('hex');
+									})
+								}
+							},
+							{
+								contacts: {
+									$in: _.map(contactIds, function(id) {
+										return id;
+									})
+								}
+							},
+							{
+								content: {
+									$in: _.map(contentIds, function(id) {
+										return id;
+									})
+								}
+							}
+						]
 					},
 					sort: sort,
 					limit: query.limit,
@@ -714,40 +758,42 @@ EventTC.addResolver({
 				}
 			});
 
-			let contactMatchCount = await EventTC.getResolver('count').resolve({
-				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex'),
-						id: {
-							$in: _.map(contactIds, function(id) {
-								return id.toString('hex')
-							})
-						}
-					},
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
-				}
-			});
+			// let contactMatchCount = await EventTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: {
+			// 			user_id_string: context.req.user._id.toString('hex'),
+			// 			contacts: {
+			// 				$in: _.map(contactIds, function(id) {
+			// 					return id;
+			// 				})
+			// 			}
+			// 		},
+			// 		sort: sort,
+			// 		limit: query.limit,
+			// 		offset: query.offset
+			// 	}
+			// });
+			//
+			// let contentMatchCount = await EventTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: {
+			// 			user_id_string: context.req.user._id.toString('hex'),
+			// 			content: {
+			// 				$in: _.map(contentIds, function(id) {
+			// 					return id;
+			// 				})
+			// 			}
+			// 		},
+			// 		sort: sort,
+			// 		limit: query.limit,
+			// 		offset: query.offset
+			// 	}
+			// });
 
-			let contentMatchCount = await EventTC.getResolver('count').resolve({
-				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex'),
-						id: {
-							$in: _.map(contentIds, function(id) {
-								return id.toString('hex')
-							})
-						}
-					},
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
-				}
-			});
-
-			documents = _.union(eventMatches, contactMatches, contentMatches);
-			count = eventMatchCount + contactMatchCount + contentMatchCount;
+			documents = eventMatches;
+			count = eventMatchCount;
+			// documents = _.union(eventMatches, contactMatches, contentMatches);
+			// count = eventMatchCount + contactMatchCount + contentMatchCount;
 		}
 		else {
 			let eventMatches = await EventTC.getResolver('findMany').resolve({
