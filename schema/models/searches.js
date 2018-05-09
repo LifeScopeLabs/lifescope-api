@@ -56,7 +56,7 @@ export const SearchesSchema = new mongoose.Schema(
 
 		count: {
 			type: Number,
-			index: false
+			index: true
 		},
 
 		favorited: {
@@ -95,12 +95,12 @@ export const SearchesSchema = new mongoose.Schema(
 
 		last_run: {
 			type: Date,
-			index: false
+			index: true
 		},
 
 		name: {
 			type: String,
-			index: false
+			index: true
 		},
 
 		query: {
@@ -239,7 +239,69 @@ SearchTC.addResolver({
 });
 
 
+SearchTC.addResolver({
+	name: 'patchSearch',
+	kind: 'mutation',
+	type: SearchTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String',
+		favorited: 'Boolean',
+		icon: 'String',
+		icon_color: 'String',
+		name: 'String'
+	},
+	resolve: async function({ source, args, context, info}) {
+		let record = {};
 
+		if (args.favorited != null) {
+			record.favorited = args.favorited;
+		}
+
+		if (args.icon && args.icon.length >= 0) {
+			record.icon = args.icon;
+		}
+
+		if (args.icon_color) {
+			record.icon_color = args.icon_color;
+		}
+
+		if (args.name) {
+			record.name = args.name;
+		}
+
+		if (Object.keys(record).length > 0) {
+			await SearchTC.getResolver('updateOne').resolve({
+				args: {
+					filter: {
+						id: args.id,
+						user_id_string: context.req.user._id.toString('hex')
+					},
+					record: record
+				}
+			});
+		}
+	}
+});
+
+
+SearchTC.addResolver({
+	name: 'deleteSearch',
+	kind: 'mutation',
+	type: SearchTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String',
+	},
+	resolve: async function({ source, args, context, info}) {
+		await SearchTC.getResolver('removeOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+	}
+});
 
 SearchTC.addResolver({
 	name: 'findSearch',

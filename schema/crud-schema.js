@@ -13,7 +13,7 @@ import { EventTC } from './models/events';
 import { ProviderTC } from './models/providers';
 import { SearchTC } from './models/searches';
 import { SessionTC } from './models/sessions';
-// import { TagTC } from './models/tags';
+import { TagTC } from './models/tags';
 // import { ThingTC } from './models/things';
 
 import { UserTC } from './models/users';
@@ -52,9 +52,9 @@ GQC.rootQuery().addFields({
 //   locationPagination: LocationTC.getResolver('pagination'),
   
 //   //Providers
-  providerOne: ProviderTC.getResolver('findOne'),
-  providerMany: ProviderTC.getResolver('findMany'),
-  providerTotal: ProviderTC.getResolver('count'),
+	providerOne: ProviderTC.getResolver('findOne'),
+	providerMany: ProviderTC.getResolver('findMany'),
+	providerTotal: ProviderTC.getResolver('count'),
     providerWithMapMany: ProviderTC.getResolver('providerWithMapMany'),
 	providerWithMapOne: ProviderTC.getResolver('providerWithMapOne'),
   //   providerConnection: ProviderTC.getResolver('connection'),
@@ -85,6 +85,8 @@ GQC.rootQuery().addFields({
 	  searchCount: SearchTC.getResolver('count'),
 	  searchMany: SearchTC.getResolver('findMany'),
 	  searchOne: SearchTC.getResolver('findOne'),
+
+	  tagMany: TagTC.getResolver('findMany'),
   }),
 //   sessionTotal: SessionTC.getResolver('count'),
 //   sessionConnection: SessionTC.getResolver('connection'),
@@ -145,8 +147,9 @@ GQC.rootMutation().addFields({
         untagEvent: EventTC.getResolver('removeEventTags'),
         deleteAccount: UserTC.getResolver('deleteAccount'),
 
+	    searchDelete: SearchTC.getResolver('deleteSearch'),
 	    searchFind: SearchTC.getResolver('findSearch'),
-	    searchUpdateOne: SearchTC.getResolver('updateOne'),
+	    searchPatch: SearchTC.getResolver('patchSearch'),
 	    searchUpsert: SearchTC.getResolver('upsertSearch'),
     }),
 //   eventCreate: EventTC.getResolver('createOne'),
