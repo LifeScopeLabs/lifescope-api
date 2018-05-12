@@ -7,7 +7,7 @@ import uuid from 'uuid/v4';
 import restrictToUser from '../lib/middleware/restrict-to-user';
 import { ConnectionTC } from './models/connections';
 import { ContactTC } from './models/contacts';
-// import { ContentTC } from './models/content';
+import { ContentTC } from './models/content';
 import { EventTC } from './models/events';
 // import { LocationTC } from './models/locations';
 import { ProviderTC } from './models/providers';
@@ -141,6 +141,12 @@ GQC.rootMutation().addFields({
     ...restrictToUser(Resolver, {
         connectionPatch: ConnectionTC.getResolver('patchConnection'),
         connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
+
+	    tagContact: ContactTC.getResolver('addContactTags'),
+	    untagContact: ContactTC.getResolver('removeContactTags'),
+
+	    tagContent: ContentTC.getResolver('addContentTags'),
+	    untagContent: ContentTC.getResolver('removeContentTags'),
 
         eventSearch: EventTC.getResolver('searchEvents'),
         tagEvent: EventTC.getResolver('addEventTags'),

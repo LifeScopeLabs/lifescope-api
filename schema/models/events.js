@@ -366,6 +366,10 @@ EventTC.addResolver({
 			if ((key === 'emptyQueryRelevance' && query.sortField === '_score' && query.q == null) || query.sortField === field.condition) {
 				specialSort = true;
 				sort = field.values;
+
+				_.each(sort, function(val, name) {
+					sort[name] = query.sortOrder === 'asc' ? 1 : -1;
+				});
 			}
 		}
 
@@ -564,12 +568,6 @@ EventTC.addResolver({
 			contentOptions.user_id = context.req.user._id;
 			eventOptions.user_id = context.req.user._id;
 
-			console.log('contactOptions:');
-			console.log(contactOptions);
-			console.log('contentOptions:');
-			console.log(contentOptions);
-			console.log('eventOptions:');
-			console.log(eventOptions);
 			let contactResults = await ContactTC.getResolver('findMany').resolve({
 				rawQuery: contactOptions,
 				projection: {
@@ -603,9 +601,6 @@ EventTC.addResolver({
 				return result._id;
 			});
 
-			console.log(contactIds);
-			console.log(contentIds);
-			console.log(eventIds);
 			let eventMatches = await EventTC.getResolver('findMany').resolve({
 				args: {
 					filter: {
@@ -652,6 +647,7 @@ EventTC.addResolver({
 					hydratedContent: true,
 					provider_name: true,
 					source: true,
+					tagMasks: true,
 					type: true,
 					updated: true
 				}
@@ -819,6 +815,7 @@ EventTC.addResolver({
 					hydratedContent: true,
 					provider_name: true,
 					source: true,
+					tagMasks: true,
 					type: true,
 					updated: true
 				}
