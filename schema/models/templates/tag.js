@@ -114,8 +114,6 @@ export const remove = async function(req, args, TypeTC) {
 		throw httpErrors(404);
 	}
 
-	console.log(args);
-
 	_.each(args.tags, async function(tag) {
 		let tagResult = await TagTC.getResolver('findOne').resolve({
 			args: {
@@ -185,8 +183,6 @@ export const remove = async function(req, args, TypeTC) {
 	tagMasks.removed = _.union(tagMasks.removed, args.tags);
 	_.pullAll(tagMasks.added, args.tags);
 
-	console.log(filter);
-	console.log(tagMasks);
 	let result = await TypeTC.getResolver('updateOne').resolve({
 		args: {
 			filter: filter,

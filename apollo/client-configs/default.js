@@ -1,5 +1,6 @@
 import https from 'https';
 
+import config from 'config';
 import { ApolloLink, concat, split } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -7,15 +8,20 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import _ from 'lodash';
 
+
 export default (ctx) => {
-	const httpLink = new HttpLink({
-		//Remove fetchOptions in production, as it's only needed for ignoring certs in dev
-		fetchOptions: {
-			agent: new https.Agent({ rejectUnauthorized: false })
-		},
+	let httpLinkOptions = {
 		uri: 'https://api.lifescope.io/gql',
 		credentials: 'same-origin'
-	});
+	};
+
+	if (process.env.NODE_ENV !== 'production') {
+		httpLinkOptions.fetchOptions = {
+			agent: new https.Agent({ rejectUnauthorized: false })
+		};
+	}
+
+	const httpLink = new HttpLink(httpLinkOptions);
 
 	const wsLink = process.client ? new WebSocketLink({
 		uri: 'wss://api.lifescope.io/subscriptions',

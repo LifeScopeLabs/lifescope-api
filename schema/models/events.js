@@ -53,7 +53,6 @@ export const EventsSchema = new mongoose.Schema(
 				}
 			},
 			set: function (val) {
-				console.log(this._conditions);
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {

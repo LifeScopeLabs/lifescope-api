@@ -1,3 +1,5 @@
+import 'idempotent-babel-polyfill';
+
 import { createServer } from 'http';
 
 import BitScoop from 'bitscoop-sdk';
@@ -41,9 +43,7 @@ const opts = {
 	reconnectInterval: 1000,
 };
 
-const bitscoop = new BitScoop(BITSCOOP_API_KEY, {
-	allowUnauthorized: true
-});
+const bitscoop = new BitScoop(BITSCOOP_API_KEY, config.bitscoop.arguments);
 
 server.use(cors({
 	origin: config.cors.address,
@@ -115,7 +115,7 @@ loadValidator(config.validationSchemas)
 
 		server.listen(httpListenPort);
 
-		console.log('Lifescope API listening on: ' + httpListenPort);
+		console.log('Lifescope API listening on: ' + httpListenPort + ' at ' + new Date());
 
 		wsServer.listen(wsListenPort, function() {
 			console.log('WS Server running on ' + wsListenPort);

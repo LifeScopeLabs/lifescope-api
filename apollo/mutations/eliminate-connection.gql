@@ -1,5 +1,0 @@
-mutation eliminateConnection($id: String!) {
-    connectionEliminate(id: $id) {
-        id
-    }
-}
