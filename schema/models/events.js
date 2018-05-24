@@ -324,7 +324,7 @@ EventTC.addResolver({
 		let count, documents;
 		let validate = env.validate;
 
-		let filters = JSON.parse(args.filters);
+		let filters = args.filters ? JSON.parse(args.filters) : {};
 		let suppliedFilters = filters;
 
 		let query = {
@@ -600,34 +600,30 @@ EventTC.addResolver({
 				return result._id;
 			});
 
+			let filter = {
+				user_id_string: context.req.user._id.toString('hex'),
+				OR: [
+					{
+						_id: {
+							$in: eventIds
+						}
+					},
+					{
+						contacts: {
+							$in: contactIds
+						}
+					},
+					{
+						content: {
+							$in: contentIds
+						}
+					}
+				]
+			};
+
 			let eventMatches = await EventTC.getResolver('findMany').resolve({
 				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex'),
-						OR: [
-							{
-								id: {
-									$in: _.map(eventIds, function (id) {
-										return id.toString('hex');
-									})
-								}
-							},
-							{
-								contacts: {
-									$in: _.map(contactIds, function(id) {
-										return id;
-									})
-								}
-							},
-							{
-								content: {
-									$in: _.map(contentIds, function(id) {
-										return id;
-									})
-								}
-							}
-						]
-					},
+					filter: filter,
 					sort: sort,
 					limit: query.limit,
 					offset: query.offset
