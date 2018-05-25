@@ -25,10 +25,6 @@
     "lint": "eslint --ext .js ./",
     "flow": "./node_modules/.bin/flow",
     "test": "npm run coverage && npm run lint && npm run flow",
-    "nuxt-dev": "nuxt",
-    "nuxt-build": "nuxt build",
-    "nuxt-start": "nuxt start",
-    "nuxt-generate": "nuxt generate",
     "serve": "node dist/api/server.js"
   },
   "devDependencies": {
@@ -66,7 +62,6 @@
     "run-sequence": "^2.2.1"
   },
   "dependencies": {
-    "@nuxtjs/apollo": "^3.0.5",
     "ajv": "^6.3.0",
     "apollo-cache-inmemory": "^1.1.12",
     "apollo-client": "^2.2.8",
@@ -109,7 +104,6 @@
     "mongoose": "^5.0.11",
     "mongoose-uuid2": "^2.1.0",
     "node-uuid": "^1.4.8",
-    "nuxt": "^1.4.0",
     "subscriptions-transport-ws": "^0.9.7",
     "type-detect": "^4.0.8",
     "useragent": "^2.3.0",

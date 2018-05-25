@@ -1,0 +1,298 @@
+{
+  "version": "1.0",
+  "name": "Twitter",
+  "description": "Online social networking service.",
+  "url": "https://api.twitter.com",
+  "tags": [
+    "social"
+  ],
+  "auth": {
+    "type": "oauth1",
+    "version": "1.0a",
+    "signature_method": "HMAC-SHA1",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "https://api.twitter.com/oauth/authenticate",
+    "request_token": "https://api.twitter.com/oauth/request_token",
+    "access_token": "https://api.twitter.com/oauth/access_token",
+    "auth_key": "***INSERT AUTH KEY HERE***",
+    "auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "id_str",
+    "default_name_location": "screen_name",
+    "endpoint": {
+      "method": "GET",
+      "parameters": {
+        "include_entities": {
+          "description": "Whether or not to include the user's last tweet",
+          "value": false
+        }
+      },
+      "route": {
+        "data": "",
+        "path": "1.1/account/verify_credentials.json"
+      },
+      "model": {
+        "key": "id_str",
+        "fields": {
+          "id_str": "string",
+          "name": "string",
+          "screen_name": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "DirectMessagesReceived": {
+      "method": "GET",
+      "parameters": {
+        "count": {
+          "description": "Pagination counts",
+          "value": 200
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "",
+          "path": "1.1/direct_messages.json"
+        }
+      },
+      "model": {
+        "key": "id_str",
+        "fields": {
+          "id_str": "string",
+          "entities": {
+            "type": "embedded",
+            "fields": {
+              "hashtags": {
+                "type": "embedded",
+                "many": true,
+                "fields": {
+                  "text": "string"
+                }
+              }
+            }
+          },
+          "created_at": "string",
+          "text": "string",
+          "sender": {
+            "type": "embedded",
+            "fields": {
+              "id_str": "string",
+              "profile_image_url_https": "string",
+              "screen_name": "string",
+              "name": "string"
+            }
+          },
+          "extended_entities": {
+            "type": "embedded",
+            "fields": {
+              "media": {
+                "type": "embedded",
+                "many": true,
+                "fields": {
+                  "id_str": "string",
+                  "expanded_url": "string",
+                  "type": "string",
+                  "media_url_https": "string",
+                  "video_info": {
+                    "type": "embedded",
+                    "fields": {
+                      "variants": {
+                        "type": "embedded",
+                        "many": true,
+                        "fields": {
+                          "content_type": "string",
+                          "bitrate": "integer",
+                          "url": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "DirectMessagesSent": {
+      "method": "GET",
+      "parameters": {
+        "count": {
+          "description": "Pagination counts",
+          "value": 200
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "",
+          "path": "1.1/direct_messages/sent.json"
+        }
+      },
+      "model": {
+        "key": "id_str",
+        "fields": {
+          "id_str": "string",
+          "entities": {
+            "type": "embedded",
+            "fields": {
+              "hashtags": {
+                "type": "embedded",
+                "many": true,
+                "fields": {
+                  "text": "string"
+                }
+              }
+            }
+          },
+          "created_at": "string",
+          "text": "string",
+          "recipient": {
+            "type": "embedded",
+            "fields": {
+              "id_str": "string",
+              "profile_image_url_https": "string",
+              "screen_name": "string",
+              "name": "string"
+            }
+          },
+          "extended_entities": {
+            "type": "embedded",
+            "fields": {
+              "media": {
+                "type": "embedded",
+                "many": true,
+                "fields": {
+                  "id_str": "string",
+                  "expanded_url": "string",
+                  "type": "string",
+                  "media_url_https": "string",
+                  "video_info": {
+                    "type": "embedded",
+                    "fields": {
+                      "variants": {
+                        "type": "embedded",
+                        "many": true,
+                        "fields": {
+                          "content_type": "string",
+                          "bitrate": "integer",
+                          "url": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Tweets": {
+      "method": "GET",
+      "parameters": {
+        "count": {
+          "description": "Pagination counts",
+          "value": 200
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "",
+          "path": "1.1/statuses/user_timeline.json"
+        }
+      },
+      "model": {
+        "key": "id_str",
+        "fields": {
+          "id_str": "string",
+          "created_at": "string",
+          "text": "string",
+          "entities": {
+            "type": "embedded",
+            "fields": {
+              "hashtags": {
+                "type": "embedded",
+                "many": true,
+                "fields": {
+                  "text": "string"
+                }
+              }
+            }
+          },
+          "in_reply_to_user_id_str": "string",
+          "in_reply_to_screen_name": "string",
+          "extended_entities": {
+            "type": "embedded",
+            "fields": {
+              "media": {
+                "type": "embedded",
+                "many": true,
+                "fields": {
+                  "id_str": "string",
+                  "expanded_url": "string",
+                  "type": "string",
+                  "media_url_https": "string",
+                  "video_info": {
+                    "type": "embedded",
+                    "fields": {
+                      "variants": {
+                        "type": "embedded",
+                        "many": true,
+                        "fields": {
+                          "content_type": "string",
+                          "bitrate": "integer",
+                          "url": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "user": {
+            "type": "related",
+            "ref": "User",
+            "reverse": {
+              "parameters": {
+                "user_id": "{{ model.in_reply_to_user_id_str }}"
+              }
+            }
+          }
+        }
+      }
+    },
+    "User": {
+      "method": "GET",
+      "parameters": {
+        "user_id": {
+          "description": "The user's ID",
+          "value": "{{ parameters.user_id }}"
+        },
+        "include_entities": {
+          "description": "Whether or not to include the user's last tweet",
+          "value": "{{ parameters.user_id }}"
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "",
+          "path": "1.1/users/lookup.json"
+        }
+      },
+      "model": {
+        "key": "id_str",
+        "fields": {
+          "profile_image_url_https": "string",
+          "name": "str"
+        }
+      }
+    }
+  }
+}

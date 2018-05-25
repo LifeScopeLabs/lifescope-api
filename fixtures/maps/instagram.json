@@ -1,0 +1,115 @@
+{
+  "version": "1.0",
+  "name": "Instagram",
+  "description": "Mobile photo-sharing, video-sharing and social networking service.",
+  "url": "https://api.instagram.com",
+  "tags": [
+    "media",
+    "social"
+  ],
+  "auth": {
+    "type": "oauth2",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "https://api.instagram.com/oauth/authorize",
+    "access_token": "https://api.instagram.com/oauth/access_token",
+    "signature": "parameter",
+    "auth_key": "***INSERT AUTH KEY HERE***",
+    "auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "id",
+    "default_name_location": "username",
+    "endpoint": {
+      "method": "GET",
+      "route": {
+        "data": "data",
+        "path": "v1/users/self"
+      },
+      "model": {
+        "key": "id",
+        "fields": {
+          "id": "string",
+          "username": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "PublishedMedia": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "basic"
+        ],
+        "parameters": {
+          "count": {
+            "description": "Pagination counts",
+            "value": 20
+          },
+          "min_id": {
+            "description": "Most recent item that was saved in LifeScope",
+            "value": "{{ parameters.min_id }}"
+          },
+          "max_id": {
+            "description": "Highest ID to retrieve",
+            "value": "{{ parameters.max_id }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data",
+            "path": "v1/users/self/media/recent"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "created_time": "string",
+            "type": "string",
+            "caption": {
+              "type": "embedded",
+              "fields": {
+                "text": "string"
+              }
+            },
+            "images": {
+              "type": "embedded",
+              "fields": {
+                "standard_resolution": {
+                  "type": "embedded",
+                  "fields": {
+                    "url": "string"
+                  }
+                },
+                "thumbnail": {
+                  "type": "embedded",
+                  "fields": {
+                    "url": "string"
+                  }
+                }
+              }
+            },
+            "videos": {
+              "type": "embedded",
+              "fields": {
+                "standard_resolution": {
+                  "type": "embedded",
+                  "fields": {
+                    "url": "string"
+                  }
+                }
+              }
+            },
+            "tags": {
+              "type": "string",
+              "many": true
+            },
+            "link": "string",
+            "id": "string"
+          }
+        }
+      }
+    }
+  }
+}

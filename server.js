@@ -15,15 +15,14 @@ import { PubSub } from 'graphql-subscriptions';
 import { execute, subscribe } from 'graphql';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import mongoose from 'mongoose';
-import {Nuxt, Builder} from 'nuxt';
 
 import views from './lib/views';
 import cookieAuthorization from './lib/middleware/cookie-authorization';
+import keyAuthorization from './lib/middleware/key-authorization';
 import wsCookieAuthorization from './lib/middleware/ws-cookie-authorization';
 import meta from './lib/middleware/meta';
 import {crudAPI} from './schema';
 import {loadValidator} from './lib/validator';
-import nuxtConfig from './nuxt.config.js';
 
 const BITSCOOP_API_KEY = config.bitscoop.api_key;
 const MONGODB_URI = config.mongodb.address;
@@ -80,6 +79,7 @@ loadValidator(config.validationSchemas)
 			crudAPI.uri,
 			bodyParser.json(),
 			cookieParser(),
+			keyAuthorization,
 			cookieAuthorization,
 			graphqlExpress((req, res) => ({
 				schema: crudAPI.schema,

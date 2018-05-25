@@ -1,0 +1,252 @@
+{
+  "version": "1.0",
+  "name": "Google",
+  "description": "Internet-related services and products.",
+  "url": "https://www.googleapis.com",
+  "tags": [
+    "collaboration",
+    "media",
+    "productivity",
+    "social",
+    "video"
+  ],
+  "auth": {
+    "type": "oauth2",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "https://accounts.google.com/o/oauth2/auth?access_type=offline&approval_prompt=force",
+    "access_token": "https://accounts.google.com/o/oauth2/token",
+    "signature": "parameter",
+    "auth_key": "***INSERT AUTH KEY HERE***",
+    "auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "id",
+    "default_name_location": "id",
+    "endpoint": {
+      "method": "GET",
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.profile"
+      ],
+      "route": {
+        "data": "metadata.sources[0]",
+        "path": "https://people.googleapis.com/v1/people/me?requestMask.includeField=person.email_addresses,person.names"
+      },
+      "model": {
+        "key": "id",
+        "fields": {
+          "id": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "GmailInbox": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "https://www.googleapis.com/auth/gmail.readonly"
+        ],
+        "parameters": {
+          "pageToken": {
+            "description": "Token for the next page in the results",
+            "value": "{{ parameters.pageToken }}"
+          },
+          "q": {
+            "description": "QueryString",
+            "value": "{{ parameters.q }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "messages",
+            "path": "gmail/v1/users/me/messages"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "message": {
+              "type": "related",
+              "ref": "GmailMessage",
+              "many": false,
+              "reverse": {
+                "identifier": "{{ model.id }}"
+              }
+            }
+          }
+        }
+      }
+    },
+    "GmailMessage": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "https://www.googleapis.com/auth/gmail.readonly"
+        ],
+        "single": {
+          "route": {
+            "data": "",
+            "path": "gmail/v1/users/me/messages/{{ identifier }}"
+          }
+        },
+        "collection": false,
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "internalDate": "string",
+            "payload": {
+              "type": "embedded",
+              "fields": {
+                "mimeType": "string",
+                "body": {
+                  "type": "embedded",
+                  "fields": {
+                    "data": "string"
+                  }
+                },
+                "headers": {
+                  "type": "embedded",
+                  "many": true,
+                  "fields": {
+                    "name": "string"
+                  }
+                },
+                "parts": {
+                  "type": "embedded",
+                  "many": true,
+                  "fields": {
+                    "mimeType": "string",
+                    "body": {
+                      "type": "embedded",
+                      "fields": {
+                        "data": "string"
+                      }
+                    },
+                    "parts": {
+                      "type": "embedded",
+                      "many": true,
+                      "fields": {
+                        "mimeType": "string",
+                        "body": {
+                          "type": "embedded",
+                          "fields": {
+                            "data": "string"
+                          }
+                        },
+                        "parts": {
+                          "type": "embedded",
+                          "many": true,
+                          "fields": {
+                            "mimeType": "string",
+                            "body": {
+                              "type": "embedded",
+                              "fields": {
+                                "data": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "profile": {
+              "type": "related",
+              "ref": "GmailProfile",
+              "many": false
+            }
+          }
+        }
+      }
+    },
+    "GmailProfile": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "https://www.googleapis.com/auth/gmail.readonly"
+        ],
+        "collection": {
+          "route": {
+            "data": "",
+            "path": "gmail/v1/users/me/profile"
+          }
+        },
+        "single": false,
+        "model": {
+          "key": "emailAddress",
+          "fields": {
+            "emailAddress": "string"
+          }
+        }
+      }
+    },
+    "DriveChanges": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "https://www.googleapis.com/auth/drive.readonly"
+        ],
+        "parameters": {
+          "pageToken": {
+            "description": "A token indicating which page of results to retrieve",
+            "value": 1
+          },
+          "includeRemoved": {
+            "description": "Whether to include file deletions or files to which the user has lost access",
+            "value": true
+          },
+          "pageSize": {
+            "description": "Number of results returned in a page",
+            "value": 1000
+          },
+          "fields": {
+            "description": "Which fields to include in the response",
+            "value": "changes,newStartPageToken,nextPageToken"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "changes",
+            "path": "drive/v3/changes"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "fileId": "string",
+            "time": "string",
+            "removed": "boolean",
+            "file": {
+              "type": "embedded",
+              "fields": {
+                "mimeType": "string",
+                "name": "string",
+                "webViewLink": "string",
+                "thumbnailLink": "string",
+                "fullFileExtension": "string",
+                "viewedByMeTime": "date",
+                "createdTime": "date",
+                "permissions": {
+                  "type": "embedded",
+                  "many": true,
+                  "fields": {
+                    "type": "string",
+                    "me": "boolean",
+                    "emailAddress": "string",
+                    "displayName": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

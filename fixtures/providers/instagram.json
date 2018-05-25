@@ -1,0 +1,23 @@
+{
+  "_id": "3f094b0b24d048938e40452d34d62a46",
+
+  "sources": {
+    "posts": {
+      "name": "Shares",
+      "description": "Images and videos you have shared on Instagram",
+      "enabled_by_default": true,
+      "mapping": "PublishedMedia"
+    }
+  },
+
+  "alt_sources": {
+    "likes": {
+      "name": "Likes",
+      "description": "Images and videos you have liked on Instagram",
+      "enabled_by_default": true,
+      "mapping": "Likes"
+    }
+  },
+
+  "remote_map_id": "617485ca13a94b5294c18237a2f50f7b"
+}

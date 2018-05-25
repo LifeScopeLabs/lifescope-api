@@ -1,0 +1,23 @@
+{
+  "_id": "e4bbdc7addbf4cbbb2878de2a4c6e959",
+
+  "sources": {
+    "posts": {
+      "name": "Facebook Posts",
+      "description": "Posts you have made to Facebook",
+      "enabled_by_default": true,
+      "mapping": "UserFeed",
+      "population": "*"
+    },
+
+    "events": {
+      "name": "Facebook Events",
+      "description": "Events you have RSVP'd for on Facebook",
+      "enabled_by_default": true,
+      "mapping": "UserEvents",
+      "population": "*"
+    }
+  },
+
+  "remote_map_id": "fe95813c37d04534b8bb221466b41e65"
+}

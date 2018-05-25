@@ -1,0 +1,215 @@
+{
+  "version": "1.0",
+  "name": "Spotify",
+  "description": "Music streaming service",
+  "url": "https://api.spotify.com",
+  "tags": [
+    "media",
+    "music"
+  ],
+  "auth": {
+    "type": "oauth2",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "https://accounts.spotify.com/authorize",
+    "access_token": "https://accounts.spotify.com/api/token",
+    "signature": "header",
+    "auth_key": "***INSERT AUTH KEY HERE***",
+    "auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "id",
+    "default_name_location": "id",
+    "endpoint": {
+      "method": "GET",
+      "route": {
+        "data": "",
+        "path": "v1/me"
+      },
+      "model": {
+        "key": "id",
+        "fields": {
+          "id": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "MyPlaylists": {
+      "method": "GET",
+      "scopes": [
+        "playlist-read-private",
+        "playlist-read-collaborative"
+      ],
+      "parameters": {
+        "limit": {
+          "description": "Pagination counts",
+          "value": 50
+        },
+        "offset": {
+          "description": "Where to start the next page of results",
+          "value": "{{ parameters.offset }}"
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "items",
+          "path": "v1/me/playlists"
+        }
+      },
+      "model": {
+        "key": "id",
+        "fields": {
+          "id": "string",
+          "name": "string",
+          "uri": "string",
+          "external_urls": {
+            "type": "embedded",
+            "fields": {
+              "spotify": "string"
+            }
+          },
+          "oembed": {
+            "type": "related",
+            "ref": "OEmbed",
+            "many": false,
+            "reverse": {
+              "parameters": {
+                "url": "{{ model.uri }}"
+              }
+            }
+          }
+        }
+      }
+    },
+    "SavedAlbums": {
+      "method": "GET",
+      "scopes": [
+        "user-library-read"
+      ],
+      "parameters": {
+        "limit": {
+          "description": "Pagination counts",
+          "value": 50
+        },
+        "offset": {
+          "description": "Where to start the next page of results",
+          "value": "{{ parameters.offset }}"
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "items",
+          "path": "v1/me/albums"
+        }
+      },
+      "model": {
+        "key": "album.id",
+        "fields": {
+          "added_at": "string",
+          "album": {
+            "type": "embedded",
+            "fields": {
+              "id": "string",
+              "external_urls": {
+                "type": "embedded",
+                "fields": {
+                  "spotify": "string"
+                }
+              },
+              "name": "string",
+              "uri": "string"
+            }
+          },
+          "oembed": {
+            "type": "related",
+            "ref": "OEmbed",
+            "many": false,
+            "reverse": {
+              "parameters": {
+                "url": "{{ model.album.uri }}"
+              }
+            }
+          }
+        }
+      }
+    },
+    "SavedTracks": {
+      "method": "GET",
+      "scopes": [
+        "user-library-read"
+      ],
+      "parameters": {
+        "limit": {
+          "description": "Pagination counts",
+          "value": 50
+        },
+        "offset": {
+          "description": "Where to start the next page of results",
+          "value": "{{ parameters.offset }}"
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "items",
+          "path": "v1/me/tracks"
+        }
+      },
+      "model": {
+        "key": "track.id",
+        "fields": {
+          "added_at": "string",
+          "track": {
+            "type": "embedded",
+            "fields": {
+              "id": "string",
+              "external_urls": {
+                "type": "embedded",
+                "fields": {
+                  "spotify": "string"
+                }
+              },
+              "name": "string",
+              "uri": "string"
+            }
+          },
+          "oembed": {
+            "type": "related",
+            "ref": "OEmbed",
+            "many": false,
+            "reverse": {
+              "parameters": {
+                "url": "{{ model.track.uri }}"
+              }
+            }
+          }
+        }
+      }
+    },
+    "OEmbed": {
+      "method": "GET",
+      "parameters": {
+        "url": {
+          "description": "URL of Spotify object",
+          "value": "{{ parameters.url }}"
+        }
+      },
+      "collection": {
+        "route": {
+          "data": "",
+          "path": "https://embed.spotify.com/oembed/"
+        }
+      },
+      "single": false,
+      "model": {
+        "key": "",
+        "fields": {
+          "html": "string",
+          "thumbnail_url": "string"
+        }
+      }
+    }
+  }
+}

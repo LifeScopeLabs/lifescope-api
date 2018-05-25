@@ -1,0 +1,276 @@
+{
+  "version": "1.0",
+  "name": "Dropbox",
+  "description": "Cloud storage and file sharing service.",
+  "url": "https://api.dropboxapi.com",
+  "tags": [
+	"collaboration",
+	"media",
+	"productivity"
+  ],
+  "auth": {
+	"type": "oauth2",
+	"redirect_url": "https://app.lifescope.io/connections/complete",
+	"authorization_url": "https://www.dropbox.com/oauth2/authorize",
+	"access_token": "https://api.dropbox.com/oauth2/token",
+	"signature": "header",
+	"auth_key": "***INSERT AUTH KEY HERE***",
+	"auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+	"uniqueness_location": "account_id",
+	"default_name_location": "email",
+	"endpoint": {
+	  "method": "POST",
+	  "route": {
+		"data": "",
+		"path": "2/users/get_current_account"
+	  },
+	  "model": {
+		"key": "account_id",
+		"fields": {
+		  "account_id": "string",
+		  "email": "string"
+		}
+	  }
+	}
+  },
+  "endpoints": {
+	"ListFolder": {
+	  "POST": {
+		"method": "POST",
+		"headers": {
+		  "Content-Type": "application/json"
+		},
+		"single": false,
+		"collection": {
+		  "route": {
+			"data": "entries",
+			"path": "2/files/list_folder"
+		  }
+		},
+		"model": {
+		  "key": "id",
+		  "fields": {
+			"id": "string",
+			"tag": {
+			  "type": "string",
+			  "source": ".tag"
+			},
+			"name": "string",
+			"path_lower": "string",
+			"server_modified": "date",
+			"media_info": {
+			  "type": "embedded",
+			  "fields": {
+				"metadata": {
+				  "type": "embedded",
+				  "fields": {
+					"time_taken": "date",
+					"tag": {
+					  "type": "string",
+					  "source": ".tag"
+					}
+				  }
+				}
+			  }
+			},
+			"thumbnail": {
+			  "type": "related",
+			  "ref": "GetThumbnail",
+			  "many": false,
+			  "reverse": {
+				"parameters": {
+				  "dropbox_api_arg": "{\"path\": \"{{ model.path_lower }}\"}"
+				}
+			  }
+			},
+			"preview": {
+			  "type": "related",
+			  "ref": "GetPreview",
+			  "many": false,
+			  "reverse": {
+				"parameters": {
+				  "dropbox_api_arg": "{\"path\": \"{{ model.path_lower }}\"}"
+				}
+			  }
+			}
+		  }
+		}
+	  }
+	},
+	"ListFolderPage": {
+	  "POST": {
+		"method": "POST",
+		"headers": {
+		  "Content-Type": "application/json"
+		},
+		"single": false,
+		"collection": {
+		  "route": {
+			"path": "2/files/list_folder"
+		  }
+		},
+		"model": {
+		  "key": "cursor",
+		  "fields": {
+			"cursor": "string",
+			"has_more": "boolean"
+		  }
+		}
+	  }
+	},
+	"ListFolderContinue": {
+	  "POST": {
+		"method": "POST",
+		"headers": {
+		  "Content-Type": "application/json"
+		},
+		"body": {
+		  "cursor": {
+			"description": "The path to search",
+			"value": "{{ parameters.cursor }}"
+		  }
+		},
+		"single": false,
+		"collection": {
+		  "route": {
+			"data": "entries",
+			"path": "2/files/list_folder"
+		  }
+		},
+		"model": {
+		  "key": "id",
+		  "fields": {
+			"id": "string",
+			"tag": {
+			  "type": "string",
+			  "source": ".tag"
+			},
+			"name": "string",
+			"path_lower": "string",
+			"server_modified": "date",
+			"media_info": {
+			  "type": "embedded",
+			  "fields": {
+				"metadata": {
+				  "type": "embedded",
+				  "fields": {
+					"time_taken": "date"
+				  }
+				}
+			  }
+			},
+			"thumbnail": {
+			  "type": "related",
+			  "ref": "GetThumbnail",
+			  "many": false,
+			  "reverse": {
+				"parameters": {
+				  "dropbox_api_arg": "{\"path\": \"{{ path_lower }}\"}"
+				}
+			  }
+			},
+			"preview": {
+			  "type": "related",
+			  "ref": "GetPreview",
+			  "many": false,
+			  "reverse": {
+				"parameters": {
+				  "dropbox_api_arg": "{\"path\": \"{{ path_lower }}\"}"
+				}
+			  }
+			}
+		  }
+		}
+	  }
+	},
+	"ListFolderContinuePage": {
+	  "POST": {
+		"method": "POST",
+		"headers": {
+		  "Content-Type": "application/json"
+		},
+		"body": {
+		  "cursor": {
+			"description": "The path to search",
+			"value": "{{ parameters.cursor }}"
+		  }
+		},
+		"single": false,
+		"collection": {
+		  "route": {
+			"path": "2/files/list_folder"
+		  }
+		},
+		"model": {
+		  "key": "cursor",
+		  "fields": {
+			"cursor": "string",
+			"has_more": "boolean"
+		  }
+		}
+	  }
+	},
+	"GetThumbnail": {
+	  "method": "POST",
+	  "headers": {
+		"Dropbox-API-Arg": "{{ parameters.dropbox_api_arg }}"
+	  },
+	  "single": false,
+	  "collection": {
+		"route": {
+		  "data": "",
+		  "path": "https://content.dropboxapi.com/2/files/get_thumbnail"
+		}
+	  },
+	  "responses": {
+		"200": {
+		  "model": {
+			"key": "id",
+			"fields": {
+			  "id": "string",
+			  "url": "string"
+			}
+		  }
+		},
+		"400": {
+		  "recast": 204
+		},
+		"409": {
+		  "recast": 204
+		}
+	  }
+	},
+	"GetPreview": {
+	  "method": "POST",
+	  "headers": {
+		"Dropbox-API-Arg": "{{ parameters.dropbox_api_arg }}"
+	  },
+	  "single": false,
+	  "collection": {
+		"route": {
+		  "data": "links",
+		  "path": "https://content.dropboxapi.com/2/files/get_preview"
+		}
+	  },
+	  "responses": {
+		"200": {
+		  "model": {
+			"key": "id",
+			"fields": {
+			  "id": "string",
+			  "url": "string"
+			}
+		  }
+		},
+		"400": {
+		  "recast": 204
+		},
+		"409": {
+		  "recast": 204
+		}
+	  }
+	}
+  }
+}

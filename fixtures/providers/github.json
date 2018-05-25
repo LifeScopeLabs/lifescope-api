@@ -1,0 +1,14 @@
+{
+  "_id": "3fda7921e46a44bf8e4337467bd86fdc",
+
+  "sources": {
+    "events": {
+      "name": "Github Events",
+      "description": "Events in your GitHub history, including Pushes (which contain commits), Pull Requests, Forks, Branches, and Issues",
+      "enabled_by_default": true,
+      "mapping": "Events"
+    }
+  },
+
+  "remote_map_id": "2313c185b9c947b3adf0460716505986"
+}

@@ -1,0 +1,22 @@
+{
+  "_id": "0f7a86aad3214134ad134250f1a09510",
+
+  "sources": {
+    "gmail_inbox": {
+      "name": "Gmail",
+      "description": "Email you have sent and received via Gmail",
+      "enabled_by_default": true,
+      "mapping": "GmailInbox",
+      "population": "*"
+    },
+    "drive_changes": {
+      "name": "Google Drive",
+      "description": "Files you have created, edited, and viewed on Google Drive",
+      "enabled_by_default": true,
+      "mapping": "DriveChanges",
+      "population": "*"
+    }
+  },
+
+  "remote_map_id": "07b0e45a8147424596f01627e29f7e86"
+}

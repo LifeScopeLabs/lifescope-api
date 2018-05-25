@@ -1,0 +1,214 @@
+{
+  "version": "1.0",
+  "name": "Github",
+  "description": "Collaborative code development service.",
+  "url": "https://api.github.com",
+  "tags": [
+    "collaboration",
+    "development",
+    "productivity"
+  ],
+  "auth": {
+    "type": "oauth2",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "https://github.com/login/oauth/authorize",
+    "access_token": "https://github.com/login/oauth/access_token",
+    "signature": "parameter",
+    "auth_key": "***INSERT AUTH KEY HERE***",
+    "auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "login",
+    "default_name_location": "login",
+    "endpoint": {
+      "method": "GET",
+      "route": {
+        "data": "",
+        "path": "user"
+      },
+      "model": {
+        "key": "login",
+        "fields": {
+          "login": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "Events": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "repo:status"
+        ],
+        "parameters": {
+          "next_url": {
+            "description": "The URL for the next page",
+            "value": "{{ parameters.next_url }}"
+          },
+          "page": {
+            "description": "The page number for the endpoint",
+            "value": "{{ parameters.page }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "",
+            "path": "users/{{ connection.metadata.login }}/events"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "created_at": "date",
+            "ref_type": "string",
+            "type": "string",
+            "payload": {
+              "type": "embedded",
+              "fields": {
+                "action": "string",
+                "comment": {
+                  "type": "embedded",
+                  "fields": {
+                    "body": "string",
+                    "id": "string",
+                    "html_url": "string",
+                    "created_at": "date"
+                  }
+                },
+                "ref": "string",
+                "ref_type": "string",
+                "issue": "string",
+                "forkee": {
+                  "type": "embedded",
+                  "fields": {
+                    "full_name": "string",
+                    "description": "string",
+                    "id": "string",
+                    "html_url": "string",
+                    "owner": {
+                      "type": "embedded",
+                      "fields": {
+                        "login": "string"
+                      }
+                    }
+                  }
+                },
+                "pull_request": {
+                  "type": "embedded",
+                  "fields": {
+                    "title": "string",
+                    "body": "string",
+                    "id": "string",
+                    "html_url": "string",
+                    "user": {
+                      "type": "embedded",
+                      "fields": {
+                        "login": "string"
+                      }
+                    }
+                  }
+                },
+                "commits": {
+                  "type": "embedded",
+                  "many": true,
+                  "fields": {
+                    "message": "string",
+                    "sha": "string",
+                    "url": "string",
+                    "id": "string",
+                    "author": {
+                      "type": "embedded",
+                      "fields": {
+                        "name": "string",
+                        "email": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "repo": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "url": "string",
+                "name": "string"
+              }
+            },
+            "repo_info": {
+              "type": "related",
+              "ref": "Repo",
+              "many": false,
+              "reverse": {
+                "path": {
+                  "repo_name": "repo.name"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Repo": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "repo:status"
+        ],
+        "single": {
+          "route": {
+            "data": "",
+            "path": "repos/{{ repo_name }}"
+          }
+        },
+        "collection": false,
+        "model": {
+          "key": "id",
+          "fields": {
+            "owner": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "login": "string"
+              }
+            },
+            "user": {
+              "type": "related",
+              "ref": "User",
+              "many": false,
+              "reverse": {
+                "path": {
+                  "username": "owner.login"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "User": {
+      "GET": {
+        "method": "GET",
+        "parameters": {},
+        "single": {
+          "route": {
+            "data": "",
+            "path": "users/{{ username }}"
+          }
+        },
+        "collection": false,
+        "model": {
+          "key": "name",
+          "fields": {
+            "name": "string",
+            "id": "number",
+            "login": "string"
+          }
+        }
+      }
+    }
+  }
+}

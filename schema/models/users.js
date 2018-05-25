@@ -79,6 +79,47 @@ export const UserSchema = new mongoose.Schema(
 			}
 		},
 
+		api_key: {
+			type: Buffer
+		},
+
+		api_key_string: {
+			type: String,
+			get: function() {
+				if (this.api_key) {
+					return this.api_key.toString('hex');
+				}
+			},
+			set: function (val) {
+				if (this._conditions && this._conditions.api_key_string) {
+					if (this._conditions.api_key_string.hasOwnProperty('$in')) {
+						this._conditions.api_key = {
+							$in: _.map(this._conditions.api_key_string.$in, function(item) {
+								return uuid(item);
+							})
+						};
+					}
+					else {
+						this._conditions.api_key = uuid(val);
+					}
+
+					delete this._conditions.api_key_string;
+				}
+
+				if (val.hasOwnProperty('$in')) {
+					this.api_key = {
+						$in: _.map(val.$in, function(item) {
+							return uuid(item);
+						})
+					};
+
+				}
+				else {
+					this.api_key = uuid(val);
+				}
+			}
+		},
+
 		name: {
 			type: String,
 			index: true,
@@ -268,5 +309,28 @@ UserTC.addResolver({
 		});
 
 		context.res.status = 204;
+	}
+});
+
+
+UserTC.addResolver({
+	name: 'updateApiKey',
+	kind: 'mutation',
+	type: UserTC.getResolver('findOne').getType(),
+	resolve: async ({source, args, context, info}) => {
+		let req = context.req;
+
+		let updated = await UserTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: req.user._id.toString('hex')
+				},
+				record: {
+					api_key_string: uuid()
+				}
+			}
+		});
+
+		return updated.record;
 	}
 });

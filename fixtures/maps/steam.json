@@ -1,0 +1,214 @@
+{
+  "version": "1.0",
+  "name": "Steam",
+  "description": "Internet-based digital distribution, multiplayer, and social networking platform.",
+  "url": "https://api.steampowered.com",
+  "tags": [
+    "gaming",
+    "media",
+    "social"
+  ],
+  "auth": {
+    "type": "openid",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "http://steamcommunity.com/openid",
+    "id_regex": "/(\\w+)$",
+    "stateless": true,
+    "auth_key": "***INSERT AUTH KEY HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "id",
+    "default_name_location": "personaname",
+    "endpoint": {
+      "method": "GET",
+      "parameters": {
+        "steamids": {
+          "description": "Steam user ID",
+          "value": "{{ connection.metadata.id }}"
+        }
+      },
+      "route": {
+        "data": "response.players[0]",
+        "path": "ISteamUser/GetPlayerSummaries/v0002/"
+      },
+      "model": {
+        "key": "steamid",
+        "fields": {
+          "personaname": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "AchievementData": {
+      "method": "GET",
+      "parameters": {
+        "format": {
+          "description": "API data output format",
+          "value": "json"
+        },
+        "appid": {
+          "description": "The application ID of the Steam game",
+          "value": "{{ parameters.appid }}"
+        }
+      },
+      "route": {
+        "data": "game.availableGameStats.achievements",
+        "path": "/ISteamUserStats/GetSchemaForGame/v0002"
+      },
+      "responses": {
+        "400": {
+          "recast": 204
+        },
+        "404": {
+          "recast": 204
+        }
+      },
+      "model": {
+        "key": "identifier",
+        "fields": {
+          "identifier": {
+            "type": "composite",
+            "parameters": [
+              "{{ parameters.appid }}",
+              "{{ model.name }}"
+            ],
+            "serialized": false
+          },
+          "name": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "alias": "name"
+          },
+          "description": "string",
+          "icon": "string"
+        }
+      }
+    },
+    "Achievements": {
+      "method": "GET",
+      "parameters": {
+        "steamid": {
+          "description": "Steam user ID",
+          "value": "{{ connection.metadata.id }}"
+        },
+        "format": {
+          "description": "API data output format",
+          "value": "json"
+        },
+        "appid": {
+          "description": "The application ID of the Steam game",
+          "value": "{{ parameters.appid }}"
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "playerstats.achievements",
+          "path": "/ISteamUserStats/GetUserStatsForGame/v0002"
+        }
+      },
+      "model": {
+        "key": "identifier",
+        "fields": {
+          "identifier": {
+            "type": "composite",
+            "parameters": [
+              "{{ parameters.appid }}",
+              "{{ model.name }}"
+            ],
+            "serialized": false
+          },
+          "name": {
+            "type": "string",
+            "serialized": false
+          },
+          "schema": {
+            "type": "related",
+            "ref": "AchievementData",
+            "key": "identifier",
+            "reverse": {
+              "parameters": {
+                "appid": "{{ parameters.appid }}"
+              },
+              "identifier": "{{ model.identifier }}"
+            }
+          }
+        }
+      }
+    },
+    "GamesOwned": {
+      "method": "GET",
+      "parameters": {
+        "steamid": {
+          "description": "Steam user ID",
+          "value": "{{ connection.metadata.id }}"
+        },
+        "format": {
+          "description": "API data output format",
+          "value": "json"
+        },
+        "include_appinfo": {
+          "description": "Include the game's name and picture in the response; by default just the appid is returned.",
+          "value": 1
+        },
+        "include_played_free_games": {
+          "description": "Include free games that the user has played; by default they are not",
+          "value": 1
+        }
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "response.games",
+          "path": "/IPlayerService/GetOwnedGames/v0001"
+        }
+      },
+      "model": {
+        "key": "appid",
+        "fields": {
+          "appid": "integer",
+          "name": {
+            "type": "string",
+            "alias": "title"
+          },
+          "identifier": {
+            "type": "composite",
+            "parameters": [
+              "appid",
+              "name"
+            ],
+            "serialized": false
+          },
+          "img_logo_url": {
+            "type": "string",
+            "serialized": false
+          },
+          "logo": {
+            "type": "composite",
+            "readonly": true,
+            "parameters": "http://media.steampowered.com/steamcommunity/public/images/apps/{{ model.appid }}/{{ model.img_logo_url }}.jpg"
+          },
+          "url": {
+            "type": "composite",
+            "readonly": true,
+            "parameters": "http://store.steampowered.com/app/{{ model.appid }}"
+          },
+          "achievements": {
+            "type": "related",
+            "ref": "Achievements",
+            "many": true,
+            "backref": "game",
+            "reverse": {
+              "parameters": {
+                "appid": "{{ model.appid }}"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

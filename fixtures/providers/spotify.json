@@ -1,0 +1,29 @@
+{
+  "_id": "e2fe300132c6477b85253110638c4825",
+
+  "sources": {
+    "playlists": {
+      "name": "Playlists",
+      "description": "Playlists you have created",
+      "enabled_by_default": true,
+      "mapping": "MyPlaylists",
+      "population": "*"
+    },
+    "saved_albums": {
+      "name": "Saved Albums",
+      "description": "Albums you have saved",
+      "enabled_by_default": true,
+      "mapping": "SavedAlbums",
+      "population": "*"
+    },
+    "saved_tracks": {
+      "name": "Saved Tracks",
+      "description": "Individual tracks you have saved",
+      "enabled_by_default": true,
+      "mapping": "SavedTracks",
+      "population": "*"
+    }
+  },
+
+  "remote_map_id": "7d535efa1c4f49feaab4e2d92fd40ef9"
+}

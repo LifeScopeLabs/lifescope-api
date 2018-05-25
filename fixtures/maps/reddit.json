@@ -1,0 +1,468 @@
+{
+  "version": "1.0",
+  "name": "reddit",
+  "description": "Entertainment, social networking service and news website.",
+  "url": "https://oauth.reddit.com",
+  "tags": [
+    "media",
+    "social"
+  ],
+  "auth": {
+    "type": "oauth2",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "https://ssl.reddit.com/api/v1/authorize?duration=permanent",
+    "access_token": {
+      "method": "POST",
+      "url": "https://ssl.reddit.com/api/v1/access_token"
+    },
+    "use_auth_header": true,
+    "signature": "header",
+    "auth_key": "***INSERT AUTH KEY HERE***",
+    "auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "id",
+    "default_name_location": "name",
+    "endpoint": {
+      "method": "GET",
+      "scopes": [
+        "identity"
+      ],
+      "route": {
+        "data": "",
+        "path": "api/v1/me"
+      },
+      "model": {
+        "key": "id",
+        "fields": {
+          "name": "string",
+          "id": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "Comments": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "history"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "user/{{ connection.metadata.name }}/comments/.json"
+          }
+        },
+        "model": {
+          "key": "data.name",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "name": "string",
+                "link_title": "string",
+                "body": "string",
+                "selftext": "string",
+                "title": "string",
+                "link_url": "string",
+                "thumbnail": "string",
+                "permalink": "string",
+                "secure_media": {
+                  "type": "embedded",
+                  "fields": {
+                    "oembed": {
+                      "type": "embedded",
+                      "fields": {
+                        "provider_name": "string",
+                        "url": "string",
+                        "html": "string",
+                        "thumbnail": "string",
+                        "title": "string",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "created_utc": "integer",
+                "url": "string"
+              }
+            },
+            "oembed": {
+              "type": "related",
+              "ref": "OEmbed",
+              "many": false,
+              "reverse": {
+                "parameters": {
+                  "url": "{{ data.link_url }}{{ data.id }}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ThreadsSubmitted": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "history"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "user/{{ connection.metadata.name }}/submitted/.json"
+          }
+        },
+        "model": {
+          "key": "data.name",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "name": "string",
+                "selftext": "string",
+                "title": "string",
+                "thumbnail": "string",
+                "permalink": "string",
+                "created_utc": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ThreadsUpvoted": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "history"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "user/{{ connection.metadata.name }}/upvoted/.json"
+          }
+        },
+        "model": {
+          "key": "data.name",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "name": "string",
+                "selftext": "string",
+                "title": "string",
+                "thumbnail": "string",
+                "permalink": "string",
+                "author": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ThreadsDownvoted": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "history"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "user/{{ connection.metadata.name }}/downvoted/.json"
+          }
+        },
+        "model": {
+          "key": "data.name",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "name": "string",
+                "selftext": "string",
+                "title": "string",
+                "permalink": "string",
+                "author": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "SavedComments": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "history"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "user/{{ connection.metadata.name }}/saved/.json"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "name": "string",
+                "link_title": "string",
+                "body": "string",
+                "selftext": "string",
+                "title": "string",
+                "link_url": "string",
+                "thumbnail": "string",
+                "permalink": "string",
+                "secure_media": {
+                  "type": "base"
+                },
+                "created_utc": "integer",
+                "url": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "GildedComments": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "history"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "user/{{ connection.metadata.name }}/gilded/.json"
+          }
+        },
+        "model": {
+          "key": "data.name",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "id": "string",
+                "name": "string",
+                "link_title": "string",
+                "body": "string",
+                "selftext": "string",
+                "title": "string",
+                "link_url": "string",
+                "thumbnail": "string",
+                "permalink": "string",
+                "secure_media": {
+                  "type": "embedded",
+                  "nullable": true,
+                  "fields": {
+                    "oembed": {
+                      "type": "embedded",
+                      "fields": {
+                        "provider_name": "string",
+                        "url": "string",
+                        "html": "string",
+                        "thumbnail": "string",
+                        "title": "string",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "created_utc": "integer",
+                "url": "string",
+                "author": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "MessagesReceived": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "privatemessages"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "message/inbox/.json"
+          }
+        },
+        "model": {
+          "key": "data.name",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "name": "string",
+                "subject": "string",
+                "body": "string",
+                "created_utc": "integer",
+                "author": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "MessagesSent": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "privatemessages"
+        ],
+        "parameters": {
+          "after": {
+            "description": "Most recent post",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return at one time",
+            "value": 100
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data.children",
+            "path": "message/sent/.json"
+          }
+        },
+        "model": {
+          "key": "data.name",
+          "fields": {
+            "id": "string",
+            "data": {
+              "type": "embedded",
+              "fields": {
+                "name": "string",
+                "subject": "string",
+                "body": "string",
+                "created_utc": "integer",
+                "dest": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "OEmbed": {
+      "GET": {
+        "method": "GET",
+        "parameters": {
+          "url": {
+            "description": "URL of reddit object",
+            "value": "{{ parameters.url }}"
+          }
+        },
+        "collection": {
+          "route": {
+            "data": "",
+            "path": "https://www.reddit.com/oembed"
+          }
+        },
+        "single": false,
+        "model": {
+          "key": "",
+          "fields": {
+            "html": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "_id": "a5ca6b98b4974be0b20949ff3c547d84",
+
+  "sources": {
+	"boards": {
+	  "name": "Boards",
+	  "description": "Boards you have created",
+	  "enabled_by_default": true,
+	  "mapping": "UserBoards"
+	},
+	"pins": {
+	  "name": "Pins",
+	  "description": "Items you have pinned",
+	  "enabled_by_default": true,
+	  "mapping": "UserPins",
+	  "population": "*"
+	}
+  },
+
+  "remote_map_id": "eb6b397b54bf4e6392bd1ed74d373c83"
+}

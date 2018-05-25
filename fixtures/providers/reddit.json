@@ -1,0 +1,57 @@
+{
+  "_id": "89494825c6304cec8d479bb81bc059e7",
+
+  "sources": {
+    "comments": {
+      "name": "Comments",
+      "description": "Comments you have made",
+      "enabled_by_default": true,
+      "mapping": "Comments",
+      "population": "*"
+    },
+    "submitted": {
+      "name": "Threads created",
+      "description": "Threads you have created",
+      "enabled_by_default": true,
+      "mapping": "ThreadsSubmitted"
+    },
+    "threads_upvoted": {
+      "name": "Upvotes",
+      "description": "Threads you have upvoted",
+      "enabled_by_default": true,
+      "mapping": "ThreadsUpvoted"
+    },
+    "threads_downvoted": {
+      "name": "Downvotes",
+      "description": "Threads you have downvoted",
+      "enabled_by_default": true,
+      "mapping": "ThreadsDownvoted"
+    },
+    "saved_comments": {
+      "name": "Saved comments",
+      "description": "Comments you have saved",
+      "enabled_by_default": true,
+      "mapping": "SavedComments"
+    },
+    "gilded_comments": {
+      "name": "Gilded comments",
+      "description": "Comments you have gilded",
+      "enabled_by_default": true,
+      "mapping": "GildedComments"
+    },
+    "messages_received": {
+      "name": "Private messages received",
+      "description": "Private messages you have received from other users",
+      "enabled_by_default": true,
+      "mapping": "MessagesReceived"
+    },
+    "messages_sent": {
+      "name": "Private messages sent",
+      "description": "Private messages you have sent to other users",
+      "enabled_by_default": true,
+      "mapping": "MessagesSent"
+    }
+  },
+
+  "remote_map_id": "9bc68548b5884ee6aabd0266df7e83eb"
+}
