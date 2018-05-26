@@ -44,3 +44,4 @@ node_modules
 /es
 /coverage
 dev.json
+.nuxt
