@@ -538,17 +538,35 @@ EventTC.addResolver({
 			}
 
 			if (query.q != null && query.q.length > 0) {
-				contactOptions.$text = {
-					$search: query.q
-				};
+				if (!contactOptions.hasOwnProperty('$and')) {
+					contactOptions.$and = [];
+				}
 
-				contentOptions.$text = {
-					$search: query.q
-				};
+				if (!contentOptions.hasOwnProperty('$and')) {
+					contentOptions.$and = [];
+				}
 
-				eventOptions.$text = {
-					$search: query.q
-				};
+				if (!eventOptions.hasOwnProperty('$and')) {
+					eventOptions.$and = [];
+				}
+
+				contactOptions.$and.push({
+					$text: {
+						$search: query.q
+					}
+				});
+
+				contentOptions.$and.push({
+					$text: {
+						$search: query.q
+					}
+				});
+
+				eventOptions.$and.push({
+					$text: {
+						$search: query.q
+					}
+				});
 			}
 
 			if (Object.keys(contactOptions).length === 0) {

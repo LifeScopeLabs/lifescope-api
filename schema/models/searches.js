@@ -162,10 +162,8 @@ SearchTC.addResolver({
 
 		filters = JSON.parse(filters);
 
-		let unnamedFilters = new Array(filters.length);
-
-		_.map(filters, function(filter, i) {
-			unnamedFilters[i] = _.omit(filter, 'name');
+		let unnamedFilters = _.map(filters, function(filter, i) {
+			return _.omit(filter, 'name');
 		});
 
 		let hashObj = {
@@ -177,7 +175,8 @@ SearchTC.addResolver({
 		}
 
 		let sorted = sortDictionary(hashObj);
-		let hash = crypto.createHash('sha512').update(sorted).digest('hex');
+		let stringifiedSorted = JSON.stringify(sorted);
+		let hash = crypto.createHash('sha512').update(stringifiedSorted).digest('hex');
 
 		let current = await SearchTC.getResolver('findOne').resolve({
 			args: {
@@ -340,7 +339,8 @@ SearchTC.addResolver({
 		}
 
 		let sorted = sortDictionary(hashObj);
-		let hash = crypto.createHash('sha512').update(sorted).digest('hex');
+		let stringifiedSorted = JSON.stringify(sorted);
+		let hash = crypto.createHash('sha512').update(stringifiedSorted).digest('hex');
 
 		let result = await SearchTC.getResolver('findOne').resolve({
 			args: {

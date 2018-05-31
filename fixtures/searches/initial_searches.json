@@ -74,11 +74,11 @@
         "type": "when",
         "data": {
           "interaction": "relative",
-          "since-exactly": "since",
           "to": "",
-          "from": "",
           "units": "days",
-          "relative-number": "7"
+          "relative-number": "7",
+          "since-exactly": "since",
+          "from": ""
         }
       }
     ],
