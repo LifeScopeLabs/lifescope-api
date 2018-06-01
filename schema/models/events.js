@@ -11,17 +11,10 @@ import {graphql} from 'graphql-compose';
 
 import uuid from "../../lib/util/uuid";
 
-import {ContactTC} from './contacts';
-import {ContentTC} from './content';
-import {TagTC} from "./tags";
+import {Contacts, ContactTC} from './contacts';
+import {Content, ContentTC} from './content';
 import {add as addTags, remove as removeTags} from './templates/tag';
-import {UserTC} from "./users";
-import {SessionTC} from "./sessions";
-import deleteConnection from "../../lib/util/delete-connection";
 import {ConnectionTC} from "./connections";
-import {ProviderTC} from "./providers";
-
-
 
 
 // let searchType = new graphql.GraphQLObjectType({
@@ -379,37 +372,350 @@ EventTC.addResolver({
 		}
 
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
-			let contactOptions = {};
+			let contactsSearched = false;
+			let contentSearched = false;
+			let eventsSearched = false;
 
-			let contentOptions = {};
+			let contactAggregation = Contacts.aggregate();
+			let contentAggregation = Content.aggregate();
+			let eventAggregation = Events.aggregate();
 
-			let eventOptions = {};
+			let contactPreLookupMatch = {
+				user_id: context.req.user._id
+			};
 
-			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
-				if (!contactOptions.hasOwnProperty('$and')) {
-					contactOptions.$and = [];
+			let contentPreLookupMatch = {
+				user_id: context.req.user._id
+			};
+
+			let eventMatch = {
+				user_id: context.req.user._id
+			};
+
+			let contactPostLookupMatch = {};
+			let contentPostLookupMatch = {};
+
+			let $contactEventLookup = {
+				from: 'events',
+				localField: '_id',
+				foreignField: 'contacts',
+				as: 'event'
+			};
+
+			let $contactContentLookup = {
+				from: 'content',
+				localField: 'event.content',
+				foreignField: '_id',
+				as: 'content'
+			};
+
+			let $contentEventLookup = {
+				from: 'events',
+				localField: '_id',
+				foreignField: 'content',
+				as: 'event'
+			};
+
+			let $contentContactLookup = {
+				from: 'contacts',
+				localField: 'event.contacts',
+				foreignField: '_id',
+				as: 'contact'
+			};
+
+			if (query.q != null && query.q.length > 0) {
+				contactPreLookupMatch.$text = {
+					$search: query.q
+				};
+
+				contentPreLookupMatch.$text = {
+					$search: query.q
+				};
+
+				eventMatch.$text = {
+					$search: query.q
+				};
+
+				contactsSearched = contentSearched = eventsSearched = true;
+			}
+
+			if (_.has(query, 'filters.tagFilters') && query.filters.tagFilters.length > 0) {
+				if (contactsSearched === true) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: [{
+							$or: [{
+								$and: [{
+									'tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}, {
+							$or: [{
+								$and: [{
+									'content.tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'content.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'content.tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'content.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}, {
+							$or: [{
+								$and: [{
+									'event.tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'event.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'event.tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'event.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}]
+					});
+				}
+				else {
+					if (contentPreLookupMatch.$and == null) {
+						contactPreLookupMatch.$and = [];
+					}
+
+					contactPreLookupMatch.$and.push({
+						$or: [{
+							$or: [{
+								$and: [{
+									'tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}]
+					});
 				}
 
-				contactOptions.$and.push({
+				contactsSearched = true;
+
+				if (contentSearched === true) {
+					if (contentPostLookupMatch.$and == null) {
+						contentPostLookupMatch.$and = [];
+					}
+
+					contentPostLookupMatch.$and.push({
+						$or: [{
+							$or: [{
+								$and: [{
+									'tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}, {
+							$or: [{
+								$and: [{
+									'contact.tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'contact.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'contact.tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'contact.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}, {
+							$or: [{
+								$and: [{
+									'event.tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'event.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'event.tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'event.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}]
+					});
+				}
+				else {
+					if (contentPreLookupMatch.$and == null) {
+						contentPreLookupMatch.$and = [];
+					}
+
+					contentPreLookupMatch.$and.push({
+						$or: [{
+							$or: [{
+								$and: [{
+									'tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}]
+					});
+				}
+
+				contentSearched = true;
+
+				if (eventMatch.$and == null) {
+					eventMatch.$and = [];
+				}
+
+				eventMatch.$and.push({
+					$or: [{
+						$or: [{
+							$and: [{
+								'tagMasks.source': {
+									$in: query.filters.tagFilters
+								},
+
+								'tagMasks.removed': {
+									$nin: query.filters.tagFilters
+								}
+							}]
+						}, {
+							$and: [{
+								'tagMasks.added': {
+									$in: query.filters.tagFilters
+								},
+
+								'tagMasks.removed': {
+									$nin: query.filters.tagFilters
+								}
+							}]
+						}]
+					}]
+				});
+
+				eventsSearched = true;
+			}
+
+			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
+				if (contactPostLookupMatch.$and == null) {
+					contactPostLookupMatch.$and = [];
+				}
+
+				contactPostLookupMatch.$and.push({
 					$or: query.filters.whoFilters
 				});
+
+				contactsSearched = true;
 			}
 
 			if (_.has(query, 'filters.whatFilters') && query.filters.whatFilters.length > 0) {
-				if (!contentOptions.hasOwnProperty('$and')) {
-					contentOptions.$and = [];
+				if (contentPreLookupMatch.$and == null) {
+					contentPreLookupMatch.$and = [];
 				}
 
-				contentOptions.$and.push({
+				contentPreLookupMatch.$and.push({
 					$or: query.filters.whatFilters
 				});
+
+				contentSearched = true;
 			}
 
 			if (_.has(query, 'filters.whenFilters') && query.filters.whenFilters.length > 0) {
-				if (!eventOptions.hasOwnProperty('$and')) {
-					eventOptions.$and = [];
-				}
-
 				_.each(query.filters.whenFilters, function(filter) {
 					if (filter.datetime.$gte) {
 						filter.datetime.$gte = new Date(filter.datetime.$gte);
@@ -420,223 +726,163 @@ EventTC.addResolver({
 					}
 				});
 
-				eventOptions.$and.push({
+				let lookupWhenFilters = _.map(query.filters.whenFilters, function(filter) {
+					return {
+						'event.datetime': filter.datetime
+					};
+				});
+
+				if (contactsSearched === true) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: lookupWhenFilters
+					});
+				}
+
+				if (contentSearched === true) {
+					if (contentPostLookupMatch.$and == null) {
+						contentPostLookupMatch.$and = [];
+					}
+
+					contentPostLookupMatch.$and.push({
+						$or: lookupWhenFilters
+					});
+				}
+
+				if (eventMatch.$and == null) {
+					eventMatch.$and = [];
+				}
+
+				eventMatch.$and.push({
 					$or: query.filters.whenFilters
 				});
 			}
 
-			if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {
-				if (!eventOptions.hasOwnProperty('$and')) {
-					eventOptions.$and = [];
-				}
-
-				eventOptions.$and.push({
-					$or: query.filters.whereFilters
-				});
-			}
+			// if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {
+			// 	contactAggregation.match({
+			// 		'events.location': {
+			// 			$or: query.filters.whereFilters
+			// 		}
+			// 	});
+			//
+			// 	contentAggregation.match({
+			// 		'events.location': {
+			// 			$or: query.filters.whereFilters
+			// 		}
+			// 	});
+			//
+			// 	eventAggregation.match({
+			// 		$or: query.filters.whereFilters
+			// 	});
+			// }
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
-				if (!eventOptions.hasOwnProperty('$and')) {
-					eventOptions.$and = [];
+				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
+					return filter.connection ? {
+						'event.connection': filter.connection
+					} : {
+						'event.provider_name': filter.provider_name
+					};
+				});
+
+				if (contactsSearched === true) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: lookupConnectorFilters
+					});
 				}
 
-				eventOptions.$and.push({
+				if (contentSearched === true) {
+					if (contentPostLookupMatch.$and == null) {
+						contentPostLookupMatch.$and = [];
+					}
+
+					contentPostLookupMatch.$and.push({
+						$or: lookupConnectorFilters
+					});
+				}
+
+				if (eventMatch.$and == null) {
+					eventMatch.$and = [];
+				}
+
+				eventMatch.$and.push({
 					$or: query.filters.connectorFilters
 				});
 			}
 
-			if (_.has(query, 'filters.tagFilters') && query.filters.tagFilters.length > 0) {
-				if (!contactOptions.hasOwnProperty('$and')) {
-					contactOptions.$and = [];
-				}
+			if (contactsSearched === true) {
+				contactAggregation
+					.match(contactPreLookupMatch)
+					.lookup($contactEventLookup)
+					.unwind('$event')
+					.lookup($contactContentLookup)
+					.unwind('$content')
+					.match(contactPostLookupMatch)
+					.project({
+						_id: true,
+						'event._id': true
+					});
 
-				if (!contentOptions.hasOwnProperty('$and')) {
-					contentOptions.$and = [];
-				}
+			}
 
-				if (!eventOptions.hasOwnProperty('$and')) {
-					eventOptions.$and = [];
-				}
+			if (contentSearched === true) {
+				contentAggregation
+					.match(contentPreLookupMatch)
+					.lookup($contentEventLookup)
+					.unwind('$event')
+					.lookup($contentContactLookup)
+					.unwind('$contact')
+					.match(contentPostLookupMatch)
+					.project({
+						_id: true,
+						'event._id': true
+					});
+			}
 
-				contactOptions.$and.push({
-					$or: [{
-						$or: [{
-							$and: [{
-								'tagMasks.source': {
-									$in: query.filters.tagFilters
-								},
+			if (eventsSearched === true) {
+				eventAggregation
+					.match(eventMatch)
+					.project({
+						_id: true
+					});
+			}
 
-								'tagMasks.removed': {
-									$nin: query.filters.tagFilters
-								}
-							}]
-						}, {
-							$and: [{
-								'tagMasks.added': {
-									$in: query.filters.tagFilters
-								},
+			let aggregatedContacts = contactsSearched === true ? await contactAggregation.exec() : [];
+			let aggregatedContent = contentSearched === true ? await contentAggregation.exec(): [];
+			let aggregatedEvents = eventsSearched === true ? await eventAggregation.exec() : [];
 
-								'tagMasks.removed': {
-									$nin: query.filters.tagFilters
-								}
-							}]
-						}]
-					}]
-				});
+			let eventIds = [];
 
-				contentOptions.$and.push({
-					$or: [{
-						$or: [{
-							$and: [{
-								'tagMasks.source': {
-									$in: query.filters.tagFilters
-								},
-
-								'tagMasks.removed': {
-									$nin: query.filters.tagFilters
-								}
-							}]
-						}, {
-							$and: [{
-								'tagMasks.added': {
-									$in: query.filters.tagFilters
-								},
-
-								'tagMasks.removed': {
-									$nin: query.filters.tagFilters
-								}
-							}]
-						}]
-					}]
-				});
-
-				eventOptions.$and.push({
-					$or: [{
-						$or: [{
-							$and: [{
-								'tagMasks.source': {
-									$in: query.filters.tagFilters
-								},
-
-								'tagMasks.removed': {
-									$nin: query.filters.tagFilters
-								}
-							}]
-						}, {
-							$and: [{
-								'tagMasks.added': {
-									$in: query.filters.tagFilters
-								},
-
-								'tagMasks.removed': {
-									$nin: query.filters.tagFilters
-								}
-							}]
-						}]
-					}]
+			if (aggregatedContacts.length > 0) {
+				_.each(aggregatedContacts, function (contact) {
+					eventIds.push(contact.event._id);
 				});
 			}
 
-			if (query.q != null && query.q.length > 0) {
-				if (!contactOptions.hasOwnProperty('$and')) {
-					contactOptions.$and = [];
-				}
-
-				if (!contentOptions.hasOwnProperty('$and')) {
-					contentOptions.$and = [];
-				}
-
-				if (!eventOptions.hasOwnProperty('$and')) {
-					eventOptions.$and = [];
-				}
-
-				contactOptions.$and.push({
-					$text: {
-						$search: query.q
-					}
-				});
-
-				contentOptions.$and.push({
-					$text: {
-						$search: query.q
-					}
-				});
-
-				eventOptions.$and.push({
-					$text: {
-						$search: query.q
-					}
+			if (aggregatedContent.length > 0) {
+				_.each(aggregatedContent, function (content) {
+					eventIds.push(content.event._id);
 				});
 			}
 
-			if (Object.keys(contactOptions).length === 0) {
-				contactOptions.intentionallyFail = true;
+			if (aggregatedEvents.length > 0) {
+				_.each(aggregatedEvents, function (event) {
+					eventIds.push(event._id);
+				});
 			}
-
-			if (Object.keys(contentOptions).length === 0) {
-				contentOptions.intentionallyFail = true;
-			}
-
-			if (Object.keys(eventOptions).length === 0) {
-				eventOptions.intentionallyFail = true;
-			}
-
-			contactOptions.user_id = context.req.user._id;
-			contentOptions.user_id = context.req.user._id;
-			eventOptions.user_id = context.req.user._id;
-
-			let contactResults = await ContactTC.getResolver('findMany').resolve({
-				rawQuery: contactOptions,
-				projection: {
-					_id: true
-				}
-			});
-
-			let contentResults = await ContentTC.getResolver('findMany').resolve({
-				rawQuery: contentOptions,
-				projection: {
-					_id: true
-				}
-			});
-
-			let eventResults = await EventTC.getResolver('findMany').resolve({
-				rawQuery: eventOptions,
-				projection: {
-					_id: true
-				}
-			});
-
-			let contactIds = _.map(contactResults, function(result) {
-				return result._id;
-			});
-
-			let contentIds = _.map(contentResults, function(result) {
-				return result._id;
-			});
-
-			let eventIds = _.map(eventResults, function(result) {
-				return result._id;
-			});
 
 			let filter = {
 				user_id_string: context.req.user._id.toString('hex'),
-				OR: [
-					{
-						_id: {
-							$in: eventIds
-						}
-					},
-					{
-						contacts: {
-							$in: contactIds
-						}
-					},
-					{
-						content: {
-							$in: contentIds
-						}
-					}
-				]
+				_id: {
+					$in: eventIds
+				}
 			};
 
 			let eventMatches = await EventTC.getResolver('findMany').resolve({
@@ -666,143 +912,18 @@ EventTC.addResolver({
 				}
 			});
 
-			// let contactMatches = await EventTC.getResolver('findMany').resolve({
-			// 	args: {
-			// 		filter: {
-			// 			user_id_string: context.req.user._id.toString('hex'),
-			// 			contacts: {
-			// 				$in: _.map(contactIds, function(id) {
-			// 					return id;
-			// 				})
-			// 			}
-			// 		},
-			// 		sort: sort,
-			// 		limit: query.limit,
-			// 		offset: query.offset
-			// 	},
-			// 	projection: {
-			// 		id: true,
-			// 		connection: true,
-			// 		connection_id_string: true,
-			// 		contacts: true,
-			// 		contact_interaction_type: true,
-			// 		content: true,
-			// 		context: true,
-			// 		created: true,
-			// 		datetime: true,
-			// 		hydratedContacts: true,
-			// 		hydratedContent: true,
-			// 		provider_name: true,
-			// 		source: true,
-			// 		type: true,
-			// 		updated: true
-			// 	}
-			// });
-			//
-			// let contentMatches = await EventTC.getResolver('findMany').resolve({
-			// 	args: {
-			// 		filter: {
-			// 			user_id_string: context.req.user._id.toString('hex'),
-			// 			content: {
-			// 				$in: _.map(contentIds, function(id) {
-			// 					return id;
-			// 				})
-			// 			}
-			// 		},
-			// 		sort: sort,
-			// 		limit: query.limit,
-			// 		offset: query.offset
-			// 	},
-			// 	// sort: sort,
-			// 	projection: {
-			// 		id: true,
-			// 		connection: true,
-			// 		connection_id_string: true,
-			// 		contacts: true,
-			// 		contact_interaction_type: true,
-			// 		content: true,
-			// 		context: true,
-			// 		created: true,
-			// 		datetime: true,
-			// 		hydratedContacts: true,
-			// 		hydratedContent: true,
-			// 		provider_name: true,
-			// 		source: true,
-			// 		type: true,
-			// 		updated: true
-			// 	}
-			// });
-
 			let eventMatchCount = await EventTC.getResolver('count').resolve({
 				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex'),
-						OR: [
-							{
-								id: {
-									$in: _.map(eventIds, function (id) {
-										return id.toString('hex');
-									})
-								}
-							},
-							{
-								contacts: {
-									$in: _.map(contactIds, function(id) {
-										return id;
-									})
-								}
-							},
-							{
-								content: {
-									$in: _.map(contentIds, function(id) {
-										return id;
-									})
-								}
-							}
-						]
-					},
+					filter: filter,
 					sort: sort,
 					limit: query.limit,
 					offset: query.offset
 				}
 			});
 
-			// let contactMatchCount = await EventTC.getResolver('count').resolve({
-			// 	args: {
-			// 		filter: {
-			// 			user_id_string: context.req.user._id.toString('hex'),
-			// 			contacts: {
-			// 				$in: _.map(contactIds, function(id) {
-			// 					return id;
-			// 				})
-			// 			}
-			// 		},
-			// 		sort: sort,
-			// 		limit: query.limit,
-			// 		offset: query.offset
-			// 	}
-			// });
-			//
-			// let contentMatchCount = await EventTC.getResolver('count').resolve({
-			// 	args: {
-			// 		filter: {
-			// 			user_id_string: context.req.user._id.toString('hex'),
-			// 			content: {
-			// 				$in: _.map(contentIds, function(id) {
-			// 					return id;
-			// 				})
-			// 			}
-			// 		},
-			// 		sort: sort,
-			// 		limit: query.limit,
-			// 		offset: query.offset
-			// 	}
-			// });
-
 			documents = eventMatches;
 			count = eventMatchCount;
-			// documents = _.union(eventMatches, contactMatches, contentMatches);
-			// count = eventMatchCount + contactMatchCount + contentMatchCount;
+
 		}
 		else {
 			let eventMatches = await EventTC.getResolver('findMany').resolve({
@@ -849,51 +970,51 @@ EventTC.addResolver({
 			count = eventMatchCount;
 		}
 
-		let q = validationVal.q;
-		let sortField = validationVal.sortField;
-		let sortOrder = validationVal.sortOrder;
-		let limit = validationVal.limit;
-		let offset = validationVal.offset;
-		let prev = null;
-		let next = null;
-
-		if (offset !== 0) {
-			prev = {
-				url: url.format({
-					protocol: 'https',
-					hostname: 'app.lifescope.io',
-					pathname: 'api/events'
-				}),
-				method: 'SEARCH',
-				body: {
-					limit: limit,
-					offset: Math.max(0, offset - limit),
-					q: q,
-					filters: suppliedFilters,
-					sortField: sortField,
-					sortOrder: sortOrder
-				}
-			};
-		}
-
-		if (limit + offset < count) {
-			next = {
-				url: url.format({
-					protocol: 'https',
-					hostname: 'app.lifescope.io',
-					pathname: 'api/events'
-				}),
-				method: 'SEARCH',
-				body: {
-					limit: limit,
-					offset: offset + limit,
-					q: q,
-					filters: suppliedFilters,
-					sortField: suppliedSortField,
-					sortOrder: suppliedSortOrder
-				}
-			};
-		}
+		// let q = validationVal.q;
+		// let sortField = validationVal.sortField;
+		// let sortOrder = validationVal.sortOrder;
+		// let limit = validationVal.limit;
+		// let offset = validationVal.offset;
+		// let prev = null;
+		// let next = null;
+		//
+		// if (offset !== 0) {
+		// 	prev = {
+		// 		url: url.format({
+		// 			protocol: 'https',
+		// 			hostname: 'app.lifescope.io',
+		// 			pathname: 'api/events'
+		// 		}),
+		// 		method: 'SEARCH',
+		// 		body: {
+		// 			limit: limit,
+		// 			offset: Math.max(0, offset - limit),
+		// 			q: q,
+		// 			filters: suppliedFilters,
+		// 			sortField: sortField,
+		// 			sortOrder: sortOrder
+		// 		}
+		// 	};
+		// }
+		//
+		// if (limit + offset < count) {
+		// 	next = {
+		// 		url: url.format({
+		// 			protocol: 'https',
+		// 			hostname: 'app.lifescope.io',
+		// 			pathname: 'api/events'
+		// 		}),
+		// 		method: 'SEARCH',
+		// 		body: {
+		// 			limit: limit,
+		// 			offset: offset + limit,
+		// 			q: q,
+		// 			filters: suppliedFilters,
+		// 			sortField: suppliedSortField,
+		// 			sortOrder: suppliedSortOrder
+		// 		}
+		// 	};
+		// }
 
 		return documents;
 		// return {
