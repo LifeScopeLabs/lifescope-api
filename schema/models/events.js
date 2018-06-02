@@ -522,26 +522,24 @@ EventTC.addResolver({
 
 					contactPreLookupMatch.$and.push({
 						$or: [{
-							$or: [{
-								$and: [{
-									'tagMasks.source': {
-										$in: query.filters.tagFilters
-									},
+							$and: [{
+								'tagMasks.source': {
+									$in: query.filters.tagFilters
+								},
 
-									'tagMasks.removed': {
-										$nin: query.filters.tagFilters
-									}
-								}]
-							}, {
-								$and: [{
-									'tagMasks.added': {
-										$in: query.filters.tagFilters
-									},
+								'tagMasks.removed': {
+									$nin: query.filters.tagFilters
+								}
+							}]
+						}, {
+							$and: [{
+								'tagMasks.added': {
+									$in: query.filters.tagFilters
+								},
 
-									'tagMasks.removed': {
-										$nin: query.filters.tagFilters
-									}
-								}]
+								'tagMasks.removed': {
+									$nin: query.filters.tagFilters
+								}
 							}]
 						}]
 					});
@@ -631,40 +629,6 @@ EventTC.addResolver({
 
 					contentPreLookupMatch.$and.push({
 						$or: [{
-							$or: [{
-								$and: [{
-									'tagMasks.source': {
-										$in: query.filters.tagFilters
-									},
-
-									'tagMasks.removed': {
-										$nin: query.filters.tagFilters
-									}
-								}]
-							}, {
-								$and: [{
-									'tagMasks.added': {
-										$in: query.filters.tagFilters
-									},
-
-									'tagMasks.removed': {
-										$nin: query.filters.tagFilters
-									}
-								}]
-							}]
-						}]
-					});
-				}
-
-				contentSearched = true;
-
-				if (eventMatch.$and == null) {
-					eventMatch.$and = [];
-				}
-
-				eventMatch.$and.push({
-					$or: [{
-						$or: [{
 							$and: [{
 								'tagMasks.source': {
 									$in: query.filters.tagFilters
@@ -684,6 +648,36 @@ EventTC.addResolver({
 									$nin: query.filters.tagFilters
 								}
 							}]
+						}]
+					});
+				}
+
+				contentSearched = true;
+
+				if (eventMatch.$and == null) {
+					eventMatch.$and = [];
+				}
+
+				eventMatch.$and.push({
+					$or: [{
+						$and: [{
+							'tagMasks.source': {
+								$in: query.filters.tagFilters
+							},
+
+							'tagMasks.removed': {
+								$nin: query.filters.tagFilters
+							}
+						}]
+					}, {
+						$and: [{
+							'tagMasks.added': {
+								$in: query.filters.tagFilters
+							},
+
+							'tagMasks.removed': {
+								$nin: query.filters.tagFilters
+							}
 						}]
 					}]
 				});
@@ -815,6 +809,8 @@ EventTC.addResolver({
 				eventMatch.$and.push({
 					$or: query.filters.connectorFilters
 				});
+
+				eventsSearched = true;
 			}
 
 			if (contactsSearched === true) {
@@ -823,7 +819,10 @@ EventTC.addResolver({
 					.lookup($contactEventLookup)
 					.unwind('$event')
 					.lookup($contactContentLookup)
-					.unwind('$content')
+					.unwind({
+						path: '$content',
+						preserveNullAndEmptyArrays: true
+					})
 					.match(contactPostLookupMatch)
 					.project({
 						_id: true,
@@ -838,7 +837,10 @@ EventTC.addResolver({
 					.lookup($contentEventLookup)
 					.unwind('$event')
 					.lookup($contentContactLookup)
-					.unwind('$contact')
+					.unwind({
+						path: '$contact',
+						preserveNullAndEmptyArrays: true
+					})
 					.match(contentPostLookupMatch)
 					.project({
 						_id: true,
@@ -854,10 +856,12 @@ EventTC.addResolver({
 					});
 			}
 
+			console.log(contentAggregation._pipeline);
 			let aggregatedContacts = contactsSearched === true ? await contactAggregation.exec() : [];
 			let aggregatedContent = contentSearched === true ? await contentAggregation.exec(): [];
 			let aggregatedEvents = eventsSearched === true ? await eventAggregation.exec() : [];
 
+			console.log(aggregatedContent);
 			let eventIds = [];
 
 			if (aggregatedContacts.length > 0) {

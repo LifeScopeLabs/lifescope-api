@@ -1,5 +1,6 @@
 /* @flow */
 
+import config from 'config';
 import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';

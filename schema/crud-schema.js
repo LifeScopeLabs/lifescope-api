@@ -144,9 +144,11 @@ GQC.rootMutation().addFields({
         connectionPatch: ConnectionTC.getResolver('patchConnection'),
         connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
 
+	    // contactSearch: ContactTC.getResolver('searchContacts'),
 	    tagContact: ContactTC.getResolver('addContactTags'),
 	    untagContact: ContactTC.getResolver('removeContactTags'),
 
+	    contentSearch: ContentTC.getResolver('searchContent'),
 	    tagContent: ContentTC.getResolver('addContentTags'),
 	    untagContent: ContentTC.getResolver('removeContentTags'),
 
