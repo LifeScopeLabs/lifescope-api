@@ -402,6 +402,12 @@ ContentTC.addResolver({
 				}
 			};
 
+			if (query.sortField === 'title') {
+				filter.title = {
+					$nin: [null, ''],
+				}
+			}
+
 			let contentMatches = await ContentTC.getResolver('findMany').resolve({
 				args: {
 					filter: filter,
@@ -439,11 +445,19 @@ ContentTC.addResolver({
 
 		}
 		else {
+			let filter = {
+				user_id_string: context.req.user._id.toString('hex')
+			};
+
+			if (query.sortField === 'title') {
+				filter.title = {
+					$nin: [null, ''],
+				}
+			}
+
 			let contentMatches = await ContentTC.getResolver('findMany').resolve({
 				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex')
-					},
+					filter: filter,
 					sort: sort,
 					limit: query.limit,
 					skip: query.offset
