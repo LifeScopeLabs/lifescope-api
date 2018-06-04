@@ -753,6 +753,8 @@ EventTC.addResolver({
 				eventMatch.$and.push({
 					$or: query.filters.whenFilters
 				});
+
+				eventsSearched = true;
 			}
 
 			// if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {
@@ -856,12 +858,10 @@ EventTC.addResolver({
 					});
 			}
 
-			console.log(contentAggregation._pipeline);
 			let aggregatedContacts = contactsSearched === true ? await contactAggregation.exec() : [];
 			let aggregatedContent = contentSearched === true ? await contentAggregation.exec(): [];
 			let aggregatedEvents = eventsSearched === true ? await eventAggregation.exec() : [];
 
-			console.log(aggregatedContent);
 			let eventIds = [];
 
 			if (aggregatedContacts.length > 0) {
