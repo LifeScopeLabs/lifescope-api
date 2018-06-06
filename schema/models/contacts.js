@@ -259,7 +259,7 @@ ContactTC.addResolver({
 		}
 
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
-			let contactAggregation = Contact.aggregate();
+			let contactAggregation = Contacts.aggregate();
 
 			let contactPreLookupMatch = {
 				user_id: context.req.user._id
@@ -324,7 +324,6 @@ ContactTC.addResolver({
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
 				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
-					console.log(filter);
 					return filter.connection ? {
 						'connection': filter.connection
 					} : {
@@ -352,12 +351,12 @@ ContactTC.addResolver({
 					_id: true
 				});
 
-			let aggregatedContact = await contactAggregation.exec();
+			let aggregatedContacts = await contactAggregation.exec();
 
 			let contactIds = [];
 
-			if (aggregatedContact.length > 0) {
-				_.each(aggregatedContact, function (contact) {
+			if (aggregatedContacts.length > 0) {
+				_.each(aggregatedContacts, function (contact) {
 					contactIds.push(contact._id);
 				});
 			}

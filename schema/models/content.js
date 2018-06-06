@@ -357,7 +357,6 @@ ContentTC.addResolver({
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
 				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
-					console.log(filter);
 					return filter.connection ? {
 						'connection': filter.connection
 					} : {
