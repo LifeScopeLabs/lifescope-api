@@ -93,7 +93,7 @@
     "graphql-compose-mongoose": "^3.1.1",
     "graphql-compose-pagination": "^3.0.1",
     "graphql-compose-relay": "^1.1.9",
-    "graphql-playground-middleware-express": "^1.5.7",
+    "graphql-playground-middleware-express": "^1.7.0",
     "graphql-subscriptions": "^0.5.8",
     "graphql-tag": "^2.8.0",
     "http-errors": "^1.6.2",

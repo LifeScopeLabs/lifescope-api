@@ -937,7 +937,7 @@ EventTC.addResolver({
 					},
 					sort: sort,
 					limit: query.limit,
-					skip: query.offset
+					offset: query.offset
 				},
 				projection: {
 					id: true,
