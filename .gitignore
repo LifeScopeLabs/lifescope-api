@@ -3,8 +3,8 @@ logs
 *.log
 npm-debug.log*
 dist/
-config/local.json
-config/production.json
+local.json
+production.json
 
 # Runtime data
 pids
