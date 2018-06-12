@@ -20,16 +20,19 @@ The config file should look like this:
 }
 ```
 
-## Run migrations
-You'll need to run the two migrations in the migrations folder via 'NODE_ENV=production node migrations/<name>.js'.
-The first migration creates indices on each collection that LifeScope stores in the database.
-The second loads the LifeScope Providers into the database. 
-
 ## Obtain SSL certificate
 IF you want your server to be secure, you'll need to purchase a domain name and then register the domain or subdomain that you want to use for LifeScope with Amazon Certificate Manager.
 
 ## Install node_modules
 Run npm install or yarn install (npm or yarn must already be installed).
+
+## Run migrations
+NOTE: If you've already done this while setting up the app, you can skip this entire step here.
+
+You'll need to run the two migrations in the migrations folder via 'NODE_ENV=production node migrations/<name>.js'.
+The first migration creates indices on each collection that LifeScope stores in the database.
+The second loads the LifeScope Providers into the database. 
+Make sure that you've replaced the remote_map_id's in the Providers with the BitScoop Map IDs you've created.
 
 ## Build and package the files
 Run 'npm run build'.

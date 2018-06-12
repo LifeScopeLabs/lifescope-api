@@ -19,15 +19,20 @@ The config file should look like this:
 }
 ```
 
-## Run migrations
-You'll need to run the two migrations in the migrations folder via 'NODE_ENV=local node migrations/<name>.js' (or NODE_ENV=dev, or whatever you named your config file).
-The first migration creates indices on each collection that LifeScope stores in the database.
-The second loads the LifeScope Providers into the database. 
-
 ## Install node_modules
 Run npm install or yarn install (npm or yarn must already be installed).
 
+## Run migrations
+NOTE: If you've already done this while setting up the app, you can skip this entire step here.
+
+You'll need to run the two migrations in the migrations folder via 'NODE_ENV=local node migrations/<name>.js' (or NODE_ENV=dev, or whatever you named your config file).
+The first migration creates indices on each collection that LifeScope stores in the database.
+The second loads the LifeScope Providers into the database. 
+Make sure that you've replaced the remote_map_id's in the Providers with the BitScoop Map IDs you've created.
+
 ## Edit hostfile and run local nginx config
+NOTE: If you've already done this while setting up the app, you can skip this entire step here.
+
 You'll need to edit your hostfile to redirect traffic to *.lifescope.io to your local servers.
 On Linux and Mac, run 'sudo gedit /etc/hosts', then add a line
 
@@ -64,4 +69,4 @@ If you would like to run this locally while still having access to the public ve
 and change the 'server_name's in the nginx config to 'api.scopelife.io', etc. 
 
 ## Run API locally via nodemon
-enter 'npm run start' to run the server using nodemon. 
+Enter 'npm run start' to run the server using nodemon. 

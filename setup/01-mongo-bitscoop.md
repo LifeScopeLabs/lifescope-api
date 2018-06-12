@@ -3,6 +3,9 @@
 The two major pieces of external tech that LifeScope relies on are MongoDB for data storage and BitScoop for data retrieval from APIs.
 You will need to set up both of these services for LifeScope to work.
 
+Note that the instructions in this file are replicated in all components of LifeScope - lifescope-api, lifescope-app, and Lifescope-Core.
+You only need to perform this setup once; the instructions are duplicated so that you don't miss any steps that are critical to that component's base functionality.
+
 ## MongoDB
 
 Any instance of MongoDB is acceptable, whether it's running on your local machine, running in the cloud, or created and managed by a hosted service such as MongoDB Atlas.

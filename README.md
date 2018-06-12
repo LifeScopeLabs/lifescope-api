@@ -19,6 +19,10 @@ The LIFESCOPE API is a universal platform backend. There are two components to t
 
 [gqlschema]:https://lifescopelabs.github.io/assets/diagrams/LifeScopeSchema.png
 
+# Setup instructions
+
+Please go to the 'setup' folder and follow the instructions.
+
 # Workflows
 
 ## Connection Workflow
