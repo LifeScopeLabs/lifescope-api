@@ -68,7 +68,7 @@ mongooseConnect.once('open', () => {
 });
 
 loadValidator(config.validationSchemas)
-	.then(async function (validate) {
+	.then(async function(validate) {
 		global.env = {
 			bitscoop: bitscoop,
 			validate: validate,

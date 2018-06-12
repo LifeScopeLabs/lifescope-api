@@ -15,12 +15,12 @@ export const ThingsSchema = new mongoose.Schema(
 
 	  id: {
 		  type: String,
-		  get: function () {
+		  get: function() {
 			  if (this._id) {
 				  return this._id.toString('hex');
 			  }
 		  },
-		  set: function (val) {
+		  set: function(val) {
 			  if (this._conditions && this._conditions.id) {
 				  if (this._conditions.id.hasOwnProperty('$in')) {
 					  this._conditions._id = {

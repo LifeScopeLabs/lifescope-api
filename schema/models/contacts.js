@@ -18,12 +18,12 @@ export const ContactsSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -65,12 +65,12 @@ export const ContactsSchema = new mongoose.Schema(
 
 		connection_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this.connection) {
 					return this.connection.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
 					this._conditions.connection = uuid(val);
 
@@ -135,10 +135,10 @@ export const ContactsSchema = new mongoose.Schema(
 
 		user_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				return this.user_id.toString('hex')
 			},
-			set: function (val) {
+			set: function(val) {
 				if (val && this._conditions && this._conditions.user_id_string) {
 					this._conditions.user_id = uuid(val);
 
@@ -356,7 +356,7 @@ ContactTC.addResolver({
 			let contactIds = [];
 
 			if (aggregatedContacts.length > 0) {
-				_.each(aggregatedContacts, function (contact) {
+				_.each(aggregatedContacts, function(contact) {
 					contactIds.push(contact._id);
 				});
 			}

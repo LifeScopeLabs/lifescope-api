@@ -42,12 +42,12 @@ export const ProvidersSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -87,12 +87,12 @@ export const ProvidersSchema = new mongoose.Schema(
 
 		remote_map_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this.remote_map_id) {
 					return this.remote_map_id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.remote_map_id_string) {
 					this._conditions.remote_map_id = uuid(val);
 
@@ -161,7 +161,7 @@ ProviderTC.addResolver({
 			args: args
 		});
 
-		await Promise.all(_.map(providers, async function (provider) {
+		await Promise.all(_.map(providers, async function(provider) {
 			let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
 
 			provider.name = map.name;

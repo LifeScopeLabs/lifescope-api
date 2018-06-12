@@ -17,12 +17,12 @@ export const ContentSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -59,12 +59,12 @@ export const ContentSchema = new mongoose.Schema(
 
 		connection_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this.connection) {
 					return this.connection.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
 					this._conditions.connection = uuid(val);
 
@@ -169,10 +169,10 @@ export const ContentSchema = new mongoose.Schema(
 
 		user_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				return this.user_id.toString('hex')
 			},
-			set: function (val) {
+			set: function(val) {
 				if (val && this._conditions && this._conditions.user_id_string) {
 					this._conditions.user_id = uuid(val);
 
@@ -389,7 +389,7 @@ ContentTC.addResolver({
 			let contentIds = [];
 
 			if (aggregatedContent.length > 0) {
-				_.each(aggregatedContent, function (content) {
+				_.each(aggregatedContent, function(content) {
 					contentIds.push(content._id);
 				});
 			}

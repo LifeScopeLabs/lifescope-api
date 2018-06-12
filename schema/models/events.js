@@ -40,12 +40,12 @@ export const EventsSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -82,12 +82,12 @@ export const EventsSchema = new mongoose.Schema(
 
 		connection_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this.connection) {
 					return this.connection.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
 					this._conditions.connection = uuid(val);
 
@@ -177,10 +177,10 @@ export const EventsSchema = new mongoose.Schema(
 
 		user_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				return this.user_id.toString('hex')
 			},
-			set: function (val) {
+			set: function(val) {
 				if (val && this._conditions && this._conditions.user_id_string) {
 					this._conditions.user_id = uuid(val);
 
@@ -865,19 +865,19 @@ EventTC.addResolver({
 			let eventIds = [];
 
 			if (aggregatedContacts.length > 0) {
-				_.each(aggregatedContacts, function (contact) {
+				_.each(aggregatedContacts, function(contact) {
 					eventIds.push(contact.event._id);
 				});
 			}
 
 			if (aggregatedContent.length > 0) {
-				_.each(aggregatedContent, function (content) {
+				_.each(aggregatedContent, function(content) {
 					eventIds.push(content.event._id);
 				});
 			}
 
 			if (aggregatedEvents.length > 0) {
-				_.each(aggregatedEvents, function (event) {
+				_.each(aggregatedEvents, function(event) {
 					eventIds.push(event._id);
 				});
 			}

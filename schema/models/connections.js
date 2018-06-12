@@ -49,12 +49,12 @@ export const ConnectionsSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -142,10 +142,10 @@ export const ConnectionsSchema = new mongoose.Schema(
 
 		provider_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				return this.provider_id.toString('hex')
 			},
-			set: function (val) {
+			set: function(val) {
 				if (val && this._conditions && this._conditions.provider_id_string) {
 					this._conditions.provider_id = uuid(val);
 
@@ -168,10 +168,10 @@ export const ConnectionsSchema = new mongoose.Schema(
 
 		remote_connection_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				return this.remote_connection_id.toString('hex')
 			},
-			set: function (val) {
+			set: function(val) {
 				if (val && this._conditions && this._conditions.remote_connection_id_string) {
 					this._conditions.remote_connection_id = uuid(val);
 
@@ -194,10 +194,10 @@ export const ConnectionsSchema = new mongoose.Schema(
 
 		user_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				return this.user_id.toString('hex')
 			},
-			set: function (val) {
+			set: function(val) {
 				if (val && this._conditions && this._conditions.user_id_string) {
 					this._conditions.user_id = uuid(val);
 
@@ -243,7 +243,7 @@ ConnectionTC.addResolver({
 		let bitscoop = env.bitscoop;
 
 		await env.validate('#/types/uuid4', args.provider_id_string)
-			.catch(function (err) {
+			.catch(function(err) {
 				throw new Error('provider_id_string must be a 32-character UUID4 without dashes')
 			});
 
@@ -278,7 +278,7 @@ ConnectionTC.addResolver({
 		};
 
 		// Store valid endpoints.
-		_.each(provider.sources, function (source, name) {
+		_.each(provider.sources, function(source, name) {
 			if (_.has(args.permissions, name)) {
 				connection.permissions[name] = {
 					enabled: true,
@@ -534,7 +534,7 @@ ConnectionTC.addResolver({
 		let req = context.req;
 
 		await env.validate('#/types/uuid4', args.id)
-			.catch(function (err) {
+			.catch(function(err) {
 				throw new Error('id must be a 32-character UUID4 without dashes')
 			});
 

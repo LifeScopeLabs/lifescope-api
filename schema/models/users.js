@@ -8,7 +8,7 @@ import {graphql} from 'graphql-compose';
 import deleteConnection from '../../lib/util/delete-connection';
 import uuid from '../../lib/util/uuid';
 import {ConnectionTC} from "./connections";
-import {ProviderTC} from "./providers";
+import { LocationTC } from './locations';
 
 const AccountTypeSchema = new mongoose.Schema(
 	{
@@ -44,12 +44,12 @@ export const UserSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -90,7 +90,7 @@ export const UserSchema = new mongoose.Schema(
 					return this.api_key.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.api_key_string) {
 					if (this._conditions.api_key_string.hasOwnProperty('$in')) {
 						this._conditions.api_key = {
@@ -140,6 +140,11 @@ export const UserSchema = new mongoose.Schema(
 			index: false
 		},
 
+		location_tracking_enabled: {
+			type: Boolean,
+			index: false
+		},
+
 		settings: {
 			explorer: {
 				initial_searches: {
@@ -186,36 +191,9 @@ export const UserSchema = new mongoose.Schema(
 	},
 	{
 		collection: 'users',
-//     toObject: {
-//       getters: true,
-//       transform: function (doc, ret) {
-//         console.log('Transforming UUID to buffer');
-//         ret._id = Buffer.from(ret._id, 'hex');
-
-//         return ret;
-//      }
-//     },
-//     toJSON: {
-//       getters: true,
-//       transform: function (doc, ret) {
-//         console.log('Transforming UUID to string');
-//         ret._id = ret._id.toString('hex');
-
-//         return ret;
-//       }
-//     }
 	}
 );
 
-// UserSchema.virtual('_id')
-//   .set(function (uuid4ID) {
-//     this._id = Buffer.from(uuid4ID, 'hex')[0];;
-//   })
-//   .get(function () {
-//     return this._id.toString('hex');
-//   });
-
-UserSchema.index({gender: 1, age: -1});
 
 export const User = mongoose.model('User', UserSchema);
 
@@ -296,8 +274,16 @@ UserTC.addResolver({
 			}
 		});
 
-		_.each(connections, async function (connection) {
+		_.each(connections, async function(connection) {
 			await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
+		});
+
+		await LocationTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
 		});
 
 		await UserTC.getResolver('removeOne').resolve({
@@ -327,6 +313,32 @@ UserTC.addResolver({
 				},
 				record: {
 					api_key_string: uuid()
+				}
+			}
+		});
+
+		return updated.record;
+	}
+});
+
+
+UserTC.addResolver({
+	name: 'updateLocationTracking',
+	kind: 'mutation',
+	args: {
+		location_tracking_enabled: 'Boolean!'
+	},
+	type: UserTC.getResolver('findOne').getType(),
+	resolve: async ({source, args, context, info}) => {
+		let req = context.req;
+
+		let updated = await UserTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: req.user._id.toString('hex')
+				},
+				record: {
+					location_tracking_enabled: args.location_tracking_enabled === true
 				}
 			}
 		});

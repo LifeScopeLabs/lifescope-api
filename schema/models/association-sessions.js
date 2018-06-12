@@ -13,12 +13,12 @@ export const AssociationSessionSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.id) {
 					if (this._conditions.id.hasOwnProperty('$in')) {
 						this._conditions._id = {
@@ -54,12 +54,12 @@ export const AssociationSessionSchema = new mongoose.Schema(
 
 		connection_id_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this.connection_id) {
 					return this.connection_id.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
 					this._conditions.connection_id = uuid(val);
 
@@ -76,12 +76,12 @@ export const AssociationSessionSchema = new mongoose.Schema(
 
 		token_string: {
 			type: String,
-			get: function () {
+			get: function() {
 				if (this.token) {
 					return this.token.toString('hex');
 				}
 			},
-			set: function (val) {
+			set: function(val) {
 				if (this._conditions && this._conditions.token_string) {
 					this._conditions.token = uuid(val);
 
