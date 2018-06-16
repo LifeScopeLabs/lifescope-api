@@ -1,6 +1,8 @@
 {
   "_id": "e2fe300132c6477b85253110638c4825",
 
+  "login": true,
+
   "sources": {
     "playlists": {
       "name": "Playlists",

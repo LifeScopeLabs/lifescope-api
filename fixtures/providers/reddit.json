@@ -1,6 +1,8 @@
 {
   "_id": "89494825c6304cec8d479bb81bc059e7",
 
+  "login": true,
+
   "sources": {
     "comments": {
       "name": "Comments",

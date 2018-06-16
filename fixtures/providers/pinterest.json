@@ -1,6 +1,8 @@
 {
   "_id": "a5ca6b98b4974be0b20949ff3c547d84",
 
+  "login": true,
+
   "sources": {
 	"boards": {
 	  "name": "Boards",

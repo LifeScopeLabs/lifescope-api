@@ -13,6 +13,7 @@ import {ConnectionTC} from "./connections";
 let hydratedProviderType = TypeComposer.create(`
 	type hydratedProviderType {
 		id: String,
+		login: Boolean,
 		sources: JSON,
 		remote_map_id: Buffer,
 		remote_map_id_string: String,
@@ -26,6 +27,7 @@ let providerWithMapType = TypeComposer.create(`
 	type providerWithMapType {
 		id: String,
 		auth_type: String,
+		login: Boolean,
 		sources: JSON,
 		remote_map_id: Buffer,
 		remote_map_id_string: String,
@@ -75,6 +77,10 @@ export const ProvidersSchema = new mongoose.Schema(
 					this._id = uuid(val);
 				}
 			}
+		},
+
+		login: {
+			type: Boolean
 		},
 
 		sources: {
@@ -166,7 +172,7 @@ ProviderTC.addResolver({
 
 			provider.name = map.name;
 			provider.tags = map.tags;
-			provider.auth_type = map.auth.type;
+			provider.auth_type = _.get(map, 'auth.type', 'none');
 
 			return Promise.resolve();
 		}));
@@ -193,7 +199,7 @@ ProviderTC.addResolver({
 
 		provider.name = map.name;
 		provider.tags = map.tags;
-		provider.auth_type = map.auth.type;
+		provider.auth_type = _.get(map, 'auth.type', 'none');
 
 		return provider;
 	}

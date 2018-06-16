@@ -1,6 +1,8 @@
 {
   "_id": "3f094b0b24d048938e40452d34d62a46",
 
+  "login": true,
+
   "sources": {
     "posts": {
       "name": "Shares",

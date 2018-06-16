@@ -9,8 +9,8 @@ const config = require('config');
 	let db;
 
 	new Promise(function(resolve, reject) {
-		let address = config.databases.mongo.address;
-		let options = config.databases.mongo.options;
+		let address = config.mongodb.address;
+		let options = config.mongodb.options;
 
 		mongodb.MongoClient.connect(address, options, function(err, database) {
 			if (err) {

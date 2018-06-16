@@ -1,13 +1,11 @@
 'use strict';
 
-const path = require('path');
+import _ from 'lodash';
+import mongodb from 'mongodb';
+import config from 'config';
 
-const _ = require('lodash');
-const mongodb = require('mongodb');
-const config = require('config');
-
-const fs = require('../lib/util/fs');
-const gid = require('../lib/util/gid');
+import { find, readFile } from '../lib/util/fs';
+import uuid from '../lib/util/uuid';
 
 
 (function() {
@@ -29,7 +27,7 @@ const gid = require('../lib/util/gid');
 			});
 		}),
 
-		fs.find('./fixtures/providers/*.json')
+		find('./fixtures/providers/*.json')
 	])
 	.then(function(result) {
 		let [, files] = result;
@@ -38,7 +36,7 @@ const gid = require('../lib/util/gid');
 			console.log('Reading Provider information from "' + file + '".');
 
 			return Promise.all([
-				fs.readfile(file)
+				readFile(file)
 			])
 				.then(function(result) {
 					let [providerJson] = result;
@@ -48,8 +46,8 @@ const gid = require('../lib/util/gid');
 						return Promise.resolve();
 					}
 
-					provider._id = gid(provider._id);
-					provider.remote_map_id = gid(provider.remote_map_id);
+					provider._id = uuid(provider._id);
+					provider.remote_map_id = uuid(provider.remote_map_id);
 
 					return db.db('live').collection('providers').update({
 						_id: provider._id

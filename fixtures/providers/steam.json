@@ -1,6 +1,8 @@
 {
   "_id": "0cbd7b54443545f9bc15f10c923b214a",
 
+  "login": true,
+
   "sources": {
     "games_owned": {
       "name": "Games Owned",

@@ -1,6 +1,8 @@
 {
   "_id": "c3817b27324541d0b8eab46fd92b2b9d",
 
+  "login": true,
+
   "sources": {
     "tweets": {
       "name": "Tweets",

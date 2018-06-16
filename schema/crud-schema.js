@@ -34,6 +34,7 @@ GQC.rootQuery().addFields({
 	sessionOne: SessionTC.getResolver('findOne'),
 
 	...restrictToUser(Resolver, {
+		connectionBrowserOne: ConnectionTC.getResolver('getBrowserConnection'),
 		connectionCount: ConnectionTC.getResolver('count'),
 		connectionMany: ConnectionTC.getResolver('findMany'),
 		connectionOne: ConnectionTC.getResolver('findOne'),
@@ -60,6 +61,7 @@ GQC.rootQuery().addFields({
 
 GQC.rootMutation().addFields({
 	...restrictToUser(Resolver, {
+		connectionCreateBrowser: ConnectionTC.getResolver('createBrowserConnection'),
 		connectionPatch: ConnectionTC.getResolver('patchConnection'),
 		connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
 

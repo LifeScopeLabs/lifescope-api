@@ -101,6 +101,10 @@ export const ConnectionsSchema = new mongoose.Schema(
 			}
 		},
 
+		browser: {
+			type: String
+		},
+
 		enabled: {
 			type: Boolean,
 			index: false
@@ -125,9 +129,14 @@ export const ConnectionsSchema = new mongoose.Schema(
 			get: async function() {
 				let bitscoop = env.bitscoop;
 
-				let bitscoopConnection = await bitscoop.getConnection(this.remote_connection_id.toString('hex'));
+				if (this.remote_connection_id) {
+					let bitscoopConnection = await bitscoop.getConnection(this.remote_connection_id.toString('hex'));
 
-				return bitscoopConnection.name;
+					return bitscoopConnection.name;
+				}
+				else if (this.browser != null) {
+					return this.browser + ' Extension';
+				}
 			}
 		},
 
@@ -254,6 +263,7 @@ ConnectionTC.addResolver({
 				}
 			},
 			projection: {
+				login: true,
 				sources: true,
 				remote_map_id: true,
 				remote_map_id_string: true
@@ -262,6 +272,10 @@ ConnectionTC.addResolver({
 
 		if (provider == null) {
 			throw new httpErrors(404);
+		}
+
+		if (provider.login !== true) {
+			throw new httpErrors(400, 'You cannot log in or sign up using this Provider');
 		}
 
 		let remoteProvider = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
@@ -332,6 +346,7 @@ ConnectionTC.addResolver({
 		permissions: 'JSON'
 	},
 	resolve: async function({source, args, context, info}) {
+		let bitscoopConnection;
 		let bitscoop = env.bitscoop;
 		let req = context.req;
 		let permissions = args.permissions;
@@ -364,10 +379,12 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
-		let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
+		if (connection.remote_connection_id) {
+			bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
 
-		if (!bitscoopConnection) {
-			throw httpErrors(404);
+			if(!bitscoopConnection) {
+				throw httpErrors(404);
+			}
 		}
 
 		let provider = await ProviderTC.getResolver('findOne').resolve({
@@ -479,29 +496,31 @@ ConnectionTC.addResolver({
 			}
 		});
 
-		bitscoopConnection.endpoints = _.uniq(endpoints);
-		bitscoopConnection.scopes = _.uniq(scopes);
+		if (bitscoopConnection != null) {
+			bitscoopConnection.endpoints = _.uniq(endpoints);
+			bitscoopConnection.scopes = _.uniq(scopes);
 
-		delete bitscoopConnection.map_id;
-		delete bitscoopConnection.metadata;
-		delete bitscoopConnection.auth;
+			delete bitscoopConnection.map_id;
+			delete bitscoopConnection.metadata;
+			delete bitscoopConnection.auth;
 
-		let response;
+			let response;
 
-		try {
-			response = await bitscoopConnection.save();
-		} catch(err) {
-			console.log(err);
+			try {
+				response = await bitscoopConnection.save();
+			} catch(err) {
+				console.log(err);
 
-			throw err;
-		}
-
-		if (response.redirectUrl) {
-			if (!explorerConnection.auth) {
-				explorerConnection.auth = {};
+				throw err;
 			}
 
-			explorerConnection.auth.redirectUrl = response.redirectUrl;
+			if(response.redirectUrl) {
+				if(!explorerConnection.auth) {
+					explorerConnection.auth = {};
+				}
+
+				explorerConnection.auth.redirectUrl = response.redirectUrl;
+			}
 		}
 
 		let updateResult = await ConnectionTC.getResolver('updateOne').resolve({
@@ -574,6 +593,60 @@ ConnectionTC.addResolver({
 		env.pubSub.publish('connectionDeleted', { id: connection._id.toString('hex'), user_id: req.user._id });
 
 		context.res.status = 204;
+	}
+});
+
+ConnectionTC.addResolver({
+	name: 'getBrowserConnection',
+	kind: 'query',
+	type: ConnectionTC.getResolver('findOne').getType(),
+	args: {
+		browser: 'String!'
+	},
+	resolve: async function({ source, args, context, info }) {
+		let result = await ConnectionTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					browser: args.browser,
+					provider_id_string: 'bff10113c2c4437391c1dfc8699d024f',
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		return result;
+	}
+});
+
+ConnectionTC.addResolver({
+	name: 'createBrowserConnection',
+	kind: 'mutation',
+	type: initializeType,
+	args: {
+		browser: 'String!'
+	},
+	resolve: async function({ source, args, context, info }) {
+		let result = await ConnectionTC.getResolver('createOne').resolve({
+			args: {
+				record: {
+					id: uuid(),
+					auth: {
+						status: {
+							authorized: true,
+							complete: true
+						}
+					},
+					browser: args.browser,
+					frequency: 1,
+					enabled: true,
+					provider_name: 'Browser Extensions',
+					provider_id_string: 'bff10113c2c4437391c1dfc8699d024f',
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		return result.record;
 	}
 });
 

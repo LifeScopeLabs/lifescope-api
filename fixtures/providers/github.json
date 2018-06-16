@@ -1,6 +1,8 @@
 {
   "_id": "3fda7921e46a44bf8e4337467bd86fdc",
 
+  "login": true,
+
   "sources": {
     "events": {
       "name": "Github Events",
