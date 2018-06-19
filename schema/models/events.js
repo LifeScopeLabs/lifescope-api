@@ -40,6 +40,7 @@ export const EventsSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
+			default: uuid,
 			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
@@ -120,6 +121,7 @@ export const EventsSchema = new mongoose.Schema(
 
 		created: {
 			type: Date,
+			default: Date.now,
 			index: false
 		},
 
@@ -1033,3 +1035,184 @@ EventTC.addResolver({
 		// };
 	}
 });
+
+
+
+// EventTC.addResolver({
+// 	name: 'eventBulkUpload',
+// 	kind: 'mutation',
+// 	type: [EventTC.getResolver('createOne').getType()],
+// 	args: {
+// 		events: [{
+// 			connection_id_string: 'String',
+// 			contact_interaction_type: 'String',
+// 			contacts: [{
+// 				avatar_url: 'String',
+// 				connection_id_string: 'String',
+// 				handle: 'String',
+// 				identifier: 'String',
+// 				name: 'String',
+// 				provider_name: 'String',
+// 				remote_id: 'String',
+// 				tagMasks: {
+// 					source: 'String'
+// 				}
+// 			}],
+// 			content: [{
+// 				connection_id_string: 'String',
+// 				embed_content: 'String',
+// 				embed_format: 'String',
+// 				embed_thumbnail: 'String',
+// 				identifier: 'String',
+// 				mimetype: 'String',
+// 				provider_name: 'String',
+// 				remote_id: 'String',
+// 				tagMasks: {
+// 					source: ['String']
+// 				},
+// 				text: 'String',
+// 				thumbnail: 'String',
+// 				title: 'String',
+// 				type: 'String',
+// 				url: 'String'
+// 			}],
+// 			context: 'String',
+// 			datetime: 'String',
+// 			identifier: 'String',
+// 			provider_name: 'String',
+// 			tagMasks: {
+// 				source: ['String']
+// 			},
+// 			type: 'String'
+// 		}]
+// 	},
+// 	resolve: async function({source, args, context, info}) {
+// 		let eventMap = {};
+// 		let contactMap = {};
+// 		let contentMap = {};
+// 		let tagList = [];
+//
+// 		let bulkContactWrite = Contacts.bulkWrite();
+// 		let bulkContentWrite = Content.bulkWrite();
+// 		let bulkEventWrite = Events.bulkWrite();
+// 		let bulkTagWrite = Tags.bulkWrite();
+// 		let bulkContacts = [];
+// 		let bulkContent = [];
+// 		let bulkEvents = [];
+// 		let bulkTags = [];
+//
+// 		let events = args.events;
+//
+// 		_.each(events, function(event) {
+// 			let contacts = event.contacts;
+//
+// 			_.each(contacts, function(contact) {
+// 				if (contact.identifier && contactMap[contact.identifier] == null) {
+// 					_.each(contact.tags, function(tag) {
+// 						if (tagList.indexOf(tag) === -1) {
+// 							tagList.push(tag);
+//
+// 							bulkTags.push({
+// 								filter: {
+// 									tag: tag,
+// 									user_id_string: context.req.user._id.toString('hex')
+// 								},
+// 								updateOne: {
+// 									tag: tag,
+// 									updated: Date.now(),
+// 									user_id_string: context.req.user._id.toString('hex')
+// 								},
+// 								upsert: true,
+// 								setDefaultsOnInsert: true
+// 							})
+// 						}
+// 					});
+//
+// 					bulkContacts.push({
+// 						filter: {
+// 							identifier: contact.identifer,
+// 							user_id_string: context.req.user._id.toString('hex')
+// 						},
+// 						updateOne: {
+// 							avatar_url: contact.avatar_url,
+// 							connection_id_string: contact.connection_id_string,
+// 							handle: contact.handle,
+// 							identifier: contact.identifier,
+// 							name: contact.name,
+// 							provider_name: contact.provider_name,
+// 							remote_id: contact.remote_id,
+// 							tagMasks: {
+// 								source: contact.tags
+// 							},
+// 							updated: Date.now(),
+// 							user_id_string: context.req.user._id.toString('hex')
+// 						},
+// 						upsert: true,
+// 						setDefaultsOnInsert: true
+// 					});
+// 				}
+// 			});
+//
+// 			_.each(content, function(content) {
+// 				if (content.identifier && contactMap[content.identifier] == null) {
+// 					_.each(content.tags, function(tag) {
+// 						if (tagList.indexOf(tag) === -1) {
+// 							tagList.push(tag);
+//
+// 							bulkTags.push({
+// 								filter: {
+// 									tag: tag,
+// 									user_id_string: context.req.user._id.toString('hex')
+// 								},
+// 								updateOne: {
+// 									tag: tag,
+// 									updated: Date.now(),
+// 									user_id_string: context.req.user._id.toString('hex')
+// 								},
+// 								upsert: true,
+// 								setDefaultsOnInsert: true
+// 							})
+// 						}
+// 					});
+//
+// 					bulkContent.push({
+// 						filter: {
+// 							identifier: content.identifer,
+// 							user_id_string: context.req.user._id.toString('hex')
+// 						},
+// 						updateOne: {
+// 							connection_id_string: content.connection_id_string,
+// 							embed_content: content.embed_content,
+// 							embed_format: content.embed_format,
+// 							embed_thumbnail: content.embed_thumbnail,
+// 							identifier: content.identifier,
+// 							mimetype: content.mimetype,
+// 							provider_name: content.provider_name,
+// 							remote_id: content.remote_id,
+// 							tagMasks: {
+// 								source: content.tags
+// 							},
+// 							text: content.text,
+// 							thumbnail: content.thumbnail,
+// 							title: content.title,
+// 							type: content.type,
+// 							url: content.url,
+// 							updated: Date.now(),
+// 							user_id_string: context.req.user._id.toString('hex')
+// 						},
+// 						upsert: true,
+// 						setDefaultsOnInsert: true
+// 					});
+// 				}
+// 			});
+// 		});
+//
+// 		let contactResult = await bulkContactWrite(bulkContacts);
+// 		let contentResult = await bulkContentWrite(bulkContent);
+// 		let tagResult = await bulkTagWrite(bulkTags);
+//
+// 		_.each(contentResult, function(content) {
+// 			console.log(content);
+// 		});
+// 	}
+// });

@@ -18,6 +18,7 @@ export const ContactsSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
+			default: uuid,
 			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
@@ -83,6 +84,7 @@ export const ContactsSchema = new mongoose.Schema(
 
 		created: {
 			type: Date,
+			default: Date.now,
 			index: false
 		},
 
