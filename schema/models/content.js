@@ -44,7 +44,6 @@ export const ContentSchema = new mongoose.Schema(
 							return uuid(item);
 						})
 					};
-
 				}
 				else {
 					this._id = uuid(val);

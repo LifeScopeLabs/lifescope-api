@@ -77,7 +77,9 @@ loadValidator(config.validationSchemas)
 
 		server.use(
 			crudAPI.uri,
-			bodyParser.json(),
+			bodyParser.json({
+				limit: '15MB'
+			}),
 			cookieParser(),
 			keyAuthorization,
 			cookieAuthorization,
@@ -107,7 +109,9 @@ loadValidator(config.validationSchemas)
 		server.use(
 			'/',
 			meta,
-			bodyParser.json(),
+			bodyParser.json({
+				limit: '15MB'
+			}),
 			cookieParser(),
 			cookieAuthorization,
 			views

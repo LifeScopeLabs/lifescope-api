@@ -6,6 +6,7 @@ import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import config from 'config';
 import httpErrors from 'http-errors';
+import moment from 'moment';
 import mongoose from 'mongoose';
 import {graphql} from 'graphql-compose';
 
@@ -68,7 +69,6 @@ export const EventsSchema = new mongoose.Schema(
 							return uuid(item);
 						})
 					};
-
 				}
 				else {
 					this._id = uuid(val);
@@ -215,8 +215,10 @@ EventTC.addRelation('hydratedContacts', {
 				}
 			};
 
-			returned.id.$in = _.map(source.contacts, function(item) {
-				return item.toString('hex');
+			_.each(source.contacts, function(item) {
+				if (item != null) {
+					returned.id.$in.push(item.toString('hex'));
+				}
 			});
 
 			return returned;
@@ -234,8 +236,10 @@ EventTC.addRelation('hydratedContent', {
 				}
 			};
 
-			returned.id.$in = _.map(source.content, function(item) {
-				return item.toString('hex');
+			_.each(source.content, function(item) {
+				if (item != null) {
+					returned.id.$in.push(item.toString('hex'));
+				}
 			});
 
 			return returned;
@@ -1037,182 +1041,327 @@ EventTC.addResolver({
 });
 
 
+function MongoEvent(data) {
+	this.connection = uuid(data.connection_id_string);
+	this.contact_interaction_type = data.contact_interaction_type;
+	this.context = data.context;
+	this.datetime = data.datetime;
+	this.identifier = data.identifier;
+	//this.places = data.places;
+	this.provider = data.provider;
+	this.provider_name = data.provider_name;
+	this.source = data.source;
+	this.tagMasks = data.tagMasks;
+	this.type = data.type;
+	this.updated = data.updated;
+	this.user_id = data.user_id;
 
-// EventTC.addResolver({
-// 	name: 'eventBulkUpload',
-// 	kind: 'mutation',
-// 	type: [EventTC.getResolver('createOne').getType()],
-// 	args: {
-// 		events: [{
-// 			connection_id_string: 'String',
-// 			contact_interaction_type: 'String',
-// 			contacts: [{
-// 				avatar_url: 'String',
-// 				connection_id_string: 'String',
-// 				handle: 'String',
-// 				identifier: 'String',
-// 				name: 'String',
-// 				provider_name: 'String',
-// 				remote_id: 'String',
-// 				tagMasks: {
-// 					source: 'String'
-// 				}
-// 			}],
-// 			content: [{
-// 				connection_id_string: 'String',
-// 				embed_content: 'String',
-// 				embed_format: 'String',
-// 				embed_thumbnail: 'String',
-// 				identifier: 'String',
-// 				mimetype: 'String',
-// 				provider_name: 'String',
-// 				remote_id: 'String',
-// 				tagMasks: {
-// 					source: ['String']
-// 				},
-// 				text: 'String',
-// 				thumbnail: 'String',
-// 				title: 'String',
-// 				type: 'String',
-// 				url: 'String'
-// 			}],
-// 			context: 'String',
-// 			datetime: 'String',
-// 			identifier: 'String',
-// 			provider_name: 'String',
-// 			tagMasks: {
-// 				source: ['String']
-// 			},
-// 			type: 'String'
-// 		}]
-// 	},
-// 	resolve: async function({source, args, context, info}) {
-// 		let eventMap = {};
-// 		let contactMap = {};
-// 		let contentMap = {};
-// 		let tagList = [];
-//
-// 		let bulkContactWrite = Contacts.bulkWrite();
-// 		let bulkContentWrite = Content.bulkWrite();
-// 		let bulkEventWrite = Events.bulkWrite();
-// 		let bulkTagWrite = Tags.bulkWrite();
-// 		let bulkContacts = [];
-// 		let bulkContent = [];
-// 		let bulkEvents = [];
-// 		let bulkTags = [];
-//
-// 		let events = args.events;
-//
-// 		_.each(events, function(event) {
-// 			let contacts = event.contacts;
-//
-// 			_.each(contacts, function(contact) {
-// 				if (contact.identifier && contactMap[contact.identifier] == null) {
-// 					_.each(contact.tags, function(tag) {
-// 						if (tagList.indexOf(tag) === -1) {
-// 							tagList.push(tag);
-//
-// 							bulkTags.push({
-// 								filter: {
-// 									tag: tag,
-// 									user_id_string: context.req.user._id.toString('hex')
-// 								},
-// 								updateOne: {
-// 									tag: tag,
-// 									updated: Date.now(),
-// 									user_id_string: context.req.user._id.toString('hex')
-// 								},
-// 								upsert: true,
-// 								setDefaultsOnInsert: true
-// 							})
-// 						}
-// 					});
-//
-// 					bulkContacts.push({
-// 						filter: {
-// 							identifier: contact.identifer,
-// 							user_id_string: context.req.user._id.toString('hex')
-// 						},
-// 						updateOne: {
-// 							avatar_url: contact.avatar_url,
-// 							connection_id_string: contact.connection_id_string,
-// 							handle: contact.handle,
-// 							identifier: contact.identifier,
-// 							name: contact.name,
-// 							provider_name: contact.provider_name,
-// 							remote_id: contact.remote_id,
-// 							tagMasks: {
-// 								source: contact.tags
-// 							},
-// 							updated: Date.now(),
-// 							user_id_string: context.req.user._id.toString('hex')
-// 						},
-// 						upsert: true,
-// 						setDefaultsOnInsert: true
-// 					});
-// 				}
-// 			});
-//
-// 			_.each(content, function(content) {
-// 				if (content.identifier && contactMap[content.identifier] == null) {
-// 					_.each(content.tags, function(tag) {
-// 						if (tagList.indexOf(tag) === -1) {
-// 							tagList.push(tag);
-//
-// 							bulkTags.push({
-// 								filter: {
-// 									tag: tag,
-// 									user_id_string: context.req.user._id.toString('hex')
-// 								},
-// 								updateOne: {
-// 									tag: tag,
-// 									updated: Date.now(),
-// 									user_id_string: context.req.user._id.toString('hex')
-// 								},
-// 								upsert: true,
-// 								setDefaultsOnInsert: true
-// 							})
-// 						}
-// 					});
-//
-// 					bulkContent.push({
-// 						filter: {
-// 							identifier: content.identifer,
-// 							user_id_string: context.req.user._id.toString('hex')
-// 						},
-// 						updateOne: {
-// 							connection_id_string: content.connection_id_string,
-// 							embed_content: content.embed_content,
-// 							embed_format: content.embed_format,
-// 							embed_thumbnail: content.embed_thumbnail,
-// 							identifier: content.identifier,
-// 							mimetype: content.mimetype,
-// 							provider_name: content.provider_name,
-// 							remote_id: content.remote_id,
-// 							tagMasks: {
-// 								source: content.tags
-// 							},
-// 							text: content.text,
-// 							thumbnail: content.thumbnail,
-// 							title: content.title,
-// 							type: content.type,
-// 							url: content.url,
-// 							updated: Date.now(),
-// 							user_id_string: context.req.user._id.toString('hex')
-// 						},
-// 						upsert: true,
-// 						setDefaultsOnInsert: true
-// 					});
-// 				}
-// 			});
-// 		});
-//
-// 		let contactResult = await bulkContactWrite(bulkContacts);
-// 		let contentResult = await bulkContentWrite(bulkContent);
-// 		let tagResult = await bulkTagWrite(bulkTags);
-//
-// 		_.each(contentResult, function(content) {
-// 			console.log(content);
-// 		});
-// 	}
-// });
+	if (data.contacts) {
+		this.contacts = new Array(data.contacts.length);
+
+		for (let i = 0; i < data.contacts.length; i++) {
+			this.contacts[i] = data.contacts[i]._id;
+		}
+	}
+
+	if (data.content) {
+		this.content = new Array(data.content.length);
+
+		for (let i = 0; i < data.content.length; i++) {
+			this.content[i] = data.content[i]._id;
+		}
+	}
+
+	if (data.things) {
+		this.things = new Array(data.things.length);
+
+		for (let i = 0; i < data.things.length; i++) {
+			this.things[i] = data.things[i]._id;
+		}
+	}
+
+	if (data.location) {
+		this.location = data.location._id;
+	}
+
+	if (this.tagMasks == null) {
+		delete this.tagMasks;
+	}
+}
+
+EventTC.addResolver({
+	name: 'eventBulkUpload',
+	kind: 'mutation',
+	type: [EventTC.getResolver('findOne').getType()],
+	args: {
+		events: 'String'
+	},
+	resolve: async function({source, args, context, info}) {
+		let eventMap = {};
+		let contactMap = {};
+		let contentMap = {};
+		let tagList = [];
+
+		let bulkContacts = mongoose.connection.db.collection('contacts').initializeUnorderedBulkOp();
+		let bulkContent = mongoose.connection.db.collection('content').initializeUnorderedBulkOp();
+		let bulkEvents = mongoose.connection.db.collection('events').initializeUnorderedBulkOp();
+		let bulkTags = mongoose.connection.db.collection('tags').initializeUnorderedBulkOp();
+
+		let events = JSON.parse(args.events);
+
+		let contactIdentifiers = [];
+		let contentIdentifiers = [];
+		let eventIdentifiers = [];
+
+		_.each(events, function(event) {
+			let contacts = event.contacts;
+
+			_.each(contacts, function(contact) {
+				if (contact.identifier) {
+					if(contactMap[contact.identifier] == null) {
+						contactMap[contact.identifier] = contact;
+
+						_.each(contact.tagMasks.source, function(tag) {
+							if (tagList.indexOf(tag) === -1) {
+								tagList.push(tag);
+
+								let data = {
+									tag: tag,
+									user_id: context.req.user._id,
+									updated: moment().utc().toDate()
+								};
+
+								bulkTags.find({
+									tag: tag,
+									user_id: context.req.user._id
+								})
+									.upsert()
+									.updateOne({
+										$set: data,
+										$setOnInsert: {
+											_id: uuid(uuid()),
+											created: data.updated
+										}
+									});
+							}
+						});
+
+						contact.connection = uuid(contact.connection_id_string);
+						contact.user_id = context.req.user._id;
+						contact.updated = moment().utc().toDate();
+
+						delete contact.connection_id_string;
+
+						contactIdentifiers.push(contact.identifier);
+
+						bulkContacts.find({
+							identifier: contact.identifier,
+							user_id: context.req.user._id
+						})
+							.upsert()
+							.updateOne({
+								$set: contact,
+								$setOnInsert: {
+									_id: uuid(uuid()),
+									created: contact.updated
+								}
+							});
+					}
+					else {
+						contact = contactMap[contact.identifier];
+					}
+				}
+			});
+
+			let content = event.content;
+
+			_.each(content, function(content) {
+				if (content.identifier) {
+					if (contentMap[content.identifier] == null) {
+						contentMap[content.identifier] = content;
+
+						_.each(content.tagMasks.source, function(tag) {
+							if (tagList.indexOf(tag) === -1) {
+								tagList.push(tag);
+
+								let data = {
+									tag: tag,
+									user_id: context.req.user._id,
+									updated: moment().utc().toDate()
+								};
+
+								bulkTags.find({
+									tag: tag,
+									user_id: context.req.user._id
+								})
+									.upsert()
+									.updateOne({
+										$set: data,
+										$setOnInsert: {
+											_id: uuid(uuid()),
+											created: data.updated
+										}
+									});
+							}
+						});
+
+						content.connection = uuid(content.connection_id_string);
+						content.user_id = context.req.user._id;
+						content.updated = moment().utc().toDate();
+
+						delete content.connection_id_string;
+
+						contentIdentifiers.push(content.identifier);
+
+						bulkContent.find({
+							identifier: content.identifier,
+							user_id: context.req.user._id
+						})
+							.upsert()
+							.updateOne({
+								$set: content,
+								$setOnInsert: {
+									_id: uuid(uuid()),
+									created: content.updated
+								}
+							});
+					}
+					else {
+						content = contentMap[content.identifier];
+					}
+				}
+			});
+		});
+
+		if (contactIdentifiers.length > 0) {
+			await bulkContacts.execute();
+
+			let hydratedContacts = await ContactTC.getResolver('findMany').resolve({
+				args: {
+					filter: {
+						identifier: {
+							$in: contactIdentifiers
+						}
+					}
+				}
+			});
+
+			_.each(hydratedContacts, function(contact) {
+				contactMap[contact.identifier]._id = uuid(contact.id);
+				contactMap[contact.identifier].tagMasks = contact.tagMasks;
+
+				delete contactMap[contact.identifier]['tagMasks.source'];
+			});
+		}
+
+		if (contentIdentifiers.length > 0) {
+			await bulkContent.execute();
+
+			let hydratedContent = await ContentTC.getResolver('findMany').resolve({
+				args: {
+					filter: {
+						identifier: {
+							$in: contentIdentifiers
+						}
+					}
+				}
+			});
+
+			_.each(hydratedContent, function(content) {
+				contentMap[content.identifier]._id = uuid(content.id);
+				contentMap[content.identifier].tagMasks = content.tagMasks;
+
+				delete contentMap[content.identifier]['tagMasks.source'];
+			});
+		}
+
+		_.each(events, function(rawEvent) {
+			_.each(rawEvent.contacts, function(contact) {
+				let cache = contactMap[contact.identifier];
+
+				contact._id = cache._id;
+				contact.tagMasks = cache.tagMasks;
+			});
+
+			_.each(rawEvent.content, function(content) {
+				let cache = contentMap[content.identifier];
+
+				content._id = cache._id;
+				content.tagMasks = cache.tagMasks;
+			});
+
+			let event = new MongoEvent(rawEvent);
+
+			if (event.identifier) {
+				if (eventMap[event.identifier] == null) {
+					eventMap[event.identifier] = event;
+
+					_.each(event.tagMasks.source, function(tag) {
+						if (tagList.indexOf(tag) === -1) {
+							tagList.push(tag);
+
+							let data = {
+								tag: tag,
+								user_id: context.req.user._id,
+								updated: moment().utc().toDate()
+							};
+
+							bulkTags.find({
+								tag: tag,
+								user_id: context.req.user._id
+							})
+								.upsert()
+								.updateOne({
+									$set: data,
+									$setOnInsert: {
+										_id: uuid(uuid()),
+										created: data.updated
+									}
+								});
+						}
+					});
+
+					event.user_id = context.req.user._id;
+					event.updated = moment().utc().toDate();
+
+					eventIdentifiers.push(event.identifier);
+
+					bulkEvents.find({
+						identifier: event.identifier,
+						user_id: context.req.user._id
+					})
+						.upsert()
+						.updateOne({
+							$set: event,
+							$setOnInsert: {
+								_id: uuid(uuid()),
+								created: event.updated
+							}
+						});
+				}
+			}
+		});
+
+		let hydratedEvents = [];
+
+		if (eventIdentifiers.length > 0) {
+			await bulkEvents.execute();
+
+			hydratedEvents = await EventTC.getResolver('findMany').resolve({
+				args: {
+					filter: {
+						identifier: {
+							$in: eventIdentifiers
+						}
+					}
+				}
+			})
+		}
+
+		if (tagList.length > 0) {
+			await bulkTags.execute();
+		}
+
+		return hydratedEvents;
+	}
+});
