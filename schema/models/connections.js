@@ -557,7 +557,7 @@ ConnectionTC.addResolver({
 				throw new Error('id must be a 32-character UUID4 without dashes')
 			});
 
-		let count = await ConnectionTC.getResolver('count').resolve({
+		let connections = await ConnectionTC.getResolver('findMany').resolve({
 			args: {
 				filter: {
 					user_id_string: req.user._id.toString('hex')
@@ -565,7 +565,21 @@ ConnectionTC.addResolver({
 			}
 		});
 
-		if (count === 1) {
+		let providers = await ProviderTC.getResolver('findMany').resolve({});
+
+		_.each(connections, function(connection) {
+			connection.provider = _.find(providers, function(provider) {
+				return provider.id === connection.provider_id_string;
+			});
+		});
+
+		let loginConnections = _.filter(connections, function(connection) {
+			return connection.provider.login === true;
+		});
+
+		console.log(loginConnections[0]);
+		console.log(args.id);
+		if (loginConnections.length === 1 && loginConnections[0]._id.toString('hex') === args.id) {
 			throw new httpErrors(400, 'You cannot delete your last remaining connection.');
 		}
 
@@ -582,10 +596,12 @@ ConnectionTC.addResolver({
 			throw new httpErrors(404);
 		}
 
-		let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
+		if (connection.remote_connection_id) {
+			let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
 
-		if (!bitscoopConnection) {
-			throw new httpErrors(404);
+			if (!bitscoopConnection) {
+				throw new httpErrors(404);
+			}
 		}
 
 		let result = await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
@@ -621,7 +637,7 @@ ConnectionTC.addResolver({
 ConnectionTC.addResolver({
 	name: 'createBrowserConnection',
 	kind: 'mutation',
-	type: initializeType,
+	type: ConnectionTC.getResolver('findOne').getType(),
 	args: {
 		browser: 'String!'
 	},
