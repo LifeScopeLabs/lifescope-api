@@ -577,8 +577,6 @@ ConnectionTC.addResolver({
 			return connection.provider.login === true;
 		});
 
-		console.log(loginConnections[0]);
-		console.log(args.id);
 		if (loginConnections.length === 1 && loginConnections[0]._id.toString('hex') === args.id) {
 			throw new httpErrors(400, 'You cannot delete your last remaining connection.');
 		}
@@ -642,20 +640,36 @@ ConnectionTC.addResolver({
 		browser: 'String!'
 	},
 	resolve: async function({ source, args, context, info }) {
-		let result = await ConnectionTC.getResolver('createOne').resolve({
+		let insert = await mongoose.connection.db.collection('connections').updateOne({
+			browser: args.browser,
+			provider_id: uuid('bff10113c2c4437391c1dfc8699d024f'),
+			user_id: context.req.user._id
+		},
+		{
+			$setOnInsert: {
+				_id: uuid(uuid()),
+				auth: {
+					status: {
+						authorized: true,
+						complete: true
+					}
+				},
+				browser: args.browser,
+				frequency: 1,
+				enabled: true,
+				provider_name: 'Browser Extensions',
+				provider_id: uuid('bff10113c2c4437391c1dfc8699d024f'),
+				user_id: context.req.user._id
+			}
+		},
+		{
+			upsert: true
+		});
+
+		let result = await ConnectionTC.getResolver('findOne').resolve({
 			args: {
-				record: {
-					id: uuid(),
-					auth: {
-						status: {
-							authorized: true,
-							complete: true
-						}
-					},
+				filter: {
 					browser: args.browser,
-					frequency: 1,
-					enabled: true,
-					provider_name: 'Browser Extensions',
 					provider_id_string: 'bff10113c2c4437391c1dfc8699d024f',
 					user_id_string: context.req.user._id.toString('hex')
 				}
