@@ -7,7 +7,10 @@ import {graphql} from 'graphql-compose';
 
 import deleteConnection from '../../lib/util/delete-connection';
 import uuid from '../../lib/util/uuid';
-import {ConnectionTC} from "./connections";
+import { ContactTC } from './contacts';
+import { ConnectionTC } from "./connections";
+import { ContentTC} from "./content";
+import { EventTC } from "./events";
 import { LocationTC } from './locations';
 
 const AccountTypeSchema = new mongoose.Schema(
@@ -276,6 +279,31 @@ UserTC.addResolver({
 
 		_.each(connections, async function(connection) {
 			await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
+		});
+
+		//All Events, Contacts, and Content should be gone after deleteConnection, but try anyway in case there were bugs
+		await EventTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await ContactTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await ContentTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
 		});
 
 		await LocationTC.getResolver('removeMany').resolve({

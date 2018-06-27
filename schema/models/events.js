@@ -782,6 +782,12 @@ EventTC.addResolver({
 			// }
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
+				_.each(query.filters.connectorFilters, function(filter) {
+					if (filter.connection) {
+						filter.connection = uuid(filter.connection);
+					}
+				});
+
 				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
 					return filter.connection ? {
 						'event.connection': filter.connection
@@ -1045,11 +1051,11 @@ function MongoEvent(data) {
 	this.connection = uuid(data.connection_id_string);
 	this.contact_interaction_type = data.contact_interaction_type;
 	this.context = data.context;
-	this.datetime = data.datetime;
+	this.datetime = new Date(data.datetime);
 	this.identifier = data.identifier;
 	//this.places = data.places;
-	this.provider = data.provider;
-	this.provider_name = data.provider_name;
+	this.provider = uuid(data.provider_id_string);
+	this.provider_name = data.provider_name.toLowerCase();
 	this.source = data.source;
 	this.tagMasks = data.tagMasks;
 	this.type = data.type;

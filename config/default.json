@@ -19,7 +19,7 @@
   
   "objectMaxLimit": 100,
 
-  "mongo": {
+  "mongodb": {
     "address": "mongodb://127.0.0.1",
     "options": {
       "poolSize": 5

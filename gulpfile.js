@@ -66,7 +66,7 @@ gulp.task('bundle:ebs', function() {
 	return gulp.src([
 		'.ebextensions/**',
 		'.npmrc',
-		'config/**',
+		'config/!(local).json',
 		'dist/api/**',
 		'fixtures/**',
 		'lib/**',

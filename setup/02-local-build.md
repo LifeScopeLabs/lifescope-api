@@ -2,7 +2,7 @@
 Once you have a MongoDB cluster running and have set up a BitScoop account, created maps for all of the services, and saved the credentials for that service in its respective Map, you have everything you need to run the API.
 
 ## Create config file
-You'll need to create a new file in the config folder called local.json, or dev.json, or whatever you'd like other than 'default.json' and 'production.json'.
+You'll need to create a new file in the config folder called dev.json, or whatever you'd like other than 'default.json', 'local.json', and 'production.json'.
 The gitignore covers 'local.json' and 'dev.json', so if you call it anything else, be sure not to add it to git.
 
 This new config file only needs a few lines, because the 'config' library first pulls everything from 'default.json' and then overrides anything that it finds in other config files it uses.

@@ -130,9 +130,16 @@ export const ConnectionsSchema = new mongoose.Schema(
 				let bitscoop = env.bitscoop;
 
 				if (this.remote_connection_id) {
-					let bitscoopConnection = await bitscoop.getConnection(this.remote_connection_id.toString('hex'));
+					try {
+						let bitscoopConnection = await bitscoop.getConnection(this.remote_connection_id.toString('hex'));
 
-					return bitscoopConnection.name;
+						return bitscoopConnection.name;
+					} catch(err) {
+						console.log('Could not get connection for ' + this._id.toString('hex'));
+
+						return 'Bad Connection';
+					}
+
 				}
 				else if (this.browser != null) {
 					return this.browser + ' Extension';
@@ -379,6 +386,7 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
+		console.log(connection.remote_connection_id);
 		if (connection.remote_connection_id) {
 			bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
 
@@ -595,10 +603,10 @@ ConnectionTC.addResolver({
 		}
 
 		if (connection.remote_connection_id) {
-			let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
+			try {
+				let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
+			} catch(err) {
 
-			if (!bitscoopConnection) {
-				throw new httpErrors(404);
 			}
 		}
 
