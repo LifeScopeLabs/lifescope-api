@@ -62,7 +62,8 @@ How you want to configure this is up to you and your wallet, but under Capacity 
 
 You then should modify the Load Balancer.
 Select 'Application Load Balancer', then add a listener on port 443 over HTTPS.
-Select the SSL certificate you registered in ACM, and select an SSL policy.
+Select the SSL certificate you registered in ACM, select an SSL policy, then click 'Add'.
+You then need to select the 'default' process, then select 'Options'->Edit, and change the HTTP code to 204 and the path to '/health', then click Save.
 Finally, click Save.
 
 Everything should be configured at this point, so click 'Create environment'.
