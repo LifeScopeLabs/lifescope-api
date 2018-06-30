@@ -172,8 +172,6 @@ LocationTC.addResolver({
 			user_id_string: context.req.user._id.toString('hex')
 		};
 
-		console.log(document);
-
 		let result = await LocationTC.getResolver('createOne').resolve({
 			args: {
 				record: document

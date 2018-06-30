@@ -163,7 +163,7 @@ SearchTC.addResolver({
 		filters = JSON.parse(filters);
 
 		let unnamedFilters = _.map(filters, function(filter, i) {
-			return _.omit(filter, 'name');
+			return _.pick(filter, ['data', 'type']);
 		});
 
 		let hashObj = {
@@ -324,10 +324,8 @@ SearchTC.addResolver({
 
 		filters = JSON.parse(filters);
 
-		let unnamedFilters = new Array(filters.length);
-
-		_.map(filters, function(filter, i) {
-			unnamedFilters[i] = _.omit(filter, 'name');
+		let unnamedFilters = _.map(filters, function(filter, i) {
+			return _.pick(filter, ['data', 'type']);
 		});
 
 		let hashObj = {

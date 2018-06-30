@@ -760,7 +760,9 @@ EventTC.addResolver({
 					$or: query.filters.whenFilters
 				});
 
-				eventsSearched = true;
+				if (contentSearched === false && contactsSearched === false) {
+					eventsSearched = true;
+				}
 			}
 
 			// if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {

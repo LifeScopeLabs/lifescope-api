@@ -386,7 +386,6 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
-		console.log(connection.remote_connection_id);
 		if (connection.remote_connection_id) {
 			bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
 
