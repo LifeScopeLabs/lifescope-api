@@ -23,7 +23,7 @@ export const add = async function(req, args, TypeTC) {
 			args: {
 				filter: {
 					tag: tag,
-					user_id: req.user._id.toString('hex')
+					user_id_string: req.user._id.toString('hex')
 				}
 			}
 		});
@@ -33,7 +33,7 @@ export const add = async function(req, args, TypeTC) {
 				args: {
 					filter: {
 						tag: tag,
-						user_id: req.user._id.toString('hex')
+						user_id_string: req.user._id.toString('hex')
 					},
 					record: {
 						updated: moment.utc().toDate()
@@ -48,7 +48,8 @@ export const add = async function(req, args, TypeTC) {
 						id: uuid(),
 						created: moment.utc().toDate(),
 						updated: moment.utc().toDate(),
-						tag: tag
+						tag: tag,
+						user_id_string: req.user._id.toString('hex')
 					}
 				}
 			})
@@ -119,7 +120,7 @@ export const remove = async function(req, args, TypeTC) {
 			args: {
 				filter: {
 					tag: tag,
-					user_id: req.user._id.toString('hex')
+					user_id_string: req.user._id.toString('hex')
 				}
 			}
 		});
@@ -129,13 +130,13 @@ export const remove = async function(req, args, TypeTC) {
 				args: {
 					filter: {
 						tag: tag,
-						user_id: req.user._id.toString('hex')
+						user_id_string: req.user._id.toString('hex')
 					},
 					record: {
 						updated: moment.utc().toDate()
 					}
 				}
-			})
+			});
 		}
 		else {
 			await TagTC.getResolver('createOne').resolve({
@@ -144,10 +145,11 @@ export const remove = async function(req, args, TypeTC) {
 						id: uuid(),
 						created: moment.utc().toDate(),
 						updated: moment.utc().toDate(),
-						tag: tag
+						tag: tag,
+						user_id_string: req.user._id.toString('hex')
 					}
 				}
-			})
+			});
 		}
 	});
 

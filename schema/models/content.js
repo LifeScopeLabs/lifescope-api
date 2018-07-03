@@ -58,7 +58,6 @@ export const ContentSchema = new mongoose.Schema(
 
 		connection_id_string: {
 			type: String,
-			default: uuid,
 			get: function() {
 				if (this.connection) {
 					return this.connection.toString('hex');

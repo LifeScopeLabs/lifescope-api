@@ -15,7 +15,6 @@ export const TagsSchema = new mongoose.Schema(
 
 		id: {
 			type: String,
-			default: uuid,
 			get: function() {
 				if (this._id) {
 					return this._id.toString('hex');
