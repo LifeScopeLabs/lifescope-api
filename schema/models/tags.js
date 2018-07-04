@@ -59,6 +59,35 @@ export const TagsSchema = new mongoose.Schema(
 			type: String
 		},
 
+		share: {
+			type: String
+		},
+
+		passcode: {
+			type: Buffer
+		},
+
+		passcode_string: {
+			type: String,
+			get: function() {
+				if (this.passcode) {
+					return this.passcode.toString('hex')
+				}
+				else {
+					return null;
+				}
+			},
+			set: function(val) {
+				if (val && this._conditions && this._conditions.passcode_string) {
+					this._conditions.passcode = uuid(val);
+
+					delete this._conditions.passcode_string;
+				}
+
+				this.passcode = uuid(val);
+			}
+		},
+
 		updated: {
 			type: Date
 		},
@@ -91,3 +120,47 @@ export const TagsSchema = new mongoose.Schema(
 export const Tags = mongoose.model('Tags', TagsSchema);
 
 export const TagTC = composeWithMongoose(Tags);
+
+
+TagTC.addResolver({
+	name: 'updateSharing',
+	kind: 'mutation',
+	args: {
+		id: 'String',
+		share: 'String'
+	},
+	type: TagTC.getResolver('findOne').getType(),
+	resolve: async function({source, args, context, info}) {
+		let validate = env.validate;
+
+		try {
+			await validate('#/mutations/tag-sharing', args.share)
+		} catch(err) {
+			throw httpErrors(400);
+		}
+
+		let record = {
+			share: args.share
+		};
+
+		if (args.share === 'public') {
+			record.passcode = uuid(uuid());
+		}
+		else if (args.share === 'none' || args.share == null) {
+			record.passcode = null;
+		}
+
+		let result = await TagTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				},
+				record: record
+			}
+		});
+
+		return result.record;
+	}
+});
+

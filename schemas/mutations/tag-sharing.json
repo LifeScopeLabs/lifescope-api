@@ -1,0 +1,14 @@
+{
+  "id": "#/mutations/tag-sharing",
+  "title": "Tag Sharing",
+  "description": "Valid tag sharing options",
+  "type": "string",
+  "oneOf": [
+    {
+      "pattern": "^none$"
+    },
+    {
+      "pattern": "^public$"
+    }
+  ]
+}

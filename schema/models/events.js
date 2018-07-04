@@ -16,6 +16,8 @@ import {Contacts, ContactTC} from './contacts';
 import {Content, ContentTC} from './content';
 import {add as addTags, remove as removeTags} from './templates/tag';
 import {ConnectionTC} from "./connections";
+import {TagTC} from "./tags";
+import {UserTC} from "./users";
 
 
 // let searchType = new graphql.GraphQLObjectType({
@@ -1370,5 +1372,72 @@ EventTC.addResolver({
 		}
 
 		return hydratedEvents;
+	}
+});
+
+EventTC.addResolver({
+	name: 'sharedTagSearch',
+	kind: 'mutation',
+	type: EventTC.getResolver('findMany').getType(),
+	args: {
+		id: 'String',
+		offset: 'Int',
+		limit: 'Int',
+		passcode: 'String',
+		sortField: 'String',
+		sortOrder: 'String'
+	},
+	resolve: async function({source, args, context, info}) {
+		let userResult;
+
+		let tagResult = await TagTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					status: 'public',
+					passcode_string: args.passcode
+				}
+			}
+		});
+
+		if (tagResult != null) {
+			userResult = await UserTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						id: tagResult.user_id.toString('hex')
+					}
+				}
+			});
+
+			if (userResult == null) {
+				throw new httpErrors(404);
+			}
+
+			context.req.user = userResult;
+		}
+		else {
+			throw new httpErrors(404);
+		}
+
+		let filters = {
+			tagFilters: [
+				tagResult.tag
+			]
+		};
+
+		let searchResult = await EventTC.getResolver('searchEvents').resolve({
+			args: {
+				offset: args.offset,
+				limit: args.limit,
+				filters: JSON.stringify(filters),
+				sortField: args.sortField,
+				sortOrder: args.sortOrder
+			},
+			context: context
+		});
+
+		console.log(searchResult);
+
+		return searchResult;
 	}
 });

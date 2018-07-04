@@ -87,9 +87,15 @@ GQC.rootMutation().addFields({
 		searchPatch: SearchTC.getResolver('patchSearch'),
 		searchUpsert: SearchTC.getResolver('upsertSearch'),
 
+		tagUpdateSharing: TagTC.getResolver('updateSharing'),
+
 		userApiKeyUpdate: UserTC.getResolver('updateApiKey'),
 		userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking')
 	}),
+
+	sharedTagContactSearch: ContactTC.getResolver('sharedTagSearch'),
+	sharedTagContentSearch: EventTC.getResolver('sharedTagSearch'),
+	sharedTagEventSearch: EventTC.getResolver('sharedTagSearch'),
 
 	initializeConnection: ConnectionTC.getResolver('initializeConnection')
 });

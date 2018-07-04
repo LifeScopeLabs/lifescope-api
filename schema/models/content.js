@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import uuid from "../../lib/util/uuid";
 import {add as addTags, remove as removeTags} from './templates/tag';
 import {TagTC} from "./tags";
+import {UserTC} from "./users";
 
 export const ContentSchema = new mongoose.Schema(
 	{
@@ -549,5 +550,72 @@ ContentTC.addResolver({
 		// 	next: next,
 		// 	results: documents
 		// };
+	}
+});
+
+ContentTC.addResolver({
+	name: 'sharedTagSearch',
+	kind: 'mutation',
+	type: ContentTC.getResolver('findMany').getType(),
+	args: {
+		id: 'String',
+		offset: 'Int',
+		limit: 'Int',
+		passcode: 'String',
+		sortField: 'String',
+		sortOrder: 'String'
+	},
+	resolve: async function({source, args, context, info}) {
+		let userResult;
+
+		let tagResult = await TagTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					status: 'public',
+					passcode_string: args.passcode
+				}
+			}
+		});
+
+		if (tagResult != null) {
+			userResult = await UserTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						id: tagResult.user_id.toString('hex')
+					}
+				}
+			});
+
+			if (userResult == null) {
+				throw new httpErrors(404);
+			}
+
+			context.req.user = userResult;
+		}
+		else {
+			throw new httpErrors(404);
+		}
+
+		let filters = {
+			tagFilters: [
+				tagResult.tag
+			]
+		};
+
+		let searchResult = await ContentTC.getResolver('searchContent').resolve({
+			args: {
+				offset: args.offset,
+				limit: args.limit,
+				filters: JSON.stringify(filters),
+				sortField: args.sortField,
+				sortOrder: args.sortOrder
+			},
+			context: context,
+		});
+
+		console.log(searchResult);
+
+		return searchResult;
 	}
 });

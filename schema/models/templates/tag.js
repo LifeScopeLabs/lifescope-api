@@ -46,6 +46,7 @@ export const add = async function(req, args, TypeTC) {
 				args: {
 					record: {
 						id: uuid(),
+						share: 'none',
 						created: moment.utc().toDate(),
 						updated: moment.utc().toDate(),
 						tag: tag,
@@ -143,6 +144,7 @@ export const remove = async function(req, args, TypeTC) {
 				args: {
 					record: {
 						id: uuid(),
+						share: 'none',
 						created: moment.utc().toDate(),
 						updated: moment.utc().toDate(),
 						tag: tag,
