@@ -569,8 +569,6 @@ ContactTC.addResolver({
 			context: context,
 		});
 
-		console.log(searchResult);
-
 		return searchResult;
 	}
 });

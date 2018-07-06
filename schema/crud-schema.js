@@ -94,7 +94,7 @@ GQC.rootMutation().addFields({
 	}),
 
 	sharedTagContactSearch: ContactTC.getResolver('sharedTagSearch'),
-	sharedTagContentSearch: EventTC.getResolver('sharedTagSearch'),
+	sharedTagContentSearch: ContentTC.getResolver('sharedTagSearch'),
 	sharedTagEventSearch: EventTC.getResolver('sharedTagSearch'),
 
 	initializeConnection: ConnectionTC.getResolver('initializeConnection')
