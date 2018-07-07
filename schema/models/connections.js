@@ -40,6 +40,11 @@ let patchType = new graphql.GraphQLObjectType({
 	}
 });
 
+const extensionProviderMap = {
+	Chrome: 'bff10113c2c4437391c1dfc8699d024f',
+	Firefox: '0f9b3f89b5bf411185a73016933c34df'
+};
+
 
 export const ConnectionsSchema = new mongoose.Schema(
 	{
@@ -625,11 +630,23 @@ ConnectionTC.addResolver({
 		browser: 'String!'
 	},
 	resolve: async function({ source, args, context, info }) {
+		let provider = await ProviderTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: extensionProviderMap[args.browser]
+				}
+			}
+		});
+
+		if (provider == null) {
+			throw new httpErrors(404);
+		}
+
 		let result = await ConnectionTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
 					browser: args.browser,
-					provider_id_string: 'bff10113c2c4437391c1dfc8699d024f',
+					provider_id_string: provider._id.toString('hex'),
 					user_id_string: context.req.user._id.toString('hex')
 				}
 			}
@@ -647,9 +664,21 @@ ConnectionTC.addResolver({
 		browser: 'String!'
 	},
 	resolve: async function({ source, args, context, info }) {
+		let provider = await ProviderTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: extensionProviderMap[args.browser]
+				}
+			}
+		});
+
+		if (provider == null) {
+			throw new httpErrors(404);
+		}
+
 		let insert = await mongoose.connection.db.collection('connections').updateOne({
 			browser: args.browser,
-			provider_id: uuid('bff10113c2c4437391c1dfc8699d024f'),
+			provider_id: provider._id,
 			user_id: context.req.user._id
 		},
 		{
@@ -664,8 +693,8 @@ ConnectionTC.addResolver({
 				browser: args.browser,
 				frequency: 1,
 				enabled: true,
-				provider_name: 'Browser Extensions',
-				provider_id: uuid('bff10113c2c4437391c1dfc8699d024f'),
+				provider_name: args.browser + ' Extensions',
+				provider_id: provider._id,
 				user_id: context.req.user._id
 			}
 		},
@@ -677,7 +706,7 @@ ConnectionTC.addResolver({
 			args: {
 				filter: {
 					browser: args.browser,
-					provider_id_string: 'bff10113c2c4437391c1dfc8699d024f',
+					provider_id_string: provider._id.toString('hex'),
 					user_id_string: context.req.user._id.toString('hex')
 				}
 			}

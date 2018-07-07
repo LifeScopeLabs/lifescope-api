@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "url": "https://",
+  "name": "Firefox Extension",
+  "tags": [
+    "collaboration",
+    "development",
+    "finance",
+    "gaming",
+    "health",
+    "media",
+    "music",
+    "productivity",
+    "social",
+    "video"
+  ],
+  "endpoints": {}
+}
