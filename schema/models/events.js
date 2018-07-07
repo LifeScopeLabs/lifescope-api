@@ -1380,21 +1380,25 @@ EventTC.addResolver({
 	kind: 'mutation',
 	type: EventTC.getResolver('findMany').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		offset: 'Int',
 		limit: 'Int',
-		passcode: 'String',
+		passcode: 'String!',
 		sortField: 'String',
 		sortOrder: 'String'
 	},
 	resolve: async function({source, args, context, info}) {
 		let userResult;
 
+		if (args.id == null || args.passcode == null) {
+			throw new httpErrors(404);
+		}
+
 		let tagResult = await TagTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
 					id: args.id,
-					status: 'public',
+					share: 'public',
 					passcode_string: args.passcode
 				}
 			}
