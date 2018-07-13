@@ -462,6 +462,148 @@ EventTC.addResolver({
 				contactsSearched = contentSearched = eventsSearched = true;
 			}
 
+			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
+				if (contactPostLookupMatch.$and == null) {
+					contactPostLookupMatch.$and = [];
+				}
+
+				contactPostLookupMatch.$and.push({
+					$or: query.filters.whoFilters
+				});
+
+				contactsSearched = true;
+			}
+
+			if (_.has(query, 'filters.whatFilters') && query.filters.whatFilters.length > 0) {
+				if (contentPreLookupMatch.$and == null) {
+					contentPreLookupMatch.$and = [];
+				}
+
+				contentPreLookupMatch.$and.push({
+					$or: query.filters.whatFilters
+				});
+
+				contentSearched = true;
+			}
+
+			if (_.has(query, 'filters.whenFilters') && query.filters.whenFilters.length > 0) {
+				_.each(query.filters.whenFilters, function(filter) {
+					if (filter.datetime.$gte) {
+						filter.datetime.$gte = new Date(filter.datetime.$gte);
+					}
+
+					if (filter.datetime.$lte) {
+						filter.datetime.$lte = new Date(filter.datetime.$lte);
+					}
+				});
+
+				let lookupWhenFilters = _.map(query.filters.whenFilters, function(filter) {
+					return {
+						'event.datetime': filter.datetime
+					};
+				});
+
+				if (contactsSearched === true) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: lookupWhenFilters
+					});
+				}
+
+				if (contentSearched === true) {
+					if (contentPostLookupMatch.$and == null) {
+						contentPostLookupMatch.$and = [];
+					}
+
+					contentPostLookupMatch.$and.push({
+						$or: lookupWhenFilters
+					});
+				}
+
+				if (eventMatch.$and == null) {
+					eventMatch.$and = [];
+				}
+
+				eventMatch.$and.push({
+					$or: query.filters.whenFilters
+				});
+			}
+
+			// if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {
+			// 	contactAggregation.match({
+			// 		'events.location': {
+			// 			$or: query.filters.whereFilters
+			// 		}
+			// 	});
+			//
+			// 	contentAggregation.match({
+			// 		'events.location': {
+			// 			$or: query.filters.whereFilters
+			// 		}
+			// 	});
+			//
+			// 	eventAggregation.match({
+			// 		$or: query.filters.whereFilters
+			// 	});
+			// }
+
+			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
+				_.each(query.filters.connectorFilters, function(filter) {
+					if (filter.connection_id_string) {
+						filter.connection_id = uuid(filter.connection_id_string);
+						delete filter.connection_id_string;
+					}
+					else if (filter.provider_id_string) {
+						filter.provider_id = uuid(filter.provider_id_string);
+						delete filter.provider_id_string;
+					}
+				});
+
+				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
+					if (filter.connection_id) {
+						return {
+							'event.connection_id': filter.connection_id
+						};
+					}
+					else if (filter.provider_id) {
+						return {
+							'event.provider_id': filter.provider_id
+						};
+					}
+				});
+
+				if (contactsSearched === true) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: lookupConnectorFilters
+					});
+				}
+
+				if (contentSearched === true) {
+					if (contentPostLookupMatch.$and == null) {
+						contentPostLookupMatch.$and = [];
+					}
+
+					contentPostLookupMatch.$and.push({
+						$or: lookupConnectorFilters
+					});
+				}
+
+				if (eventMatch.$and == null) {
+					eventMatch.$and = [];
+				}
+
+				eventMatch.$and.push({
+					$or: query.filters.connectorFilters
+				});
+			}
+
 			if (_.has(query, 'filters.tagFilters') && query.filters.tagFilters.length > 0) {
 				if (contactsSearched === true) {
 					if (contactPostLookupMatch.$and == null) {
@@ -539,7 +681,7 @@ EventTC.addResolver({
 					});
 				}
 				else {
-					if (contentPreLookupMatch.$and == null) {
+					if (contactPreLookupMatch.$and == null) {
 						contactPreLookupMatch.$and = [];
 					}
 
@@ -704,157 +846,6 @@ EventTC.addResolver({
 						}]
 					}]
 				});
-
-				eventsSearched = true;
-			}
-
-			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
-				if (contactPostLookupMatch.$and == null) {
-					contactPostLookupMatch.$and = [];
-				}
-
-				contactPostLookupMatch.$and.push({
-					$or: query.filters.whoFilters
-				});
-
-				contactsSearched = true;
-			}
-
-			if (_.has(query, 'filters.whatFilters') && query.filters.whatFilters.length > 0) {
-				if (contentPreLookupMatch.$and == null) {
-					contentPreLookupMatch.$and = [];
-				}
-
-				contentPreLookupMatch.$and.push({
-					$or: query.filters.whatFilters
-				});
-
-				contentSearched = true;
-			}
-
-			if (_.has(query, 'filters.whenFilters') && query.filters.whenFilters.length > 0) {
-				_.each(query.filters.whenFilters, function(filter) {
-					if (filter.datetime.$gte) {
-						filter.datetime.$gte = new Date(filter.datetime.$gte);
-					}
-
-					if (filter.datetime.$lte) {
-						filter.datetime.$lte = new Date(filter.datetime.$lte);
-					}
-				});
-
-				let lookupWhenFilters = _.map(query.filters.whenFilters, function(filter) {
-					return {
-						'event.datetime': filter.datetime
-					};
-				});
-
-				if (contactsSearched === true) {
-					if (contactPostLookupMatch.$and == null) {
-						contactPostLookupMatch.$and = [];
-					}
-
-					contactPostLookupMatch.$and.push({
-						$or: lookupWhenFilters
-					});
-				}
-
-				if (contentSearched === true) {
-					if (contentPostLookupMatch.$and == null) {
-						contentPostLookupMatch.$and = [];
-					}
-
-					contentPostLookupMatch.$and.push({
-						$or: lookupWhenFilters
-					});
-				}
-
-				if (eventMatch.$and == null) {
-					eventMatch.$and = [];
-				}
-
-				eventMatch.$and.push({
-					$or: query.filters.whenFilters
-				});
-
-				if (contentSearched === false && contactsSearched === false) {
-					eventsSearched = true;
-				}
-			}
-
-			// if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {
-			// 	contactAggregation.match({
-			// 		'events.location': {
-			// 			$or: query.filters.whereFilters
-			// 		}
-			// 	});
-			//
-			// 	contentAggregation.match({
-			// 		'events.location': {
-			// 			$or: query.filters.whereFilters
-			// 		}
-			// 	});
-			//
-			// 	eventAggregation.match({
-			// 		$or: query.filters.whereFilters
-			// 	});
-			// }
-
-			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
-				_.each(query.filters.connectorFilters, function(filter) {
-					console.log(filter);
-					if (filter.connection_id_string) {
-						filter.connection_id = uuid(filter.connection_id_string);
-						delete filter.connection_id_string;
-					}
-					else if (filter.provider_id_string) {
-						filter.provider_id = uuid(filter.provider_id_string);
-						delete filter.provider_id_string;
-					}
-				});
-
-				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
-					if (filter.connection_id) {
-						return {
-							'event.connection_id': filter.connection_id
-						};
-					}
-					else if (filter.provider_id) {
-						return {
-							'event.provider_id': filter.provider_id
-						};
-					}
-				});
-
-				if (contactsSearched === true) {
-					if (contactPostLookupMatch.$and == null) {
-						contactPostLookupMatch.$and = [];
-					}
-
-					contactPostLookupMatch.$and.push({
-						$or: lookupConnectorFilters
-					});
-				}
-
-				if (contentSearched === true) {
-					if (contentPostLookupMatch.$and == null) {
-						contentPostLookupMatch.$and = [];
-					}
-
-					contentPostLookupMatch.$and.push({
-						$or: lookupConnectorFilters
-					});
-				}
-
-				if (eventMatch.$and == null) {
-					eventMatch.$and = [];
-				}
-
-				eventMatch.$and.push({
-					$or: query.filters.connectorFilters
-				});
-
-				eventsSearched = true;
 			}
 
 			if (contactsSearched === true) {
@@ -892,7 +883,8 @@ EventTC.addResolver({
 					});
 			}
 
-			console.log(eventMatch);
+			eventsSearched = Object.keys(contactPostLookupMatch).length === 0 && Object.keys(contentPostLookupMatch).length === 0;
+
 			if (eventsSearched === true) {
 				eventAggregation
 					.match(eventMatch)
