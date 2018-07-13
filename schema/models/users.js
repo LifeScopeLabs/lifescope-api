@@ -12,6 +12,9 @@ import { ConnectionTC } from "./connections";
 import { ContentTC} from "./content";
 import { EventTC } from "./events";
 import { LocationTC } from './locations';
+import { SearchTC } from "./searches";
+import { SessionTC } from "./sessions";
+import { TagTC } from "./tags";
 
 const AccountTypeSchema = new mongoose.Schema(
 	{
@@ -307,6 +310,30 @@ UserTC.addResolver({
 		});
 
 		await LocationTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await SessionTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await SearchTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					id: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await TagTC.getResolver('removeMany').resolve({
 			args: {
 				filter: {
 					user_id_string: req.user._id.toString('hex')

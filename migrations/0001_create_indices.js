@@ -117,7 +117,7 @@ const config = require('config');
 			}),
 
 			db.db('live').collection('events').createIndex({
-				connection: 1
+				connection_id: 1
 			}),
 
 			db.db('live').collection('events').createIndex({
@@ -126,6 +126,10 @@ const config = require('config');
 
 			db.db('live').collection('events').createIndex({
 				datetime: 1
+			}),
+
+			db.db('live').collection('events').createIndex({
+				provider_id: 1
 			}),
 
 			db.db('live').collection('events').createIndex({
@@ -147,11 +151,19 @@ const config = require('config');
 			}),
 
 			db.db('live').collection('contacts').createIndex({
+				connection_id: 1
+			}),
+
+			db.db('live').collection('contacts').createIndex({
 				handle: 1
 			}),
 
 			db.db('live').collection('contacts').createIndex({
 				name: 1
+			}),
+
+			db.db('live').collection('contacts').createIndex({
+				provider_id: 1
 			}),
 
 			db.db('live').collection('contacts').createIndex({
@@ -165,6 +177,18 @@ const config = require('config');
 				title: 'text',
 				text: 'text',
 				url: 'text'
+			}),
+
+			db.db('live').collection('content').createIndex({
+				connection_id: 1
+			}),
+
+			db.db('live').collection('content').createIndex({
+				connection_id: 1
+			}),
+
+			db.db('live').collection('content').createIndex({
+				provider_id: 1
 			}),
 
 			db.db('live').collection('content').createIndex({

@@ -77,7 +77,7 @@ export const EventsSchema = new mongoose.Schema(
 			}
 		},
 
-		connection: {
+		connection_id: {
 			type: Buffer,
 			index: false
 		},
@@ -85,18 +85,18 @@ export const EventsSchema = new mongoose.Schema(
 		connection_id_string: {
 			type: String,
 			get: function() {
-				if (this.connection) {
-					return this.connection.toString('hex');
+				if (this.connection_id) {
+					return this.connection_id.toString('hex');
 				}
 			},
 			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
-					this._conditions.connection = uuid(val);
+					this._conditions.connection_id = uuid(val);
 
 					delete this._conditions.connection_id_string;
 				}
 
-				this.connection = uuid(val);
+				this.connection_id = uuid(val);
 			}
 		},
 
@@ -136,9 +136,25 @@ export const EventsSchema = new mongoose.Schema(
 			index: false
 		},
 
-		provider: {
-			type: String,
+		provider_id: {
+			type: Buffer,
 			index: false
+		},
+
+		provider_id_string: {
+			type: String,
+			get: function() {
+				return this.provider_id.toString('hex')
+			},
+			set: function(val) {
+				if (val && this._conditions && this._conditions.provider_id_string) {
+					this._conditions.provider_id = uuid(val);
+
+					delete this._conditions.provider_id_string;
+				}
+
+				this.provider_id = uuid(val);
+			}
 		},
 
 		provider_name: {
@@ -253,7 +269,7 @@ EventTC.addRelation('hydratedConnection', {
 	prepareArgs: {
 		filter: function(source) {
 			return {
-				id: source.connection.toString('hex')
+				id: source.connection_id.toString('hex')
 			}
 		},
 	}
@@ -265,7 +281,7 @@ let specialSorts = {
 		condition: 'connection',
 		values: {
 			provider_name: -1,
-			connection: -1
+			connection_id: -1
 		}
 	},
 	rawType: {
@@ -786,17 +802,28 @@ EventTC.addResolver({
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
 				_.each(query.filters.connectorFilters, function(filter) {
-					if (filter.connection) {
-						filter.connection = uuid(filter.connection);
+					console.log(filter);
+					if (filter.connection_id_string) {
+						filter.connection_id = uuid(filter.connection_id_string);
+						delete filter.connection_id_string;
+					}
+					else if (filter.provider_id_string) {
+						filter.provider_id = uuid(filter.provider_id_string);
+						delete filter.provider_id_string;
 					}
 				});
 
 				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
-					return filter.connection ? {
-						'event.connection': filter.connection
-					} : {
-						'event.provider_name': filter.provider_name
-					};
+					if (filter.connection_id) {
+						return {
+							'event.connection_id': filter.connection_id
+						};
+					}
+					else if (filter.provider_id) {
+						return {
+							'event.provider_id': filter.provider_id
+						};
+					}
 				});
 
 				if (contactsSearched === true) {
@@ -865,6 +892,7 @@ EventTC.addResolver({
 					});
 			}
 
+			console.log(eventMatch);
 			if (eventsSearched === true) {
 				eventAggregation
 					.match(eventMatch)
@@ -913,7 +941,7 @@ EventTC.addResolver({
 				},
 				projection: {
 					id: true,
-					connection: true,
+					connection_id: true,
 					connection_id_string: true,
 					contacts: true,
 					contact_interaction_type: true,
@@ -923,6 +951,8 @@ EventTC.addResolver({
 					datetime: true,
 					hydratedContacts: true,
 					hydratedContent: true,
+					provider_id: true,
+					provider_id_string: true,
 					provider_name: true,
 					source: true,
 					tagMasks: true,
@@ -956,7 +986,7 @@ EventTC.addResolver({
 				},
 				projection: {
 					id: true,
-					connection: true,
+					connection_id: true,
 					connection_id_string: true,
 					contacts: true,
 					contact_interaction_type: true,
@@ -966,6 +996,8 @@ EventTC.addResolver({
 					datetime: true,
 					hydratedContacts: true,
 					hydratedContent: true,
+					provider_id: true,
+					provider_id_string: true,
 					provider_name: true,
 					source: true,
 					tagMasks: true,
@@ -1051,13 +1083,13 @@ EventTC.addResolver({
 
 
 function MongoEvent(data) {
-	this.connection = uuid(data.connection_id_string);
+	this.connection_id = uuid(data.connection_id_string);
 	this.contact_interaction_type = data.contact_interaction_type;
 	this.context = data.context;
 	this.datetime = new Date(data.datetime);
 	this.identifier = data.identifier;
 	//this.places = data.places;
-	this.provider = uuid(data.provider_id_string);
+	this.provider_id = uuid(data.provider_id_string);
 	this.provider_name = data.provider_name.toLowerCase();
 	this.source = data.source;
 	this.tagMasks = data.tagMasks;
@@ -1155,11 +1187,13 @@ EventTC.addResolver({
 							}
 						});
 
-						contact.connection = uuid(contact.connection_id_string);
+						contact.connection_id = uuid(contact.connection_id_string);
+						contact.provider_id = uuid(contact.provider_id_string);
 						contact.user_id = context.req.user._id;
 						contact.updated = moment().utc().toDate();
 
 						delete contact.connection_id_string;
+						delete contact.provider_id_string;
 
 						contactIdentifiers.push(contact.identifier);
 
@@ -1214,11 +1248,13 @@ EventTC.addResolver({
 							}
 						});
 
-						content.connection = uuid(content.connection_id_string);
+						content.connection_id = uuid(content.connection_id_string);
+						content.provider_id = uuid(content.provider_id_string);
 						content.user_id = context.req.user._id;
 						content.updated = moment().utc().toDate();
 
 						delete content.connection_id_string;
+						delete content.provider_id_string;
 
 						contentIdentifiers.push(content.identifier);
 

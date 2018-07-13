@@ -52,7 +52,7 @@ export const ContentSchema = new mongoose.Schema(
 			}
 		},
 
-		connection: {
+		connection_id: {
 			type: Buffer,
 			index: false
 		},
@@ -60,18 +60,18 @@ export const ContentSchema = new mongoose.Schema(
 		connection_id_string: {
 			type: String,
 			get: function() {
-				if (this.connection) {
-					return this.connection.toString('hex');
+				if (this.connection_id) {
+					return this.connection_id.toString('hex');
 				}
 			},
 			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
-					this._conditions.connection = uuid(val);
+					this._conditions.connection_id = uuid(val);
 
 					delete this._conditions.connection_id_string;
 				}
 
-				this.connection = uuid(val);
+				this.connection_id = uuid(val);
 			}
 		},
 
@@ -109,6 +109,27 @@ export const ContentSchema = new mongoose.Schema(
 		owner: {
 			type: String,
 			index: false
+		},
+
+		provider_id: {
+			type: Buffer,
+			index: false
+		},
+
+		provider_id_string: {
+			type: String,
+			get: function() {
+				return this.provider_id.toString('hex')
+			},
+			set: function(val) {
+				if (val && this._conditions && this._conditions.provider_id_string) {
+					this._conditions.provider_id = uuid(val);
+
+					delete this._conditions.provider_id_string;
+				}
+
+				this.provider_id = uuid(val);
+			}
 		},
 
 		provider_name: {
@@ -301,13 +322,6 @@ ContentTC.addResolver({
 
 			let contentPostLookupMatch = {};
 
-			let $connectionLookup = {
-				from: 'connections',
-				localField: 'connection',
-				foreignField: '_id',
-				as: 'hydratedConnection'
-			};
-
 			if (query.q != null && query.q.length > 0) {
 				contentPreLookupMatch.$text = {
 					$search: query.q
@@ -358,13 +372,16 @@ ContentTC.addResolver({
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
 				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
-					return filter.connection ? {
-						'connection': filter.connection
-					} : {
-						'hydratedConnection.provider_name': {
-							$regex: new RegExp(filter.provider_name, 'i')
-						}
-					};
+					if (filter.connection_id_string) {
+						return {
+							connection_id: uuid(filter.connection_id_string)
+						};
+					}
+					else if (filter.provider_id_string) {
+						return {
+							provider_id: uuid(filter.provider_id_string)
+						};
+					}
 				});
 
 				if (contentPostLookupMatch.$and == null) {
@@ -378,8 +395,6 @@ ContentTC.addResolver({
 
 			contentAggregation
 				.match(contentPreLookupMatch)
-				.lookup($connectionLookup)
-				.unwind('$hydratedConnection')
 				.match(contentPostLookupMatch)
 				.project({
 					_id: true
@@ -417,8 +432,10 @@ ContentTC.addResolver({
 				},
 				projection: {
 					id: true,
-					connection: true,
+					connection_id: true,
 					connection_id_string: true,
+					provider_id: true,
+					provider_id_string: true,
 					embed_content: true,
 					embed_format: true,
 					embed_thumbnail: true,
@@ -464,8 +481,10 @@ ContentTC.addResolver({
 				},
 				projection: {
 					id: true,
-					connection: true,
+					connection_id: true,
 					connection_id_string: true,
+					provider_id: true,
+					provider_id_string: true,
 					embed_content: true,
 					embed_format: true,
 					embed_thumbnail: true,

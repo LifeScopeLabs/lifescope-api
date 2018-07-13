@@ -53,7 +53,7 @@ export const LocationsSchema = new mongoose.Schema(
 			}
 		},
 
-		connection: {
+		connection_id: {
 			type: Buffer,
 			index: false
 		},
@@ -61,18 +61,18 @@ export const LocationsSchema = new mongoose.Schema(
 		connection_id_string: {
 			type: String,
 			get: function() {
-				if (this.connection) {
-					return this.connection.toString('hex');
+				if (this.connection_id) {
+					return this.connection_id.toString('hex');
 				}
 			},
 			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
-					this._conditions.connection = uuid(val);
+					this._conditions.connection_id = uuid(val);
 
 					delete this._conditions.connection_id_string;
 				}
 
-				this.connection = uuid(val);
+				this.connection_id = uuid(val);
 			}
 		},
 
@@ -104,6 +104,27 @@ export const LocationsSchema = new mongoose.Schema(
 		identifier: {
 			type: String,
 			index: false
+		},
+
+		provider_id: {
+			type: Buffer,
+			index: false
+		},
+
+		provider_id_string: {
+			type: String,
+			get: function() {
+				return this.provider_id.toString('hex')
+			},
+			set: function(val) {
+				if (val && this._conditions && this._conditions.provider_id_string) {
+					this._conditions.provider_id = uuid(val);
+
+					delete this._conditions.provider_id_string;
+				}
+
+				this.provider_id = uuid(val);
+			}
 		},
 
 		updated: {

@@ -83,7 +83,7 @@ Please go to the 'setup' folder and follow the instructions.
 
 ## events
 
-* connection
+* connection_id
 * contact_interaction_type
 * contacts
 * content
@@ -91,7 +91,7 @@ Please go to the 'setup' folder and follow the instructions.
 * created
 * datetime
 * identifier
-* provider
+* provider_id
 * provider_name
 * source
 * type
@@ -100,18 +100,19 @@ Please go to the 'setup' folder and follow the instructions.
 
 ## contacts
 * avatar_url
-* connection
+* connection_id
 * created
 * handle
 * identifier
 * name
+* provider_id
 * provider_name
 * remote_id
 * updated
 * user_id
 
 ## content
-* connection
+* connection_id
 * created
 * embed_content
 * embed_format
@@ -121,6 +122,7 @@ Please go to the 'setup' folder and follow the instructions.
 * mimeType
 * mimetype
 * owner
+* provider_id
 * provider_name
 * remote_id
 * tagMasks
@@ -134,13 +136,14 @@ Please go to the 'setup' folder and follow the instructions.
 
 
 ## locations
-* connection
+* connection_id
 * created
 * datetime
 * estimated
 * geo_format
 * geolocation
 * identifier
+* provider_id
 * updated
 * user_id
 

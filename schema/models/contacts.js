@@ -58,7 +58,7 @@ export const ContactsSchema = new mongoose.Schema(
 			index: false
 		},
 
-		connection: {
+		connection_id: {
 			type: Buffer,
 			index: false
 		},
@@ -66,18 +66,18 @@ export const ContactsSchema = new mongoose.Schema(
 		connection_id_string: {
 			type: String,
 			get: function() {
-				if (this.connection) {
-					return this.connection.toString('hex');
+				if (this.connection_id) {
+					return this.connection_id.toString('hex');
 				}
 			},
 			set: function(val) {
 				if (this._conditions && this._conditions.connection_id_string) {
-					this._conditions.connection = uuid(val);
+					this._conditions.connection_id = uuid(val);
 
 					delete this._conditions.connection_id_string;
 				}
 
-				this.connection = uuid(val);
+				this.connection_id = uuid(val);
 			}
 		},
 
@@ -100,6 +100,27 @@ export const ContactsSchema = new mongoose.Schema(
 		name: {
 			type: String,
 			index: false
+		},
+
+		provider_id: {
+			type: Buffer,
+			index: false
+		},
+
+		provider_id_string: {
+			type: String,
+			get: function() {
+				return this.provider_id.toString('hex')
+			},
+			set: function(val) {
+				if (val && this._conditions && this._conditions.provider_id_string) {
+					this._conditions.provider_id = uuid(val);
+
+					delete this._conditions.provider_id_string;
+				}
+
+				this.provider_id = uuid(val);
+			}
 		},
 
 		provider_name: {
@@ -268,13 +289,6 @@ ContactTC.addResolver({
 
 			let contactPostLookupMatch = {};
 
-			let $connectionLookup = {
-				from: 'connections',
-				localField: 'connection',
-				foreignField: '_id',
-				as: 'hydratedConnection'
-			};
-
 			if (query.q != null && query.q.length > 0) {
 				contactPreLookupMatch.$text = {
 					$search: query.q
@@ -325,13 +339,16 @@ ContactTC.addResolver({
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
 				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
-					return filter.connection ? {
-						'connection': filter.connection
-					} : {
-						'hydratedConnection.provider_name': {
-							$regex: new RegExp(filter.provider_name, 'i')
-						}
-					};
+					if (filter.connection_id_string) {
+						return {
+							connection_id: uuid(filter.connection_id_string)
+						};
+					}
+					else if (filter.provider_id_string) {
+						return {
+							provider_id: uuid(filter.provider_id_string)
+						};
+					}
 				});
 
 				if (contactPostLookupMatch.$and == null) {
@@ -345,8 +362,6 @@ ContactTC.addResolver({
 
 			contactAggregation
 				.match(contactPreLookupMatch)
-				.lookup($connectionLookup)
-				.unwind('$hydratedConnection')
 				.match(contactPostLookupMatch)
 				.project({
 					_id: true
@@ -378,8 +393,10 @@ ContactTC.addResolver({
 				},
 				projection: {
 					id: true,
-					connection: true,
+					connection_id: true,
 					connection_id_string: true,
+					provider_id: true,
+					provider_id_string: true,
 					avatar_url: true,
 					handle: true,
 					name: true,
@@ -426,8 +443,10 @@ ContactTC.addResolver({
 				},
 				projection: {
 					id: true,
-					connection: true,
+					connection_id: true,
 					connection_id_string: true,
+					provider_id: true,
+					provider_id_string: true,
 					avatar_url: true,
 					handle: true,
 					name: true,
