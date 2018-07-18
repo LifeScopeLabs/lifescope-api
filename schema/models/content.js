@@ -396,6 +396,8 @@ ContentTC.addResolver({
 			contentAggregation
 				.match(contentPreLookupMatch)
 				.match(contentPostLookupMatch)
+				.skip(query.offset)
+				.limit(query.limit)
 				.project({
 					_id: true
 				});

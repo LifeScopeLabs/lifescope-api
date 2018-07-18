@@ -363,6 +363,8 @@ ContactTC.addResolver({
 			contactAggregation
 				.match(contactPreLookupMatch)
 				.match(contactPostLookupMatch)
+				.skip(query.offset)
+				.limit(query.limit)
 				.project({
 					_id: true
 				});

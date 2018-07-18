@@ -859,6 +859,8 @@ EventTC.addResolver({
 						preserveNullAndEmptyArrays: true
 					})
 					.match(contactPostLookupMatch)
+					.skip(query.offset)
+					.limit(query.limit)
 					.project({
 						_id: true,
 						'event._id': true
@@ -877,17 +879,21 @@ EventTC.addResolver({
 						preserveNullAndEmptyArrays: true
 					})
 					.match(contentPostLookupMatch)
+					.skip(query.offset)
+					.limit(query.limit)
 					.project({
 						_id: true,
 						'event._id': true
 					});
 			}
 
-			eventsSearched = Object.keys(contactPostLookupMatch).length === 0 && Object.keys(contentPostLookupMatch).length === 0;
+			eventsSearched = (Object.keys(query.filters).length === 1 && Object.keys(query.filters)[0] === 'tagFilters') || (contactsSearched === false && contentSearched === false) || (Object.keys(contactPreLookupMatch).length === 0 && Object.keys(contentPreLookupMatch).length === 0 && Object.keys(contactPostLookupMatch).length === 0 && Object.keys(contentPostLookupMatch).length === 0);
 
 			if (eventsSearched === true) {
 				eventAggregation
 					.match(eventMatch)
+					.skip(query.offset)
+					.limit(query.limit)
 					.project({
 						_id: true
 					});
