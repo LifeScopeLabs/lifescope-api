@@ -242,6 +242,25 @@ ContentTC.addResolver({
 	}
 });
 
+ContentTC.addResolver({
+	name: 'findByIdentifier',
+	kind: 'query',
+	type: ContentTC.getResolver('findOne').getType(),
+	args: {
+		identifier: 'String'
+	},
+	resolve: async function({source, args, context, info}) {
+		return await ContentTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex'),
+					identifier: args.identifier
+				}
+			}
+		});
+	}
+});
+
 
 ContentTC.addResolver({
 	name: 'searchContent',

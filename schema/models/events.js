@@ -1189,9 +1189,11 @@ EventTC.addResolver({
 						contact.provider_id = uuid(contact.provider_id_string);
 						contact.user_id = context.req.user._id;
 						contact.updated = moment().utc().toDate();
+						contact['tagMasks.source'] = contact.tagMasks.source;
 
 						delete contact.connection_id_string;
 						delete contact.provider_id_string;
+						delete contact.tagMasks;
 
 						contactIdentifiers.push(contact.identifier);
 
@@ -1250,9 +1252,11 @@ EventTC.addResolver({
 						content.provider_id = uuid(content.provider_id_string);
 						content.user_id = context.req.user._id;
 						content.updated = moment().utc().toDate();
+						content['tagMasks.source'] = content.tagMasks.source;
 
 						delete content.connection_id_string;
 						delete content.provider_id_string;
+						delete content.tagMasks;
 
 						contentIdentifiers.push(content.identifier);
 
@@ -1366,6 +1370,9 @@ EventTC.addResolver({
 
 					event.user_id = context.req.user._id;
 					event.updated = moment().utc().toDate();
+					event['tagMasks.source'] = event.tagMasks.source;
+
+					delete event.tagMasks;
 
 					eventIdentifiers.push(event.identifier);
 
