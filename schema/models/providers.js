@@ -14,6 +14,8 @@ let hydratedProviderType = TypeComposer.create(`
 	type hydratedProviderType {
 		id: String,
 		login: Boolean,
+		coming_soon: Boolean,
+		enabled: Boolean,
 		sources: JSON,
 		remote_map_id: Buffer,
 		remote_map_id_string: String,
@@ -27,6 +29,8 @@ let providerWithMapType = TypeComposer.create(`
 	type providerWithMapType {
 		id: String,
 		auth_type: String,
+		coming_soon: Boolean,
+		enabled: Boolean,
 		login: Boolean,
 		sources: JSON,
 		remote_map_id: Buffer,
@@ -77,6 +81,14 @@ export const ProvidersSchema = new mongoose.Schema(
 					this._id = uuid(val);
 				}
 			}
+		},
+
+		coming_soon: {
+			type: Boolean
+		},
+
+		enabled: {
+			type: Boolean
 		},
 
 		login: {

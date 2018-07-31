@@ -20,5 +20,7 @@
     }
   },
 
+  "enabled": true,
+
   "remote_map_id": "07b0e45a8147424596f01627e29f7e86"
 }

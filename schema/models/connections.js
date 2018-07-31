@@ -276,6 +276,8 @@ ConnectionTC.addResolver({
 			},
 			projection: {
 				login: true,
+				coming_soon: true,
+				enabled: true,
 				sources: true,
 				remote_map_id: true,
 				remote_map_id_string: true
@@ -284,6 +286,14 @@ ConnectionTC.addResolver({
 
 		if (provider == null) {
 			throw new httpErrors(404);
+		}
+
+		if (provider.coming_soon === true && process.env.NODE_ENV === 'production') {
+			throw new httpErrors(400, 'This Provider is in status \'Coming Soon\' and cannot be used in Production')
+		}
+
+		if (provider.enabled !== true) {
+			throw new httpErrors(400, 'This Provider is not enabled');
 		}
 
 		if (provider.login !== true) {

@@ -3,5 +3,7 @@
 
   "login": false,
 
+  "enabled": true,
+
   "remote_map_id": "6baba5fcae214d37a81ce68ce32528a0"
 }
