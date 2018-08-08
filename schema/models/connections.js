@@ -288,10 +288,6 @@ ConnectionTC.addResolver({
 			throw new httpErrors(404);
 		}
 
-		if (provider.coming_soon === true && process.env.NODE_ENV === 'production') {
-			throw new httpErrors(400, 'This Provider is in status \'Coming Soon\' and cannot be used in Production')
-		}
-
 		if (provider.enabled !== true) {
 			throw new httpErrors(400, 'This Provider is not enabled');
 		}
