@@ -119,8 +119,6 @@ loadValidator(config.validationSchemas)
 
 		server.listen(httpListenPort);
 
-		server.setTimeout(200000);
-
 		console.log('Lifescope API listening on: ' + httpListenPort + ' at ' + new Date());
 
 		wsServer.listen(wsListenPort, function() {

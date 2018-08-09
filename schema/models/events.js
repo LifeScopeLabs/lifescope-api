@@ -16,6 +16,7 @@ import {Contacts, ContactTC} from './contacts';
 import {Content, ContentTC} from './content';
 import {add as addTags, remove as removeTags} from './templates/tag';
 import {ConnectionTC} from "./connections";
+import {Locations, LocationTC} from "./locations";
 import {TagTC} from "./tags";
 import {UserTC} from "./users";
 
@@ -134,6 +135,11 @@ export const EventsSchema = new mongoose.Schema(
 		identifier: {
 			type: String,
 			index: false
+		},
+
+		location: {
+			type: Buffer,
+			index: false,
 		},
 
 		provider_id: {
@@ -272,6 +278,26 @@ EventTC.addRelation('hydratedConnection', {
 				id: source.connection_id.toString('hex')
 			}
 		},
+	}
+});
+
+EventTC.addRelation('hydratedLocation', {
+	resolver: () => LocationTC.getResolver('findOne'),
+	prepareArgs: {
+		filter: function(source) {
+			if (source.location != null) {
+				return {
+					id: source.location.toString('hex')
+				};
+			}
+			else {
+				return {
+					id: {
+						$in: []
+					}
+				};
+			}
+		}
 	}
 });
 
@@ -949,6 +975,8 @@ EventTC.addResolver({
 					datetime: true,
 					hydratedContacts: true,
 					hydratedContent: true,
+					hydratedLocation: true,
+					location: true,
 					provider_id: true,
 					provider_id_string: true,
 					provider_name: true,
@@ -994,6 +1022,8 @@ EventTC.addResolver({
 					datetime: true,
 					hydratedContacts: true,
 					hydratedContent: true,
+					hydratedLocation: true,
+					location: true,
 					provider_id: true,
 					provider_id_string: true,
 					provider_name: true,
