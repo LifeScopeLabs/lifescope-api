@@ -249,6 +249,7 @@
   {
     "filters": [
       {
+<<<<<<< HEAD
         "name": "From Steve",
         "type": "who",
         "data": {
@@ -266,6 +267,8 @@
   {
     "filters": [
       {
+=======
+>>>>>>> Small updates to licensee. Fix initial searches.
         "name": "One year ago",
         "type": "when",
         "data": {
