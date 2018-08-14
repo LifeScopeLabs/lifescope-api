@@ -389,9 +389,7 @@ ContactTC.addResolver({
 			let contactMatches = await ContactTC.getResolver('findMany').resolve({
 				args: {
 					filter: filter,
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				},
 				projection: {
 					id: true,
@@ -409,9 +407,7 @@ ContactTC.addResolver({
 			let contactMatchCount = await ContactTC.getResolver('count').resolve({
 				args: {
 					filter: filter,
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				}
 			});
 
@@ -459,9 +455,7 @@ ContactTC.addResolver({
 			let contactMatchCount = await ContactTC.getResolver('count').resolve({
 				args: {
 					filter: filter,
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				},
 			});
 

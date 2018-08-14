@@ -959,9 +959,7 @@ EventTC.addResolver({
 			let eventMatches = await EventTC.getResolver('findMany').resolve({
 				args: {
 					filter: filter,
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				},
 				projection: {
 					id: true,
@@ -990,9 +988,7 @@ EventTC.addResolver({
 			let eventMatchCount = await EventTC.getResolver('count').resolve({
 				args: {
 					filter: filter,
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				}
 			});
 
@@ -1008,7 +1004,7 @@ EventTC.addResolver({
 					},
 					sort: sort,
 					limit: query.limit,
-					offset: query.offset
+					skip: query.offset
 				},
 				projection: {
 					id: true,
@@ -1039,9 +1035,7 @@ EventTC.addResolver({
 					filter: {
 						user_id_string: context.req.user._id.toString('hex')
 					},
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				},
 			});
 

@@ -447,9 +447,7 @@ ContentTC.addResolver({
 			let contentMatches = await ContentTC.getResolver('findMany').resolve({
 				args: {
 					filter: filter,
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				},
 				projection: {
 					id: true,
@@ -472,9 +470,7 @@ ContentTC.addResolver({
 			let contentMatchCount = await ContentTC.getResolver('count').resolve({
 				args: {
 					filter: filter,
-					sort: sort,
-					limit: query.limit,
-					offset: query.offset
+					sort: sort
 				}
 			});
 
@@ -525,7 +521,7 @@ ContentTC.addResolver({
 					},
 					sort: sort,
 					limit: query.limit,
-					offset: query.offset
+					skip: query.offset
 				},
 			});
 
