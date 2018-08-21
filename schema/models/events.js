@@ -443,6 +443,7 @@ EventTC.addResolver({
 
 			let contactPostLookupMatch = {};
 			let contentPostLookupMatch = {};
+			let eventPostLookupMatch = {};
 
 			let $contactEventLookup = {
 				from: 'events',
@@ -470,6 +471,27 @@ EventTC.addResolver({
 				localField: 'event.contacts',
 				foreignField: '_id',
 				as: 'contact'
+			};
+
+			let $eventLocationLookup = {
+				from: 'locations',
+				localField: 'location',
+				foreignField: '_id',
+				as: 'hydratedLocation'
+			};
+
+			let $contactLocationLookup = {
+				from: 'locations',
+				localField: 'event.location',
+				foreignField: '_id',
+				as: 'hydratedLocation'
+			};
+
+			let $contentLocationLookup = {
+				from: 'locations',
+				localField: 'event.location',
+				foreignField: '_id',
+				as: 'hydratedLocation'
 			};
 
 			if (query.q != null && query.q.length > 0) {
@@ -558,23 +580,35 @@ EventTC.addResolver({
 				});
 			}
 
-			// if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {
-			// 	contactAggregation.match({
-			// 		'events.location': {
-			// 			$or: query.filters.whereFilters
-			// 		}
-			// 	});
-			//
-			// 	contentAggregation.match({
-			// 		'events.location': {
-			// 			$or: query.filters.whereFilters
-			// 		}
-			// 	});
-			//
-			// 	eventAggregation.match({
-			// 		$or: query.filters.whereFilters
-			// 	});
-			// }
+			if (_.has(query, 'filters.whereFilters') && query.filters.whereFilters.length > 0) {
+				if (contactsSearched === true) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: query.filters.whereFilters
+					});
+				}
+
+				if (contentSearched === true) {
+					if (contentPostLookupMatch.$and == null) {
+						contentPostLookupMatch.$and = [];
+					}
+
+					contentPostLookupMatch.$and.push({
+						$or: query.filters.whereFilters
+					});
+				}
+
+				if (eventPostLookupMatch.$and == null) {
+					eventPostLookupMatch.$and = [];
+				}
+
+				eventPostLookupMatch.$and.push({
+					$or: query.filters.whereFilters
+				});
+			}
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
 				_.each(query.filters.connectorFilters, function(filter) {
@@ -884,6 +918,11 @@ EventTC.addResolver({
 						path: '$content',
 						preserveNullAndEmptyArrays: true
 					})
+					.lookup($contactLocationLookup)
+					.unwind({
+						path: '$hydratedLocation',
+						preserveNullAndEmptyArrays: true
+					})
 					.match(contactPostLookupMatch)
 					.skip(query.offset)
 					.limit(query.limit)
@@ -904,6 +943,11 @@ EventTC.addResolver({
 						path: '$contact',
 						preserveNullAndEmptyArrays: true
 					})
+					.lookup($contentLocationLookup)
+					.unwind({
+						path: '$hydratedLocation',
+						preserveNullAndEmptyArrays: true
+					})
 					.match(contentPostLookupMatch)
 					.skip(query.offset)
 					.limit(query.limit)
@@ -918,6 +962,12 @@ EventTC.addResolver({
 			if (eventsSearched === true) {
 				eventAggregation
 					.match(eventMatch)
+					.lookup($eventLocationLookup)
+					.unwind({
+						path: '$hydratedLocation',
+						preserveNullAndEmptyArrays: true
+					})
+					.match(eventPostLookupMatch)
 					.skip(query.offset)
 					.limit(query.limit)
 					.project({

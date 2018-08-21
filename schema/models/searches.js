@@ -353,15 +353,6 @@ SearchTC.addResolver({
 	}
 });
 
-// SearchTC.setResolver('updateOne', SearchTC.getResolver('updateOne').wrapResolve(next => rp => {
-// 	console.log('Search updateOne wrapper rp:');
-// 	console.log(rp);
-// 	if (_.has(rp, 'context.req.user._id')) {
-// 		rp.args.record.user_id_string = rp.context.req.user._id.toString('hex');
-// 	}
-// 	rp.args.record.last_run = moment.utc().toDate()
-// }));
-
 SearchTC.setResolver('findMany', SearchTC.getResolver('findMany')
 	.addFilterArg({
 		name: 'type',
