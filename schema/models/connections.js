@@ -682,7 +682,7 @@ ConnectionTC.addResolver({
 			throw new httpErrors(404);
 		}
 
-		let insert = await mongoose.connection.db.collection('connections').updateOne({
+		await mongoose.connection.db.collection('connections').updateOne({
 			browser: args.browser,
 			provider_id: provider._id,
 			user_id: context.req.user._id
@@ -718,7 +718,7 @@ ConnectionTC.addResolver({
 			}
 		});
 
-		return result.record;
+		return result;
 	}
 });
 

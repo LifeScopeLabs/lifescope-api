@@ -127,6 +127,8 @@ export const LocationsSchema = new mongoose.Schema(
 			}
 		},
 
+		tracked: Boolean,
+
 		updated: {
 			type: Date,
 			index: false
@@ -182,13 +184,14 @@ LocationTC.addResolver({
 			id: uuid(),
 			created: moment().utc().toDate(),
 			identifier: 'user-tracked:::browser:::' + args.datetime,
-			estimated: true,
+			estimated: false,
 			datetime: moment(args.datetime).utc().toDate(),
 			geo_format: args.geo_format,
 			geolocation: [
 				args.longitude,
 				args.latitude
 			],
+			tracked: true,
 			updated: moment().utc().toDate(),
 			user_id_string: context.req.user._id.toString('hex')
 		};
@@ -210,7 +213,7 @@ LocationTC.addResolver({
 	resolve: async function({source, args, context, info}) {
 		let terms = {
 			user_id_string: context.req.user._id.toString('hex'),
-			estimated: true
+			tracked: true
 		};
 
 		return await LocationTC.getResolver('removeMany').resolve({

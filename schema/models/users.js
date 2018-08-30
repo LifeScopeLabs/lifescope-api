@@ -194,6 +194,12 @@ export const UserSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.Mixed,
 			description: 'Some dynamic data',
 		},
+
+		last_location_estimation: {
+			type: Date,
+			index: false
+		}
+
 	},
 	{
 		collection: 'users',

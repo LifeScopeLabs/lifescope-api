@@ -16,7 +16,7 @@ import {Contacts, ContactTC} from './contacts';
 import {Content, ContentTC} from './content';
 import {add as addTags, remove as removeTags} from './templates/tag';
 import {ConnectionTC} from "./connections";
-import {Locations, LocationTC} from "./locations";
+import {LocationTC} from "./locations";
 import {TagTC} from "./tags";
 import {UserTC} from "./users";
 

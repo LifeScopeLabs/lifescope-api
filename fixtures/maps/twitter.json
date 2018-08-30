@@ -212,6 +212,15 @@
           "id_str": "string",
           "created_at": "string",
           "text": "string",
+          "coordinates": {
+            "type": "embedded",
+            "fields": {
+              "coordinates": {
+                "type": "number",
+                "many": true
+              }
+            }
+          },
           "entities": {
             "type": "embedded",
             "fields": {
