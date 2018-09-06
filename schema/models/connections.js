@@ -361,7 +361,8 @@ ConnectionTC.addResolver({
 	args: {
 		id: 'String!',
 		enabled: 'Boolean',
-		permissions: 'JSON'
+		permissions: 'JSON',
+		name: 'String'
 	},
 	resolve: async function({source, args, context, info}) {
 		let bitscoopConnection;

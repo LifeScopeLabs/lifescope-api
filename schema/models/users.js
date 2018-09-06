@@ -195,6 +195,8 @@ export const UserSchema = new mongoose.Schema(
 			description: 'Some dynamic data',
 		},
 
+		location_estimation_status: String,
+
 		last_location_estimation: {
 			type: Date,
 			index: false
