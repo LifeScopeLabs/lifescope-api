@@ -1514,7 +1514,7 @@ EventTC.addResolver({
 				filter: {
 					id: args.id,
 					share: 'public',
-					passcode_string: args.passcode
+					passcode: args.passcode
 				}
 			}
 		});

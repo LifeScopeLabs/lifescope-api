@@ -1,6 +1,7 @@
 /* @flow */
 
-// TODO: FIXXX
+import crypto from 'crypto';
+
 import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
@@ -64,28 +65,7 @@ export const TagsSchema = new mongoose.Schema(
 		},
 
 		passcode: {
-			type: Buffer
-		},
-
-		passcode_string: {
-			type: String,
-			get: function() {
-				if (this.passcode) {
-					return this.passcode.toString('hex')
-				}
-				else {
-					return null;
-				}
-			},
-			set: function(val) {
-				if (val && this._conditions && this._conditions.passcode_string) {
-					this._conditions.passcode = uuid(val);
-
-					delete this._conditions.passcode_string;
-				}
-
-				this.passcode = uuid(val);
-			}
+			type: String
 		},
 
 		updated: {
@@ -144,7 +124,7 @@ TagTC.addResolver({
 		};
 
 		if (args.share === 'public') {
-			record.passcode = uuid(uuid());
+			record.passcode = crypto.randomBytes(4).toString('hex');
 		}
 		else if (args.share === 'none' || args.share == null) {
 			record.passcode = null;
