@@ -43,6 +43,131 @@
     }
   },
   "endpoints": {
+    "DirectMessages": {
+      "method": "GET",
+      "parameters": {
+        "count": {
+          "description": "Pagination counts",
+          "value": "{{ parameters.count }}"
+        },
+        "cursor": "{{ parameters.cursor }}"
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "events",
+          "path": "1.1/direct_messages/events/list.json"
+        }
+      },
+      "model": {
+        "key": "id",
+        "fields": {
+          "id": "string",
+          "type": "string",
+          "datetime": {
+            "type": "string",
+            "source": "created_timestamp"
+          },
+          "receiving_user": {
+            "type": "related",
+            "ref": "User",
+            "reverse": {
+              "parameters": {
+                "user_id": "{{ model.message_create.target.recipient_id }}"
+              }
+            }
+          },
+          "sending_user": {
+            "type": "related",
+            "ref": "User",
+            "reverse": {
+              "parameters": {
+                "user_id": "{{ model.message_create.sender_id }}"
+              }
+            }
+          },
+          "message_create": {
+            "type": "embedded",
+            "fields": {
+              "target": {
+                "type": "embedded",
+                "fields": {
+                  "recipient_id": "string"
+                }
+              },
+              "sender_id": "string",
+              "message_data": {
+                "type": "embedded",
+                "fields": {
+                  "text": "string",
+                  "entities": {
+                    "type": "embedded",
+                    "fields": {
+                      "hashtags": {
+                        "type": "string",
+                        "many": true
+                      }
+                    }
+                  },
+                  "attachment": {
+                    "type": "object",
+                    "fields": {
+                      "type": "string",
+                      "media": {
+                        "type": "object",
+                        "fields": {
+                          "id_str": "string",
+                          "media_url_https": "string",
+                          "expanded_url": "string",
+                          "type": "string",
+                          "video_info": {
+                            "type": "embedded",
+                            "fields": {
+                              "variants": {
+                                "type": "embedded",
+                                "many": true,
+                                "fields": {
+                                  "content_type": "string",
+                                  "bitrate": "integer",
+                                  "url": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "DirectMessagesPage": {
+      "method": "GET",
+      "parameters": {
+        "count": {
+          "description": "Pagination counts",
+          "value": "{{ parameters.count }}"
+        },
+        "cursor": "{{ parameters.cursor }}"
+      },
+      "single": false,
+      "collection": {
+        "route": {
+          "data": "",
+          "path": "1.1/direct_messages/events/list.json"
+        }
+      },
+      "model": {
+        "key": "next_cursor",
+        "fields": {
+          "next_cursor": "string"
+        }
+      }
+    },
     "DirectMessagesReceived": {
       "method": "GET",
       "parameters": {

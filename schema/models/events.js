@@ -924,6 +924,7 @@ EventTC.addResolver({
 						preserveNullAndEmptyArrays: true
 					})
 					.match(contactPostLookupMatch)
+					.sort(sort)
 					.skip(query.offset)
 					.limit(query.limit)
 					.project({
@@ -949,6 +950,7 @@ EventTC.addResolver({
 						preserveNullAndEmptyArrays: true
 					})
 					.match(contentPostLookupMatch)
+					.sort(sort)
 					.skip(query.offset)
 					.limit(query.limit)
 					.project({
@@ -968,6 +970,7 @@ EventTC.addResolver({
 						preserveNullAndEmptyArrays: true
 					})
 					.match(eventPostLookupMatch)
+					.sort(sort)
 					.skip(query.offset)
 					.limit(query.limit)
 					.project({

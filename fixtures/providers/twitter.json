@@ -11,6 +11,16 @@
       "mapping": "Tweets",
       "population": "*"
     },
+    "direct_messages": {
+      "name": "Direct Messages",
+      "description": "Direct Messages you have sent and received",
+      "enabled_by_default": true,
+      "mapping": "DirectMessages",
+      "population": "*"
+    }
+  },
+
+  "old_sources": {
     "direct_messages_received": {
       "name": "Direct Messages Received",
       "description": "Direct messages you have received from others",
