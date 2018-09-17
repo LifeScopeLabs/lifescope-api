@@ -391,7 +391,7 @@ EventTC.addResolver({
 			query.limit = config.objectMaxLimit;
 		}
 
-		let sort;
+		let sort, contentSort, contactSort;
 
 		let validationVal = query;
 
@@ -417,7 +417,15 @@ EventTC.addResolver({
 		if (specialSort === false) {
 			sort = {
 				[query.sortField]: query.sortOrder === 'asc' ? 1 : -1
-			}
+			};
+
+			contentSort = {
+				['event.' + query.sortField]: query.sortOrder === 'asc' ? 1 : -1
+			};
+
+			contactSort = {
+				['event.' + query.sortField]: query.sortOrder === 'asc' ? 1 : -1
+			};
 		}
 
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
@@ -924,7 +932,7 @@ EventTC.addResolver({
 						preserveNullAndEmptyArrays: true
 					})
 					.match(contactPostLookupMatch)
-					.sort(sort)
+					.sort(contactSort)
 					.skip(query.offset)
 					.limit(query.limit)
 					.project({
@@ -950,7 +958,7 @@ EventTC.addResolver({
 						preserveNullAndEmptyArrays: true
 					})
 					.match(contentPostLookupMatch)
-					.sort(sort)
+					.sort(contentSort)
 					.skip(query.offset)
 					.limit(query.limit)
 					.project({

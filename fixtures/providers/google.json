@@ -11,12 +11,27 @@
       "mapping": "GmailInbox",
       "population": "*"
     },
+
     "drive_changes": {
       "name": "Google Drive",
       "description": "Files you have created, edited, and viewed on Google Drive",
       "enabled_by_default": true,
       "mapping": "DriveChanges",
       "population": "*"
+    },
+
+    "photos": {
+      "name": "Google Photos",
+      "description": "Media you have saved to Google Photos",
+      "enabled_by_default": true,
+      "mapping": "Photos"
+    },
+
+    "calendar_events": {
+      "name": "Google Calendar Events",
+      "description": "Events in your Google Calendars",
+      "enabled_by_default": true,
+      "mapping": "CalendarList"
     }
   },
 
