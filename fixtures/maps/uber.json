@@ -1,0 +1,96 @@
+{
+  "version": "1.0",
+  "name": "Uber",
+  "description": "Ridesharing service",
+  "url": "https://api.uber.com/v1.2",
+  "tags": [
+	"media",
+	"music"
+  ],
+  "auth": {
+	"type": "oauth2",
+	"redirect_url": "https://app.lifescope.io/connections/complete",
+	"authorization_url": "https://login.uber.com/oauth/v2/authorize",
+	"access_token": "https://login.uber.com/oauth/v2/token",
+	"signature": "header",
+	"auth_key": "***INSERT AUTH KEY HERE***",
+	"auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+	"uniqueness_location": "uuid",
+	"default_name_location": "uuid",
+	"endpoint": {
+	  "method": "GET",
+	  "route": {
+		"data": "",
+		"path": "/me"
+	  },
+	  "model": {
+		"key": "uuid",
+		"fields": {
+		  "uuid": "string"
+		}
+	  }
+	}
+  },
+  "endpoints": {
+	"History": {
+	  "GET": {
+		"method": "GET",
+		"scopes": [
+		  "history"
+		],
+		"parameters": {
+		  "offset": "{{ parameters.offset }}",
+		  "limit": "{{ parameters.limit }}"
+		},
+		"single": false,
+		"collection": {
+		  "route": {
+			"data": "history",
+			"path": "/history"
+		  }
+		},
+		"model": {
+		  "key": "request_id",
+		  "fields": {
+			"request_id": "string",
+			"start_time": "number",
+			"start_city": {
+			  "type": "embedded",
+			  "fields": {
+				"latitude": "number",
+				"longitude": "number",
+				"display_name": "string"
+			  }
+			}
+		  }
+		}
+	  }
+	},
+	"HistoryPage": {
+	  "GET": {
+		"method": "GET",
+		"scopes": [
+		  "history"
+		],
+		"parameters": {
+		  "offset": "{{ parameters.offset }}",
+		  "limit": "{{ parameters.limit }}"
+		},
+		"single": false,
+		"collection": {
+		  "route": {
+			"path": "/history"
+		  }
+		},
+		"model": {
+		  "key": "count",
+		  "fields": {
+			"count": "string"
+		  }
+		}
+	  }
+	}
+  }
+}

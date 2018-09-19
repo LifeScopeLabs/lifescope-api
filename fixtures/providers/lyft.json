@@ -1,0 +1,18 @@
+{
+  "_id": "074c3c03df24463e852f923542e3f63c",
+
+  "login": true,
+
+  "sources": {
+	"history": {
+	  "name": "Ride History",
+	  "description": "Rides you have taken with Lyft",
+	  "enabled_by_default": true,
+	  "mapping": "History"
+	}
+  },
+
+  "enabled": true,
+
+  "remote_map_id": "afd4893f864b488a8fd9a70c91088395"
+}
