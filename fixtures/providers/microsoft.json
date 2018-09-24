@@ -1,0 +1,33 @@
+{
+  "_id": "7f11b1bdb62949c5a089f23836846c50",
+
+  "login": true,
+
+  "sources": {
+    "mailbox": {
+      "name": "Mailbox",
+      "description": "Email you have sent and received via Outlook",
+      "enabled_by_default": true,
+      "mapping": "Mailbox"
+    },
+
+    "calendar_events": {
+      "name": "Calendar Events",
+      "description": "Events in your Outlook Calendars",
+      "enabled_by_default": true,
+      "mapping": "CalendarEvents"
+    },
+
+    "drive_changes": {
+      "name": "OneDrive",
+      "description": "Files you have created and edited in OneDrive",
+      "enabled_by_default": true,
+      "mapping": "DriveDelta",
+      "population": "*"
+    }
+  },
+
+  "enabled": true,
+
+  "remote_map_id": "b84ea68a834c4882997b6583a5f1467d"
+}

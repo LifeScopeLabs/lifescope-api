@@ -1,0 +1,565 @@
+{
+  "version": "1.0",
+  "name": "Microsoft",
+  "description": "Digital productivity and storage products",
+  "url": "https://www.googleapis.com",
+  "tags": [
+    "collaboration",
+    "media",
+    "productivity",
+    "video"
+  ],
+  "auth": {
+    "type": "oauth2",
+    "redirect_url": "https://app.lifescope.io/connections/complete",
+    "authorization_url": "https://accounts.google.com/o/oauth2/auth?access_type=offline&approval_prompt=force",
+    "access_token": "https://accounts.google.com/o/oauth2/token",
+    "signature": "parameter",
+    "auth_key": "***INSERT AUTH KEY HERE***",
+    "auth_secret": "***INSERT AUTH SECRET HERE***"
+  },
+  "meta": {
+    "uniqueness_location": "id",
+    "default_name_location": "id",
+    "endpoint": {
+      "method": "GET",
+      "scopes": [
+        "User.Read",
+        "offline_access"
+      ],
+      "route": {
+        "data": "metadata.sources[0]",
+        "path": "https://people.googleapis.com/v1/people/me?requestMask.includeField=person.email_addresses,person.names"
+      },
+      "model": {
+        "key": "id",
+        "fields": {
+          "id": "string"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "Mailbox": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Mail.Read",
+          "Mail.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "value",
+            "path": "/me/messages"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "sentDateTime": "date",
+            "subject": "string",
+            "bodyPreview": "string",
+            "webLink": "string",
+            "body": {
+              "type": "object",
+              "fields": {
+                "contentType": "string",
+                "content": "string"
+              }
+            },
+            "from": {
+              "type": "object",
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            },
+            "toRecipients": {
+              "type": "object",
+              "many": true,
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            },
+            "ccRecipients": {
+              "type": "object",
+              "many": true,
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            },
+            "bccRecipients": {
+              "type": "object",
+              "many": true,
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "MailboxPage": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Mail.Read",
+          "Mail.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "path": "/me/messages"
+          }
+        },
+        "model": {
+          "key": "context",
+          "fields": {
+            "context": {
+              "type": "string",
+              "source": "@odata.context"
+            },
+            "nextLink": {
+              "type": "string",
+              "source": "@odata.nextLink"
+            }
+          }
+        }
+      }
+    },
+    "CalendarEvents": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Calendars.Read",
+          "Calendars.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "value",
+            "path": "/me/events"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "subject": "string",
+            "bodyPreview": "string",
+            "webLink": "string",
+            "body": {
+              "type": "object",
+              "fields": {
+                "contentType": "string",
+                "content": "string"
+              }
+            },
+            "start": {
+              "type": "object",
+              "fields": {
+                "dateTime": "date",
+                "timeZone": "string"
+              }
+            },
+            "location": {
+              "type": "object",
+              "fields": {
+                "coordinates": {
+                  "type": "object",
+                  "fields": {
+                    "latitude": "number",
+                    "longitude": "number"
+                  }
+                }
+              }
+            },
+            "recurrence": "base",
+            "organizer": {
+              "type": "object",
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            },
+            "attendees": {
+              "type": "object",
+              "many": true,
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "CalendarEventsPage": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Calendars.Read",
+          "Calendars.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "path": "/me/events"
+          }
+        },
+        "model": {
+          "key": "context",
+          "fields": {
+            "context": {
+              "type": "string",
+              "source": "@odata.context"
+            },
+            "nextLink": {
+              "type": "string",
+              "source": "@odata.nextLink"
+            }
+          }
+        }
+      }
+    },
+    "CalendarEventInstances": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Calendars.Read",
+          "Calendars.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}",
+          "startDateTime": "{{ parameters.start_time }}",
+          "endDateTime": "{{ parameters.end_time }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "value",
+            "path": "/me/events/{{ parameters.event_id }}/instances"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "subject": "string",
+            "bodyPreview": "string",
+            "webLink": "string",
+            "body": {
+              "type": "object",
+              "fields": {
+                "contentType": "string",
+                "content": "string"
+              }
+            },
+            "start": {
+              "type": "object",
+              "fields": {
+                "dateTime": "date",
+                "timeZone": "string"
+              }
+            },
+            "location": {
+              "type": "object",
+              "fields": {
+                "coordinates": {
+                  "type": "object",
+                  "fields": {
+                    "latitude": "number",
+                    "longitude": "number"
+                  }
+                }
+              }
+            },
+            "organizer": {
+              "type": "object",
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            },
+            "attendees": {
+              "type": "object",
+              "many": true,
+              "fields": {
+                "emailAddress": {
+                  "type": "object",
+                  "fields": {
+                    "name": "string",
+                    "address": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "CalendarEventInstancesPage": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Calendars.Read",
+          "Calendars.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}",
+          "startDateTime": "{{ parameters.start_time }}",
+          "endDateTime": "{{ parameters.end_time }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "path": "/me/events/{{ parameters.event_id }}/instances"
+          }
+        },
+        "model": {
+          "key": "context",
+          "fields": {
+            "context": {
+              "type": "string",
+              "source": "@odata.context"
+            },
+            "nextLink": {
+              "type": "string",
+              "source": "@odata.nextLink"
+            }
+          }
+        }
+      }
+    },
+    "DriveDelta": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Files.Read",
+          "Files.Read.All"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}",
+          "token": "{{ parameters.token }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "value",
+            "path": "/me/drive/root/delta"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "createdDateTime": "date",
+            "lastModifiedDateTime": "date",
+            "name": "string",
+            "webUrl": "string",
+            "createdBy": {
+              "type": "object",
+              "fields": {
+                "user": {
+                  "type": "object",
+                  "fields": {
+                    "displayName": "string",
+                    "id": "string",
+                    "email": "string"
+                  }
+                }
+              }
+            },
+            "lastModifiedBy": {
+              "type": "object",
+              "fields": {
+                "user": {
+                  "type": "object",
+                  "fields": {
+                    "displayName": "string",
+                    "id": "string",
+                    "email": "string"
+                  }
+                }
+              }
+            },
+            "folder": "base",
+            "file": {
+              "type": "object",
+              "fields": {
+                "mimeType": "string"
+              }
+            },
+            "deleted": {
+              "type": "object",
+              "fields": {
+                "state": "string"
+              }
+            },
+            "thumbnails": {
+              "type": "related",
+              "many": true,
+              "ref": "DriveItemThumbnails",
+              "reverse": {
+                "parameters": {
+                  "item_id": "{{ model.id }}"
+                }
+              }
+            },
+            "audio": "base",
+            "image": "base",
+            "video": "base"
+          }
+        }
+      }
+    },
+    "DriveDeltaPage": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Files.Read",
+          "Files.Read.All"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}",
+          "token": "{{ parameters.token }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "path": "/me/drive/root/delta"
+          }
+        },
+        "model": {
+          "key": "context",
+          "fields": {
+            "context": {
+              "type": "string",
+              "source": "@odata.context"
+            },
+            "nextLink": {
+              "type": "string",
+              "source": "@odata.nextLink"
+            }
+          }
+        }
+      }
+    },
+    "DriveItemThumbnails": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Files.Read",
+          "Files.Read.All"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}",
+          "filter": "{{ parameters.filter }}",
+          "token": "{{ parameters.token }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "value",
+            "path": "me/drive/items/{{ parameters.item_id }}/thumbnails"
+          }
+        },
+        "responses": {
+          "400": {
+            "recast": 204
+          },
+          "404": {
+            "recast": 204
+          }
+        }
+      }
+    }
+  }
+}
