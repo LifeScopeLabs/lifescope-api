@@ -12,9 +12,9 @@
   "auth": {
     "type": "oauth2",
     "redirect_url": "https://app.lifescope.io/connections/complete",
-    "authorization_url": "https://accounts.google.com/o/oauth2/auth?access_type=offline&approval_prompt=force",
-    "access_token": "https://accounts.google.com/o/oauth2/token",
-    "signature": "parameter",
+    "authorization_url": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+    "access_token": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+    "signature": "header",
     "auth_key": "***INSERT AUTH KEY HERE***",
     "auth_secret": "***INSERT AUTH SECRET HERE***"
   },

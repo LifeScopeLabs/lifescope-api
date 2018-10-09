@@ -139,6 +139,23 @@ const config = require('config');
 				user_id: 1
 			}),
 
+			// `locations` collection
+			db.db('live').collection('locations').createIndex({
+				datetime: 1
+			}),
+
+			db.db('live').collection('locations').createIndex({
+				estimated: 1
+			}),
+
+			db.db('live').collection('locations').createIndex({
+				identifier: 1
+			}),
+
+			db.db('live').collection('locations').createIndex({
+				user_id: 1
+			}),
+
 			// `contacts` collection
 			db.db('live').collection('contacts').createIndex({
 				handle: 'text',
