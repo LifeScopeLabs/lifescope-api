@@ -10,6 +10,7 @@ import {ContactTC} from './models/contacts';
 import {ContentTC} from './models/content';
 import {EventTC} from './models/events';
 import {LocationTC} from './models/locations';
+import {LocationFileTC} from './models/location-files';
 import {ProviderTC} from './models/providers';
 import {SearchTC} from './models/searches';
 import {SessionTC} from './models/sessions';
@@ -49,6 +50,10 @@ GQC.rootQuery().addFields({
 		eventMany: EventTC.getResolver('findMany'),
 		eventOne: EventTC.getResolver('findOne'),
 
+		locationCount: LocationTC.getResolver('count'),
+
+		locationFileCount: LocationFileTC.getResolver('count'),
+
 		providerHydratedMany: ProviderTC.getResolver('providerHydratedMany'),
 
 		searchCount: SearchTC.getResolver('count'),
@@ -83,6 +88,7 @@ GQC.rootMutation().addFields({
 
 		locationRecordOne: LocationTC.getResolver('recordOne'),
 		trackedLocationsRemoveMany: LocationTC.getResolver('deleteTrackedLocations'),
+		uploadedLocationsRemoveMany: LocationTC.getResolver('deleteUploadedLocations'),
 
 		searchDelete: SearchTC.getResolver('deleteSearch'),
 		searchFind: SearchTC.getResolver('findSearch'),

@@ -134,6 +134,8 @@ export const LocationsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		uploaded: Boolean,
+
 		user_id: {
 			type: Buffer,
 			index: false
@@ -220,7 +222,25 @@ LocationTC.addResolver({
 			args: {
 				filter: terms
 			}
-		})
+		});
+	}
+});
+
+LocationTC.addResolver({
+	name: 'deleteUploadedLocations',
+	kind: 'mutation',
+	type: LocationTC.getResolver('findOne').getType(),
+	resolve: async function({source, args, context, info}) {
+		let terms = {
+			user_id_string: context.req.user._id.toString('hex'),
+			uploaded: true
+		};
+
+		return await LocationTC.getResolver('removeMany').resolve({
+			args: {
+				filter: terms
+			}
+		});
 	}
 });
 
