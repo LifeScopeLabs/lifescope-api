@@ -111,6 +111,8 @@ export const ContentSchema = new mongoose.Schema(
 			index: false
 		},
 
+		price: Number,
+
 		provider_id: {
 			type: Buffer,
 			index: false

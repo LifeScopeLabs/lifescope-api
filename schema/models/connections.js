@@ -45,6 +45,8 @@ const extensionProviderMap = {
 	Firefox: '0f9b3f89b5bf411185a73016933c34df'
 };
 
+const financialProivderId = 'd2b24c35ffbb47d694ec7a2951247c88';
+
 
 export const ConnectionsSchema = new mongoose.Schema(
 	{
@@ -149,6 +151,9 @@ export const ConnectionsSchema = new mongoose.Schema(
 				else if (this.browser != null) {
 					return this.browser + ' Extension';
 				}
+				else if (this.provider_id.toString('hex') === financialProivderId) {
+					return 'Financial Files';
+				}
 			}
 		},
 
@@ -202,6 +207,8 @@ export const ConnectionsSchema = new mongoose.Schema(
 				this.remote_connection_id = uuid(val);
 			}
 		},
+
+		runnable: Boolean,
 
 		status: {
 			type: String,

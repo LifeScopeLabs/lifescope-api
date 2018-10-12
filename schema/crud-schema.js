@@ -80,7 +80,7 @@ GQC.rootMutation().addFields({
 		tagContent: ContentTC.getResolver('addContentTags'),
 		untagContent: ContentTC.getResolver('removeContentTags'),
 
-		eventCreateMany: EventTC.getResolver('eventBulkUpload'),
+		eventCreateMany: EventTC.getResolver('bulkUpload'),
 		eventSearch: EventTC.getResolver('searchEvents'),
 		tagEvent: EventTC.getResolver('addEventTags'),
 		untagEvent: EventTC.getResolver('removeEventTags'),

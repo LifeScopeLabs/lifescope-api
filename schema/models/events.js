@@ -1214,7 +1214,7 @@ function MongoEvent(data) {
 }
 
 EventTC.addResolver({
-	name: 'eventBulkUpload',
+	name: 'bulkUpload',
 	kind: 'mutation',
 	type: [EventTC.getResolver('findOne').getType()],
 	args: {
