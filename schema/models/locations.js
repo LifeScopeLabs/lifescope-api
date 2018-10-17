@@ -168,6 +168,38 @@ export const Locations = mongoose.model('Locations', LocationsSchema);
 export const LocationTC = composeWithMongoose(Locations);
 
 LocationTC.addResolver({
+	name: 'findManyById',
+	kind: 'query',
+	type: [LocationTC.getResolver('findOne').getType()],
+	args: {
+		ids: ['String']
+	},
+	resolve: async function({source, args, context, info}) {
+		let startTime = moment();
+
+		let ids = _.map(args.ids, function(id) {
+			return uuid(id);
+		});
+
+		let result = await mongoose.connection.db.collection('locations').find({
+			_id: {
+				$in: ids
+			}
+		}).toArray();
+
+		let endTime = moment();
+
+		_.each(result, function(location) {
+			location.id = location._id.toString('hex');
+		});
+
+		console.log('Locations retrieval time: ' + endTime.diff(startTime, 'seconds') + ' seconds');
+
+		return result;
+	}
+});
+
+LocationTC.addResolver({
 	name: 'recordOne',
 	kind: 'mutation',
 	type: LocationTC.getResolver('findOne').getType(),

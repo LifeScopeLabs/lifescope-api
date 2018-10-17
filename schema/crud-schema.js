@@ -51,6 +51,7 @@ GQC.rootQuery().addFields({
 		eventOne: EventTC.getResolver('findOne'),
 
 		locationCount: LocationTC.getResolver('count'),
+		locationFindManyById: LocationTC.getResolver('findManyById'),
 
 		locationFileCount: LocationFileTC.getResolver('count'),
 

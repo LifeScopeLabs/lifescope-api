@@ -142,6 +142,24 @@ export const EventsSchema = new mongoose.Schema(
 			index: false,
 		},
 
+		location_id_string: {
+			type: String,
+			get: function() {
+				if (this.location) {
+					return this.location.toString('hex');
+				}
+			},
+			set: function(val) {
+				if (this._conditions && this._conditions.location_id_string) {
+					this._conditions.location = uuid(val);
+
+					delete this._conditions.location_id_string;
+				}
+
+				this.location = uuid(val);
+			}
+		},
+
 		provider_id: {
 			type: Buffer,
 			index: false

@@ -37,7 +37,7 @@
     ],
     "icon_color": "#61bd4f",
     "name": "Recent Entertainment",
-    "icon": "fa fa-tv",
+    "icon": "fas fa-tv",
     "favorited": true
   },
   {
@@ -64,7 +64,7 @@
     ],
     "icon_color": "#00c2e0",
     "name": "Recent Images",
-    "icon": "fa fa-image",
+    "icon": "far fa-image",
     "favorited": true
   },
   {
@@ -84,7 +84,7 @@
     ],
     "icon_color": "#00c2e0",
     "name": "Everything from the past week",
-    "icon": "fa fa-calendar",
+    "icon": "far fa-calendar-alt",
     "favorited": true
   },
   {
@@ -99,7 +99,7 @@
     ],
     "icon_color": "#f2d600",
     "name": "Trophy Case",
-    "icon": "fa fa-trophy",
+    "icon": "fas fa-trophy",
     "favorited": true
   },
   {
@@ -146,7 +146,7 @@
     ],
     "icon_color": "#0079bf",
     "name": "Recent Social Media",
-    "icon": "fa fa-at",
+    "icon": "fas fa-at",
     "favorited": true
   },
   {
@@ -207,7 +207,7 @@
     ],
     "icon_color": "#4d4d4d",
     "name": "Recent Productivity",
-    "icon": "fa fa-files-o",
+    "icon": "far fa-copy",
     "favorited": true
   },
   {
@@ -243,7 +243,7 @@
     ],
     "icon_color": "#eb5a46",
     "name": "Recent Emails",
-    "icon": "fa fa-inbox",
+    "icon": "fas fa-inbox",
     "favorited": true
   },
   {
@@ -259,7 +259,7 @@
     ],
     "icon_color": "#b6bbbf",
     "name": "Stuff from guys named Steve",
-    "icon": "fa fa-users",
+    "icon": "fas fa-users",
     "favorited": true
   },
   {
@@ -279,7 +279,7 @@
     ],
     "icon_color": "#61bd4f",
     "name": "One year ago today",
-    "icon": "fa fa-history",
+    "icon": "fas fa-history",
     "favorited": true
   },
   {
@@ -287,7 +287,7 @@
     ],
     "icon_color": "#0079bf",
     "name": "All my stuff",
-    "icon": "fa fa-circle",
+    "icon": "far fa-circle",
     "favorited": true
   }
 ]
