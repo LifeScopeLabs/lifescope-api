@@ -157,6 +157,11 @@ export const UserSchema = new mongoose.Schema(
 					type: Boolean,
 					index: false
 				}
+			},
+
+			theme: {
+				type: String,
+				index: false
 			}
 		},
 
@@ -402,6 +407,32 @@ UserTC.addResolver({
 				},
 				record: {
 					location_tracking_enabled: args.location_tracking_enabled === true
+				}
+			}
+		});
+
+		return updated.record;
+	}
+});
+
+
+UserTC.addResolver({
+	name: 'updateTheme',
+	kind: 'mutation',
+	args: {
+		theme: 'String!'
+	},
+	type: UserTC.getResolver('findOne').getType(),
+	resolve: async ({source, args, context, info}) => {
+		let req = context.req;
+
+		let updated = await UserTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: req.user._id.toString('hex')
+				},
+				record: {
+					'settings.theme': args.theme
 				}
 			}
 		});

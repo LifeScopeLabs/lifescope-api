@@ -99,7 +99,8 @@ GQC.rootMutation().addFields({
 		tagUpdateSharing: TagTC.getResolver('updateSharing'),
 
 		userApiKeyUpdate: UserTC.getResolver('updateApiKey'),
-		userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking')
+		userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking'),
+		userThemeUpdate: UserTC.getResolver('updateTheme')
 	}),
 
 	sharedTagContactSearch: ContactTC.getResolver('sharedTagSearch'),

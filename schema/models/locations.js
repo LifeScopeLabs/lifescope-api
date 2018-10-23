@@ -193,8 +193,6 @@ LocationTC.addResolver({
 			location.id = location._id.toString('hex');
 		});
 
-		console.log('Locations retrieval time: ' + endTime.diff(startTime, 'seconds') + ' seconds');
-
 		return result;
 	}
 });
