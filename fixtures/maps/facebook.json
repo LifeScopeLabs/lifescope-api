@@ -16,12 +16,18 @@
 	"auth_secret": "***INSERT AUTH SECRET HERE***"
   },
   "meta": {
+	"uniqueness_location": "id",
+	"default_name_location": "name",
 	"endpoint": {
 	  "route": "/me",
+	  "parameters": {
+		"fields": "id,name"
+	  },
 	  "model": {
 		"key": "id",
 		"fields": {
-		  "id": "string"
+		  "id": "string",
+		  "name": "string"
 		}
 	  }
 	}

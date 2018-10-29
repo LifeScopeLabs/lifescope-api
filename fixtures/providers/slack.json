@@ -1,0 +1,26 @@
+{
+  "_id": "dce9db5ca2854b8f9166b6ecb0c656b0",
+
+  "login": true,
+
+  "sources": {
+	"conversations": {
+	  "name": "Messages",
+	  "description": "All messages (public, private, direct) you have sent or received over Slack",
+	  "enabled_by_default": true,
+	  "mapping": "UserConversations",
+	  "population": "*"
+	},
+	"files": {
+	  "name": "Files",
+	  "description": "All files (public, private, direct) you have created or edited over Slack",
+	  "enabled_by_default": true,
+	  "mapping": "ConversationFiles",
+	  "population": "*"
+	}
+  },
+
+  "enabled": true,
+
+  "remote_map_id": "fd43c94e3399429d886d9d142799b967"
+}
