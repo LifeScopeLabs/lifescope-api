@@ -44,6 +44,7 @@ GQC.rootQuery().addFields({
 		contactMany: ContactTC.getResolver('findMany'),
 		contactOne: ContactTC.getResolver('findOne'),
 
+		contentCount: ContentTC.getResolver('count'),
 		contentFindByIdentifier: ContentTC.getResolver('findByIdentifier'),
 
 		eventCount: EventTC.getResolver('count'),
