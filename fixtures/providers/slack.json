@@ -4,7 +4,7 @@
   "login": true,
 
   "sources": {
-	"conversations": {
+	"messages": {
 	  "name": "Messages",
 	  "description": "All messages (public, private, direct) you have sent or received over Slack",
 	  "enabled_by_default": true,
