@@ -62,6 +62,7 @@ GQC.rootQuery().addFields({
 		searchMany: SearchTC.getResolver('findMany'),
 		searchOne: SearchTC.getResolver('findOne'),
 
+		tagCount: TagTC.getResolver('count'),
 		tagMany: TagTC.getResolver('findMany'),
 
 		userOne: UserTC.getResolver('findOne'),
