@@ -288,7 +288,7 @@ SearchTC.addResolver({
 	kind: 'mutation',
 	type: SearchTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 	},
 	resolve: async function({ source, args, context, info}) {
 		await SearchTC.getResolver('removeOne').resolve({

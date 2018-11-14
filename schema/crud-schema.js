@@ -11,6 +11,7 @@ import {ContentTC} from './models/content';
 import {EventTC} from './models/events';
 import {LocationTC} from './models/locations';
 import {LocationFileTC} from './models/location-files';
+import {OAuthAppTC} from './models/oauth-app'
 import {ProviderTC} from './models/providers';
 import {SearchTC} from './models/searches';
 import {SessionTC} from './models/sessions';
@@ -56,6 +57,9 @@ GQC.rootQuery().addFields({
 
 		locationFileCount: LocationFileTC.getResolver('count'),
 
+		oauthAppMany: OAuthAppTC.getResolver('findMany'),
+		oauthAppOne: OAuthAppTC.getResolver('findOne'),
+
 		providerHydratedMany: ProviderTC.getResolver('providerHydratedMany'),
 
 		searchCount: SearchTC.getResolver('count'),
@@ -92,6 +96,11 @@ GQC.rootMutation().addFields({
 		locationRecordOne: LocationTC.getResolver('recordOne'),
 		trackedLocationsRemoveMany: LocationTC.getResolver('deleteTrackedLocations'),
 		uploadedLocationsRemoveMany: LocationTC.getResolver('deleteUploadedLocations'),
+
+		oauthAppDelete: OAuthAppTC.getResolver('deleteOne'),
+		oauthAppInitialize: OAuthAppTC.getResolver('initializeOne'),
+		oauthAppPatch: OAuthAppTC.getResolver('patchOne'),
+		oauthAppResetClientSecret: OAuthAppTC.getResolver('resetClientSecret'),
 
 		searchDelete: SearchTC.getResolver('deleteSearch'),
 		searchFind: SearchTC.getResolver('findSearch'),
