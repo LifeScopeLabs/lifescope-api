@@ -106,7 +106,6 @@ export const OAuthAppSchema = new mongoose.Schema(
 		user_id_string: {
 			type: String,
 			get: function() {
-				console.log(this);
 				return this.user_id.toString('hex')
 			},
 			set: function(val) {
@@ -169,7 +168,6 @@ OAuthAppTC.addResolver({
 			}
 		});
 
-		console.log(result.record);
 		return result.record;
 	}
 });
@@ -184,7 +182,8 @@ OAuthAppTC.addResolver({
 		name: 'String',
 		description: 'String',
 		privacy_policy_url: 'String',
-		homepage_url: 'String'
+		homepage_url: 'String',
+		redirect_uris: ['String']
 	},
 	resolve: async function({source, args, context, info}) {
 		if (urlRegex.test(args.privacy_policy_url !== true)) {
@@ -195,25 +194,53 @@ OAuthAppTC.addResolver({
 			return httpErrors(400, 'Invalid homepage URL');
 		}
 
-		let update = {
-			redirect_uris: [],
-			name: args.name,
-			description: args.description,
-			privacy_policy_url: args.privacy_policy_url,
-			homepage_url: args.homepage_url
-		};
+		let update = {};
 
-		let result = await OAuthAppTC.getResolver('updateOne').resolve({
-			args: {
-				filter: {
-					id: args.id,
-					user_id_string: context.req.user._id.toString('hex')
-				},
-				record: update
-			}
-		});
+		if (args.name) {
+			update.name = args.name;
+		}
 
-		return result.record;
+		if (args.description) {
+			update.description = args.description;
+		}
+
+		if (args.privacy_policy_url) {
+			update.privacy_policy_url = args.privacy_policy_url;
+		}
+
+		if (args.homepage_url) {
+			update.homepage_url = args.homepage_url;
+		}
+
+		if (args.redirect_uris) {
+			update.redirect_uris = _.uniq(args.redirect_uris);
+		}
+
+		if (Object.keys(update).length > 0) {
+			let result = await OAuthAppTC.getResolver('updateOne').resolve({
+				args: {
+					filter: {
+						id: args.id,
+						user_id_string: context.req.user._id.toString('hex')
+					},
+					record: update
+				}
+			});
+
+			return result.record;
+		}
+		else {
+			let result = await OAuthAppTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						id: args.id,
+						user_id_string: context.req.user._id.toString('hex')
+					}
+				}
+			});
+
+			return result;
+		}
 	}
 });
 
