@@ -125,9 +125,9 @@ export const OAuthAppSchema = new mongoose.Schema(
 );
 
 
-export const OAuthApp = mongoose.model('OAuthApp', OAuthAppSchema);
+export const OauthApps = mongoose.model('OAuthApp', OAuthAppSchema);
 
-export const OAuthAppTC = composeWithMongoose(OAuthApp);
+export const OAuthAppTC = composeWithMongoose(OauthApps);
 
 
 OAuthAppTC.addResolver({

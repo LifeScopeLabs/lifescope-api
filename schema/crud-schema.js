@@ -11,7 +11,8 @@ import {ContentTC} from './models/content';
 import {EventTC} from './models/events';
 import {LocationTC} from './models/locations';
 import {LocationFileTC} from './models/location-files';
-import {OAuthAppTC} from './models/oauth-app'
+import {OAuthAppTC} from './models/oauth-apps'
+import {OAuthTokenTC} from "./models/oauth-tokens";
 import {ProviderTC} from './models/providers';
 import {SearchTC} from './models/searches';
 import {SessionTC} from './models/sessions';
@@ -118,7 +119,10 @@ GQC.rootMutation().addFields({
 	sharedTagContentSearch: ContentTC.getResolver('sharedTagSearch'),
 	sharedTagEventSearch: EventTC.getResolver('sharedTagSearch'),
 
-	initializeConnection: ConnectionTC.getResolver('initializeConnection')
+	initializeConnection: ConnectionTC.getResolver('initializeConnection'),
+
+	oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
+	oauthTokenAccessToken: OAuthTokenTC.getResolver('token')
 });
 
 
