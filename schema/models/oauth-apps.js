@@ -8,16 +8,24 @@ import {graphql} from 'graphql-compose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import config from 'config';
 import httpErrors from 'http-errors';
-import moment from 'moment';
 import mongoose from 'mongoose';
-import type from 'type-detect';
 
 import uuid from '../../lib/util/uuid';
-import {TagTC} from "./tags";
-import {SearchTC} from "./searches";
 
 
 let urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
+
+
+let authorizationLimitedType = new graphql.GraphQLObjectType({
+	name: 'authorizationLimited',
+	fields: {
+		client_id: graphql.GraphQLString,
+		description: graphql.GraphQLString,
+		homepage_url: graphql.GraphQLString,
+		name: graphql.GraphQLString,
+		privacy_policy_url: graphql.GraphQLString
+	}
+});
 
 
 export const OAuthAppSchema = new mongoose.Schema(
@@ -288,5 +296,34 @@ OAuthAppTC.addResolver({
 				}
 			}
 		});
+	}
+});
+
+
+OAuthAppTC.addResolver({
+	name: 'authorizationLimited',
+	kind: 'query',
+	type: authorizationLimitedType,
+	args: {
+		client_id: 'String!'
+	},
+	resolve: async function({source, args, context, info}) {
+		console.log(args);
+		let result = await OAuthAppTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					client_id: args.client_id
+				}
+			}
+		});
+
+		console.log(result);
+
+		if (result != null) {
+			return _.pick(result, ['client_id', 'description', 'name', 'privacy_policy_url', 'homepage_url']);
+		}
+		else {
+			throw new Error('Invalid client_id');
+		}
 	}
 });

@@ -72,6 +72,8 @@ GQC.rootQuery().addFields({
 
 		userOne: UserTC.getResolver('findOne'),
 	}),
+
+	oauthAppOneAuthorization: OAuthAppTC.getResolver('authorizationLimited')
 });
 
 GQC.rootMutation().addFields({
@@ -103,6 +105,8 @@ GQC.rootMutation().addFields({
 		oauthAppPatch: OAuthAppTC.getResolver('patchOne'),
 		oauthAppResetClientSecret: OAuthAppTC.getResolver('resetClientSecret'),
 
+		oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
+
 		searchDelete: SearchTC.getResolver('deleteSearch'),
 		searchFind: SearchTC.getResolver('findSearch'),
 		searchPatch: SearchTC.getResolver('patchSearch'),
@@ -121,8 +125,7 @@ GQC.rootMutation().addFields({
 
 	initializeConnection: ConnectionTC.getResolver('initializeConnection'),
 
-	oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
-	oauthTokenAccessToken: OAuthTokenTC.getResolver('token')
+	oauthTokenAccessToken: OAuthTokenTC.getResolver('token'),
 });
 
 

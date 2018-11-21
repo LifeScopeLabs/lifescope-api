@@ -111,6 +111,8 @@ export const OAuthTokenSchema = new mongoose.Schema(
 			}
 		},
 
+		expires: Date,
+
 		refresh_token: {
 			type: String
 		},
@@ -214,16 +216,25 @@ OAuthTokenTC.addResolver({
 		}
 
 		if (errors.length > 0) {
-			return httpErrors(400, 'There were problems with your request: ' + errors.join('; '));
+			return httpErrors(400, 'There were problems with your request -- ' + errors.join('; '));
 		}
 		else {
+			await OAuthTokenSessionTC.getResolver('removeMany').resolve({
+				args: {
+					filter: {
+						user_id_string: context.req.user._id.toString('hex')
+					}
+				}
+			});
+
 			let newSession = {
 				id: uuid(),
 				auth_code: crypto.randomBytes(16).toString('hex'),
 				created: moment().utc().toDate(),
 				client_id: args.client_id,
 				redirect_uri: args.redirect_uri,
-				scopes: scopes
+				scopes: scopes,
+				user_id_string: context.req.user._id.toString('hex')
 			};
 
 			await OAuthTokenSessionTC.getResolver('createOne').resolve({
@@ -276,8 +287,6 @@ OAuthTokenTC.addResolver({
 			}
 		});
 
-		console.log(app);
-
 		if (session == null) {
 			errors.push('Invalid code or code has expired');
 		}
@@ -291,7 +300,7 @@ OAuthTokenTC.addResolver({
 		}
 
 		if (errors.length > 0) {
-			return httpErrors(400, 'There were problems with your request: ' + errors.join('; '));
+			return httpErrors(400, 'There were problems with your request -- ' + errors.join('; '));
 		}
 		else {
 			let dateNow = moment();

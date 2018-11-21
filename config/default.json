@@ -46,6 +46,10 @@
     "expiration": 1209600
   },
 
+  "oauth": {
+    "tempCookieName": "auth_parameters"
+  },
+
   "csrf": {
     "saltLength": 64,
     "secretLength": 32
