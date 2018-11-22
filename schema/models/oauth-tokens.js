@@ -169,8 +169,8 @@ OAuthTokenTC.addResolver({
 		let scopes;
 		let errors = [];
 
-		if (args.response_type !== 'code' && args.response_type !== 'refresh_token') {
-			errors.push('response_type must be \'code\' or \'refresh_token\'');
+		if (args.response_type !== 'code') {
+			errors.push('response_type must be \'code\'');
 		}
 
 		if (args.scope) {
@@ -258,25 +258,18 @@ OAuthTokenTC.addResolver({
 	type: tokenType,
 	args: {
 		grant_type: 'String!',
-		code: 'String!',
-		redirect_uri: 'String!',
+		code: 'String',
+		redirect_uri: 'String',
 		client_id: 'String!',
-		client_secret: 'String!'
+		client_secret: 'String!',
+		refresh_token: 'String'
 	},
 	resolve: async function({source, args, context, info}) {
 		let errors = [];
 
-		if (args.grant_type !== 'authorization_code') {
-			errors.push('grant_type must be \'authorization_code\'');
+		if (args.grant_type !== 'authorization_code' && args.grant_type !== 'refresh_token') {
+			errors.push('grant_type must be \'authorization_code\' or \'refresh_token\'.');
 		}
-
-		let session = await OAuthTokenSessionTC.getResolver('findOne').resolve({
-			args: {
-				filter: {
-					auth_code: args.code
-				}
-			}
-		});
 
 		let app = await OAuthAppTC.getResolver('findOne').resolve({
 			args: {
@@ -287,49 +280,103 @@ OAuthTokenTC.addResolver({
 			}
 		});
 
-		if (session == null) {
-			errors.push('Invalid code or code has expired');
-		}
-
 		if (app == null) {
 			errors.push('client_id and/or client_secret are invalid');
 		}
 
-		if (session && session.redirect_uri !== args.redirect_uri) {
-			errors.push('Invalid redirect_uri');
-		}
-
-		if (errors.length > 0) {
-			return httpErrors(400, 'There were problems with your request -- ' + errors.join('; '));
-		}
-		else {
-			let dateNow = moment();
-			let expires = moment().utc().add(1, 'month');
-
-			let newToken = {
-				id: uuid(),
-				access_token: crypto.randomBytes(32).toString('hex'),
-				app_id: app._id.toString('hex'),
-				expires: expires.toDate(),
-				refresh_token: crypto.randomBytes(32).toString('hex'),
-				scopes: session.scopes,
-				user_id: app.user_id.toString('hex'),
-				valid: true,
-			};
-
-			console.log(newToken);
-
-			await OAuthTokenTC.getResolver('createOne').resolve({
+		if (args.grant_type === 'authorization_code') {
+			let session = await OAuthTokenSessionTC.getResolver('findOne').resolve({
 				args: {
-					record: newToken
+					filter: {
+						auth_code: args.code
+					}
 				}
 			});
 
-			return {
-				access_token: newToken.access_token,
-				refresh_token: newToken.refresh_token,
-				expires_in: expires.diff(dateNow, 'seconds')
-			};
+			if (session == null) {
+				errors.push('Invalid code or code has expired');
+			}
+
+			if (session && session.redirect_uri !== args.redirect_uri) {
+				errors.push('Invalid redirect_uri');
+			}
+
+			if (session) {
+				await OAuthTokenSessionTC.getResolver('removeOne').resolve({
+					args: {
+						filter: {
+							id: session._id.toString('hex')
+						}
+					}
+				});
+			}
+
+			if (errors.length > 0) {
+				return httpErrors(400, 'There were problems with your request -- ' + errors.join('; '));
+			}
+			else {
+				let dateNow = moment();
+				let expires = moment().utc().add(1, 'month');
+
+				let newToken = {
+					id: uuid(),
+					access_token: crypto.randomBytes(32).toString('hex'),
+					app_id_string: app._id.toString('hex'),
+					expires: expires.toDate(),
+					refresh_token: crypto.randomBytes(32).toString('hex'),
+					scopes: session.scopes,
+					user_id_string: app.user_id.toString('hex'),
+					valid: true,
+				};
+
+				await OAuthTokenTC.getResolver('createOne').resolve({
+					args: {
+						record: newToken
+					}
+				});
+
+				return {
+					access_token: newToken.access_token,
+					refresh_token: newToken.refresh_token,
+					expires_in: expires.diff(dateNow, 'seconds')
+				};
+			}
+		}
+		else {
+			let token = await OAuthTokenTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						app_id_string: app._id.toString('hex'),
+						refresh_token: args.refresh_token
+					}
+				}
+			});
+
+			if (token == null) {
+				return httpErrors(400, 'Invalid refresh token and/or client_id.')
+			}
+			else {
+				let dateNow = moment();
+				let expires = moment().utc().add(1, 'month');
+				let newToken = crypto.randomBytes(32).toString('hex');
+
+				await OAuthTokenTC.getResolver('updateOne').resolve({
+					args: {
+						filter: {
+							id: token._id.toString('hex')
+						},
+						record: {
+							access_token: newToken,
+							expires: expires
+						}
+					}
+				});
+
+				return {
+					access_token: newToken,
+					expires_in: expires.diff(dateNow, 'seconds')
+				}
+			}
 		}
 	}
 });

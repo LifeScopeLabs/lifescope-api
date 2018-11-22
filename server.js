@@ -112,6 +112,9 @@ loadValidator(config.validationSchemas)
 			bodyParser.json({
 				limit: '15MB'
 			}),
+			bodyParser.urlencoded({
+				limit: '15MB'
+			}),
 			cookieParser(),
 			cookieAuthorization,
 			views

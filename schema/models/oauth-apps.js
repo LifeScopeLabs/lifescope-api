@@ -308,7 +308,6 @@ OAuthAppTC.addResolver({
 		client_id: 'String!'
 	},
 	resolve: async function({source, args, context, info}) {
-		console.log(args);
 		let result = await OAuthAppTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
@@ -316,8 +315,6 @@ OAuthAppTC.addResolver({
 				}
 			}
 		});
-
-		console.log(result);
 
 		if (result != null) {
 			return _.pick(result, ['client_id', 'description', 'name', 'privacy_policy_url', 'homepage_url']);
