@@ -16,14 +16,11 @@ import {OAuthAppTC} from "./oauth-apps";
 import {OAuthTokenSessionTC} from "./oauth-token-sessions";
 
 
-let urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
-
 let validScopes = [
-	'basic',
-	'events',
-	'contacts',
-	'content',
-	'locations'
+	'events:read',
+	'contacts:read',
+	'content:read',
+	'locations:read'
 ];
 
 let authorizationType = new graphql.GraphQLObjectType({
@@ -101,7 +98,7 @@ export const OAuthTokenSchema = new mongoose.Schema(
 				return this.app_id.toString('hex')
 			},
 			set: function(val) {
-				if (val && this._conditions && this._conditions.app_id) {
+				if (val && this._conditions && this._conditions.app_id_string) {
 					this._conditions.app_id = uuid(val);
 
 					delete this._conditions.app_id_string;
@@ -194,7 +191,7 @@ OAuthTokenTC.addResolver({
 			}
 		}
 		else {
-			scopes = ['basic'];
+			errors.push('Must request at least one scope.');
 		}
 
 		let app = await OAuthAppTC.getResolver('findOne').resolve({

@@ -19,6 +19,7 @@ import mongoose from 'mongoose';
 import views from './lib/views';
 import cookieAuthorization from './lib/middleware/cookie-authorization';
 import keyAuthorization from './lib/middleware/key-authorization';
+import tokenAuthorization from './lib/middleware/token-authorization';
 import wsCookieAuthorization from './lib/middleware/ws-cookie-authorization';
 import meta from './lib/middleware/meta';
 import {crudAPI} from './schema';
@@ -81,6 +82,7 @@ loadValidator(config.validationSchemas)
 				limit: '15MB'
 			}),
 			cookieParser(),
+			tokenAuthorization,
 			keyAuthorization,
 			cookieAuthorization,
 			graphqlExpress((req, res) => ({
@@ -103,8 +105,10 @@ loadValidator(config.validationSchemas)
 		}));
 
 		// http://localhost:3000/gql-p/
-		server.get(`${crudAPI.uri}-p`, expressPlayground({endpoint: crudAPI.uri,
-			subscriptionsEndpoint: 'wss://api.lifescope.io/subscriptions'}));
+		server.get(`${crudAPI.uri}-p`, expressPlayground({
+			endpoint: crudAPI.uri,
+			subscriptionsEndpoint: 'wss://api.lifescope.io/subscriptions'
+		}));
 
 		server.use(
 			'/',

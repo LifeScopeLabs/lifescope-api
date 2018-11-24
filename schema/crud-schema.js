@@ -4,6 +4,7 @@ import {SchemaComposer} from 'graphql-compose';
 import {withFilter} from 'graphql-subscriptions';
 import uuid from 'uuid/v4';
 
+import restrictByScope from '../lib/middleware/restrict-by-scope'
 import restrictToUser from '../lib/middleware/restrict-to-user';
 import {ConnectionTC} from './models/connections';
 import {ContactTC} from './models/contacts';
@@ -37,40 +38,57 @@ GQC.rootQuery().addFields({
 	sessionOne: SessionTC.getResolver('findOne'),
 
 	...restrictToUser(Resolver, {
-		connectionBrowserOne: ConnectionTC.getResolver('getBrowserConnection'),
-		connectionCount: ConnectionTC.getResolver('count'),
-		connectionMany: ConnectionTC.getResolver('findMany'),
-		connectionOne: ConnectionTC.getResolver('findOne'),
+		...restrictByScope(Resolver, 'connections:read', {
+			connectionBrowserOne: ConnectionTC.getResolver('getBrowserConnection'),
+			connectionCount: ConnectionTC.getResolver('count'),
+			connectionMany: ConnectionTC.getResolver('findMany'),
+			connectionOne: ConnectionTC.getResolver('findOne'),
 
-		contactCount: ContactTC.getResolver('count'),
-		contactMany: ContactTC.getResolver('findMany'),
-		contactOne: ContactTC.getResolver('findOne'),
+			providerHydratedMany: ProviderTC.getResolver('providerHydratedMany'),
+		}),
 
-		contentCount: ContentTC.getResolver('count'),
-		contentFindByIdentifier: ContentTC.getResolver('findByIdentifier'),
+		...restrictByScope(Resolver, 'contacts:read', {
+			contactCount: ContactTC.getResolver('count'),
+			contactOne: ContactTC.getResolver('findOne'),
+		}),
 
-		eventCount: EventTC.getResolver('count'),
-		eventMany: EventTC.getResolver('findMany'),
-		eventOne: EventTC.getResolver('findOne'),
+		...restrictByScope(Resolver, 'content:read', {
+			contentCount: ContentTC.getResolver('count'),
+			contentFindByIdentifier: ContentTC.getResolver('findByIdentifier'),
+			contentOne: ContentTC.getResolver('findOne'),
+		}),
 
-		locationCount: LocationTC.getResolver('count'),
-		locationFindManyById: LocationTC.getResolver('findManyById'),
+		...restrictByScope(Resolver, 'events:read', {
+			eventCount: EventTC.getResolver('count'),
+			eventOne: EventTC.getResolver('findOne'),
+		}),
 
-		locationFileCount: LocationFileTC.getResolver('count'),
+		...restrictByScope(Resolver, 'locations:read', {
+			locationCount: LocationTC.getResolver('count'),
+			locationFindManyById: LocationTC.getResolver('findManyById'),
 
-		oauthAppMany: OAuthAppTC.getResolver('findMany'),
-		oauthAppOne: OAuthAppTC.getResolver('findOne'),
+			locationFileCount: LocationFileTC.getResolver('count'),
+		}),
 
-		providerHydratedMany: ProviderTC.getResolver('providerHydratedMany'),
+		...restrictByScope(Resolver, 'oauthApps:read', {
+			oauthAppMany: OAuthAppTC.getResolver('findMany'),
+			oauthAppOne: OAuthAppTC.getResolver('findOne'),
+		}),
 
-		searchCount: SearchTC.getResolver('count'),
-		searchMany: SearchTC.getResolver('findMany'),
-		searchOne: SearchTC.getResolver('findOne'),
+		...restrictByScope(Resolver, 'searches:read', {
+			searchCount: SearchTC.getResolver('count'),
+			searchMany: SearchTC.getResolver('findMany'),
+			searchOne: SearchTC.getResolver('findOne'),
+		}),
 
-		tagCount: TagTC.getResolver('count'),
-		tagMany: TagTC.getResolver('findMany'),
+		...restrictByScope(Resolver, 'tags:read', {
+			tagCount: TagTC.getResolver('count'),
+			tagMany: TagTC.getResolver('findMany'),
+		}),
 
-		userOne: UserTC.getResolver('findOne'),
+		...restrictByScope(Resolver, 'user:read', {
+			userOne: UserTC.getResolver('findOne'),
+		})
 	}),
 
 	oauthAppOneAuthorization: OAuthAppTC.getResolver('authorizationLimited')
@@ -78,45 +96,79 @@ GQC.rootQuery().addFields({
 
 GQC.rootMutation().addFields({
 	...restrictToUser(Resolver, {
-		connectionCreateBrowser: ConnectionTC.getResolver('createBrowserConnection'),
-		connectionPatch: ConnectionTC.getResolver('patchConnection'),
-		connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
+		...restrictByScope(Resolver, 'connections', {
+			connectionCreateBrowser: ConnectionTC.getResolver('createBrowserConnection'),
+			connectionPatch: ConnectionTC.getResolver('patchConnection'),
+			connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
+		}),
 
-		contactSearch: ContactTC.getResolver('searchContacts'),
-		tagContact: ContactTC.getResolver('addContactTags'),
-		untagContact: ContactTC.getResolver('removeContactTags'),
+		...restrictByScope(Resolver, 'contacts:read', {
+			contactSearch: ContactTC.getResolver('searchContacts'),
+		}),
 
-		contentSearch: ContentTC.getResolver('searchContent'),
-		tagContent: ContentTC.getResolver('addContentTags'),
-		untagContent: ContentTC.getResolver('removeContentTags'),
+		...restrictByScope(Resolver, 'contacts:write', {
+			tagContact: ContactTC.getResolver('addContactTags'),
+			untagContact: ContactTC.getResolver('removeContactTags'),
+		}),
 
-		eventCreateMany: EventTC.getResolver('bulkUpload'),
-		eventSearch: EventTC.getResolver('searchEvents'),
-		tagEvent: EventTC.getResolver('addEventTags'),
-		untagEvent: EventTC.getResolver('removeEventTags'),
-		deleteAccount: UserTC.getResolver('deleteAccount'),
+		...restrictByScope(Resolver, 'content:read', {
+			contentSearch: ContentTC.getResolver('searchContent'),
+		}),
 
-		locationRecordOne: LocationTC.getResolver('recordOne'),
-		trackedLocationsRemoveMany: LocationTC.getResolver('deleteTrackedLocations'),
-		uploadedLocationsRemoveMany: LocationTC.getResolver('deleteUploadedLocations'),
+		...restrictByScope(Resolver, 'content:write', {
+			tagContent: ContentTC.getResolver('addContentTags'),
+			untagContent: ContentTC.getResolver('removeContentTags'),
+		}),
 
-		oauthAppDelete: OAuthAppTC.getResolver('deleteOne'),
-		oauthAppInitialize: OAuthAppTC.getResolver('initializeOne'),
-		oauthAppPatch: OAuthAppTC.getResolver('patchOne'),
-		oauthAppResetClientSecret: OAuthAppTC.getResolver('resetClientSecret'),
+		...restrictByScope(Resolver, 'events:read', {
+			eventSearch: EventTC.getResolver('searchEvents'),
+		}),
 
-		oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
+		...restrictByScope(Resolver, 'events:write', {
+			eventCreateMany: EventTC.getResolver('bulkUpload'),
+			tagEvent: EventTC.getResolver('addEventTags'),
+			untagEvent: EventTC.getResolver('removeEventTags'),
+		}),
 
-		searchDelete: SearchTC.getResolver('deleteSearch'),
-		searchFind: SearchTC.getResolver('findSearch'),
-		searchPatch: SearchTC.getResolver('patchSearch'),
-		searchUpsert: SearchTC.getResolver('upsertSearch'),
+		...restrictByScope(Resolver, 'account', {
+			deleteAccount: UserTC.getResolver('deleteAccount'),
+		}),
 
-		tagUpdateSharing: TagTC.getResolver('updateSharing'),
+		...restrictByScope(Resolver, 'locations:write', {
+			locationRecordOne: LocationTC.getResolver('recordOne'),
+			trackedLocationsRemoveMany: LocationTC.getResolver('deleteTrackedLocations'),
+			uploadedLocationsRemoveMany: LocationTC.getResolver('deleteUploadedLocations'),
+		}),
 
-		userApiKeyUpdate: UserTC.getResolver('updateApiKey'),
-		userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking'),
-		userThemeUpdate: UserTC.getResolver('updateTheme')
+		...restrictByScope(Resolver, 'oauthApps:write', {
+			oauthAppDelete: OAuthAppTC.getResolver('deleteOne'),
+			oauthAppInitialize: OAuthAppTC.getResolver('initializeOne'),
+			oauthAppPatch: OAuthAppTC.getResolver('patchOne'),
+			oauthAppResetClientSecret: OAuthAppTC.getResolver('resetClientSecret'),
+			oauthAppTokensDelete: OAuthAppTC.getResolver('deleteTokens'),
+
+			oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
+		}),
+
+		...restrictByScope(Resolver, 'searches:read', {
+			searchFind: SearchTC.getResolver('findSearch'),
+		}),
+
+		...restrictByScope(Resolver, 'searches:write', {
+			searchDelete: SearchTC.getResolver('deleteSearch'),
+			searchPatch: SearchTC.getResolver('patchSearch'),
+			searchUpsert: SearchTC.getResolver('upsertSearch'),
+		}),
+
+		...restrictByScope(Resolver, 'tags:write', {
+			tagUpdateSharing: TagTC.getResolver('updateSharing'),
+		}),
+
+		...restrictByScope(Resolver, 'user:write', {
+			userApiKeyUpdate: UserTC.getResolver('updateApiKey'),
+			userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking'),
+			userThemeUpdate: UserTC.getResolver('updateTheme')
+		}),
 	}),
 
 	sharedTagContactSearch: ContactTC.getResolver('sharedTagSearch'),

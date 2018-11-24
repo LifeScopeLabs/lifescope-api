@@ -10,6 +10,7 @@ import config from 'config';
 import httpErrors from 'http-errors';
 import mongoose from 'mongoose';
 
+import {OAuthTokenTC} from "./oauth-tokens";
 import uuid from '../../lib/util/uuid';
 
 
@@ -288,14 +289,49 @@ OAuthAppTC.addResolver({
 		id: 'String!'
 	},
 	resolve: async function({ source, args, context, info}) {
-		await OAuthAppTC.getResolver('removeOne').resolve({
-			args: {
-				filter: {
-					id: args.id,
-					user_id_string: context.req.user._id.toString('hex')
+		try {
+			await OAuthTokenTC.getResolver('removeMany').resolve({
+				args: {
+					filter: {
+						app_id_string: args.id
+					}
 				}
-			}
-		});
+			});
+
+			await OAuthAppTC.getResolver('removeOne').resolve({
+				args: {
+					filter: {
+						id: args.id,
+						user_id_string: context.req.user._id.toString('hex')
+					}
+				}
+			});
+		} catch(err) {
+			throw new Error(err);
+		}
+	}
+});
+
+
+OAuthAppTC.addResolver({
+	name: 'deleteTokens',
+	kind: 'mutation',
+	type: OAuthAppTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		try {
+			await OAuthTokenTC.getResolver('removeMany').resolve({
+				args: {
+					filter: {
+						app_id_string: args.id
+					}
+				}
+			});
+		} catch(err) {
+			throw new Error(err);
+		}
 	}
 });
 
