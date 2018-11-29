@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 import _ from 'lodash';
 import { withFilter } from 'graphql-subscriptions';
-import {graphql} from 'graphql-compose';
+import {TypeComposer, graphql} from 'graphql-compose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import config from 'config';
 import httpErrors from 'http-errors';
@@ -27,6 +27,16 @@ let authorizationLimitedType = new graphql.GraphQLObjectType({
 		privacy_policy_url: graphql.GraphQLString
 	}
 });
+
+
+let authorizedAppType = TypeComposer.create(`
+	type authorizedApps {
+		id: String,
+		description: String,
+		name: String,
+		scopes: [String]
+	}
+`);
 
 
 export const OAuthAppSchema = new mongoose.Schema(
@@ -358,5 +368,78 @@ OAuthAppTC.addResolver({
 		else {
 			throw new Error('Invalid client_id');
 		}
+	}
+});
+
+
+OAuthAppTC.addResolver({
+	name: 'authorizedApps',
+	kind: 'query',
+	type: [authorizedAppType],
+	resolve: async function({source, args, context, info}) {
+		let tokens = await OAuthTokenTC.getResolver('findMany').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let appIds = [];
+		let appScopes = {};
+
+		_.each(tokens, function(token) {
+			let appScope = appScopes[token.app_id.toString('hex')];
+
+			appIds.push(token.app_id.toString('hex'));
+
+			appScopes[token.app_id.toString('hex')] = appScope && Array.isArray(appScope) ? _.merge(appScope, token.scopes) : token.scopes;
+		});
+
+		appIds = _.uniq(appIds);
+
+		let apps = await OAuthAppTC.getResolver('findMany').resolve({
+			args: {
+				filter: {
+					id: {
+						$in: appIds
+					}
+				}
+			}
+		});
+
+		let returned = _.map(apps, function(app) {
+			let temp = _.pick(app, ['_id', 'name', 'description']);
+
+			temp.id = temp._id.toString('hex');
+			temp = _.omit(temp, ['_id']);
+			temp.scopes = appScopes[temp.id];
+
+			return temp;
+		});
+
+		return returned;
+	}
+});
+
+
+OAuthAppTC.addResolver({
+	name: 'revokeApp',
+	kind: 'mutation',
+	type: OAuthAppTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({source, args, context, info}) {
+		await OAuthTokenTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					app_id_string: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		return;
 	}
 });

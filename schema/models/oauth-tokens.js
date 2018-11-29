@@ -17,6 +17,7 @@ import {OAuthTokenSessionTC} from "./oauth-token-sessions";
 
 
 let validScopes = [
+	'basic',
 	'events:read',
 	'contacts:read',
 	'content:read',

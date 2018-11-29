@@ -37,6 +37,13 @@ const AddressSchema = new mongoose.Schema({
 	},
 });
 
+let basicType = new graphql.GraphQLObjectType({
+	name: 'userBasic',
+	fields: {
+		id: graphql.GraphQLString
+	}
+});
+
 
 export const UserSchema = new mongoose.Schema(
 	{
@@ -438,5 +445,25 @@ UserTC.addResolver({
 		});
 
 		return updated.record;
+	}
+});
+
+
+UserTC.addResolver({
+	name: 'userBasic',
+	kind: 'query',
+	type: basicType,
+	resolve: async ({source, args, context, info}) => {
+		let result = await UserTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		return {
+			id: result._id.toString('hex')
+		};
 	}
 });

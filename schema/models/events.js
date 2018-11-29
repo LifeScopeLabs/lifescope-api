@@ -288,17 +288,6 @@ EventTC.addRelation('hydratedContent', {
 	}
 });
 
-EventTC.addRelation('hydratedConnection', {
-	resolver: () => ConnectionTC.getResolver('findOne'),
-	prepareArgs: {
-		filter: function(source) {
-			return {
-				id: source.connection_id.toString('hex')
-			}
-		},
-	}
-});
-
 EventTC.addRelation('hydratedLocation', {
 	resolver: () => LocationTC.getResolver('findOne'),
 	prepareArgs: {

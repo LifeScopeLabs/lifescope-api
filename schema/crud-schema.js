@@ -47,12 +47,12 @@ GQC.rootQuery().addFields({
 			providerHydratedMany: ProviderTC.getResolver('providerHydratedMany'),
 		}),
 
-		...restrictByScope(Resolver, 'contacts:read', {
+		...restrictByScope(Resolver, ['events:read', 'contacts:read'], {
 			contactCount: ContactTC.getResolver('count'),
 			contactOne: ContactTC.getResolver('findOne'),
 		}),
 
-		...restrictByScope(Resolver, 'content:read', {
+		...restrictByScope(Resolver, ['events:read', 'content:read'], {
 			contentCount: ContentTC.getResolver('count'),
 			contentFindByIdentifier: ContentTC.getResolver('findByIdentifier'),
 			contentOne: ContentTC.getResolver('findOne'),
@@ -63,7 +63,7 @@ GQC.rootQuery().addFields({
 			eventOne: EventTC.getResolver('findOne'),
 		}),
 
-		...restrictByScope(Resolver, 'locations:read', {
+		...restrictByScope(Resolver, ['events:read', 'locations:read'], {
 			locationCount: LocationTC.getResolver('count'),
 			locationFindManyById: LocationTC.getResolver('findManyById'),
 
@@ -73,6 +73,8 @@ GQC.rootQuery().addFields({
 		...restrictByScope(Resolver, 'oauthApps:read', {
 			oauthAppMany: OAuthAppTC.getResolver('findMany'),
 			oauthAppOne: OAuthAppTC.getResolver('findOne'),
+
+			oauthAppAuthorizedMany: OAuthAppTC.getResolver('authorizedApps'),
 		}),
 
 		...restrictByScope(Resolver, 'searches:read', {
@@ -88,7 +90,11 @@ GQC.rootQuery().addFields({
 
 		...restrictByScope(Resolver, 'user:read', {
 			userOne: UserTC.getResolver('findOne'),
-		})
+		}),
+
+		...restrictByScope(Resolver, 'basic', {
+			userBasic: UserTC.getResolver('userBasic')
+		}),
 	}),
 
 	oauthAppOneAuthorization: OAuthAppTC.getResolver('authorizationLimited')
@@ -102,7 +108,7 @@ GQC.rootMutation().addFields({
 			connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
 		}),
 
-		...restrictByScope(Resolver, 'contacts:read', {
+		...restrictByScope(Resolver, ['events:read', 'contacts:read'], {
 			contactSearch: ContactTC.getResolver('searchContacts'),
 		}),
 
@@ -111,7 +117,7 @@ GQC.rootMutation().addFields({
 			untagContact: ContactTC.getResolver('removeContactTags'),
 		}),
 
-		...restrictByScope(Resolver, 'content:read', {
+		...restrictByScope(Resolver, ['events:read', 'content:read'], {
 			contentSearch: ContentTC.getResolver('searchContent'),
 		}),
 
@@ -146,6 +152,8 @@ GQC.rootMutation().addFields({
 			oauthAppPatch: OAuthAppTC.getResolver('patchOne'),
 			oauthAppResetClientSecret: OAuthAppTC.getResolver('resetClientSecret'),
 			oauthAppTokensDelete: OAuthAppTC.getResolver('deleteTokens'),
+
+			oauthAppRevokeTokens: OAuthAppTC.getResolver('revokeApp'),
 
 			oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
 		}),
