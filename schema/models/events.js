@@ -111,9 +111,31 @@ export const EventsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		contact_id_strings: {
+			type: [String],
+			get: function() {
+				if (this.contacts) {
+					return _.map(this.contacts, function(contact) {
+						return contact.toString('hex');
+					});
+				}
+			}
+		},
+
 		content: {
 			type: [Buffer],
 			index: false
+		},
+
+		content_id_strings: {
+			type: [String],
+			get: function() {
+				if (this.content) {
+					return _.map(this.content, function(content) {
+						return content.toString('hex');
+					});
+				}
+			}
 		},
 
 		context: {
@@ -182,11 +204,6 @@ export const EventsSchema = new mongoose.Schema(
 		},
 
 		provider_name: {
-			type: String,
-			index: false
-		},
-
-		source: {
 			type: String,
 			index: false
 		},
@@ -1028,28 +1045,6 @@ EventTC.addResolver({
 				args: {
 					filter: filter,
 					sort: sort
-				},
-				projection: {
-					id: true,
-					connection_id: true,
-					connection_id_string: true,
-					contacts: true,
-					contact_interaction_type: true,
-					content: true,
-					context: true,
-					created: true,
-					datetime: true,
-					hydratedContacts: true,
-					hydratedContent: true,
-					hydratedLocation: true,
-					location: true,
-					provider_id: true,
-					provider_id_string: true,
-					provider_name: true,
-					source: true,
-					tagMasks: true,
-					type: true,
-					updated: true
 				}
 			});
 
@@ -1073,28 +1068,6 @@ EventTC.addResolver({
 					sort: sort,
 					limit: query.limit,
 					skip: query.offset
-				},
-				projection: {
-					id: true,
-					connection_id: true,
-					connection_id_string: true,
-					contacts: true,
-					contact_interaction_type: true,
-					content: true,
-					context: true,
-					created: true,
-					datetime: true,
-					hydratedContacts: true,
-					hydratedContent: true,
-					hydratedLocation: true,
-					location: true,
-					provider_id: true,
-					provider_id_string: true,
-					provider_name: true,
-					source: true,
-					tagMasks: true,
-					type: true,
-					updated: true
 				}
 			});
 

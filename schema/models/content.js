@@ -106,11 +106,6 @@ export const ContentSchema = new mongoose.Schema(
 			index: false
 		},
 
-		owner: {
-			type: String,
-			index: false
-		},
-
 		price: Number,
 
 		provider_id: {
@@ -157,11 +152,6 @@ export const ContentSchema = new mongoose.Schema(
 		},
 
 		text: {
-			type: String,
-			index: false
-		},
-
-		thumbnail: {
 			type: String,
 			index: false
 		},

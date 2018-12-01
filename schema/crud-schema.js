@@ -50,23 +50,28 @@ GQC.rootQuery().addFields({
 		...restrictByScope(Resolver, ['events:read', 'contacts:read'], {
 			contactCount: ContactTC.getResolver('count'),
 			contactOne: ContactTC.getResolver('findOne'),
+			contactMany: ContactTC.getResolver('findMany')
 		}),
 
 		...restrictByScope(Resolver, ['events:read', 'content:read'], {
 			contentCount: ContentTC.getResolver('count'),
 			contentFindByIdentifier: ContentTC.getResolver('findByIdentifier'),
 			contentOne: ContentTC.getResolver('findOne'),
+			contentMany: ContentTC.getResolver('findMany')
 		}),
 
 		...restrictByScope(Resolver, 'events:read', {
 			eventCount: EventTC.getResolver('count'),
 			eventOne: EventTC.getResolver('findOne'),
+			eventMany: EventTC.getResolver('findMany')
 		}),
 
 		...restrictByScope(Resolver, ['events:read', 'locations:read'], {
 			locationCount: LocationTC.getResolver('count'),
 			locationFindManyById: LocationTC.getResolver('findManyById'),
+		}),
 
+		...restrictByScope(Resolver, 'locationFiles:read', {
 			locationFileCount: LocationFileTC.getResolver('count'),
 		}),
 

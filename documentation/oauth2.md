@@ -270,3 +270,891 @@ POST https://api.lifescope.io/auth/access_token?grant_type=refresh_token_token&c
 ```
 
 Overwrite the old ```access_token``` with the new one.
+
+
+### OAuth2 endpoints
+
+Many of the GraphQL endpoints used by the LifeScope app are available via OAuth with appropriate scopes.
+As of this writing, due to the close links between Events and Contacts/Content/Locations, any endpoint covered by one of the latter scopes is also accessible using the Events scope.
+The LifeScope GraphQL URL is ```https://api.lifescope.io/gql```.
+
+#### contactCount (query)
+
+Returns a count of the Contacts matching the filter.
+
+**Scopes**
+
+```contacts:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
+
+**Returned fields**
+
+As with all counts, the returned data is an integer, not an object with its own fields, e.g.
+
+```
+{
+    "data": {
+        "contactCount": 6492
+    },
+}
+```
+
+#### contactOne (query)
+
+Returns the first Contact that matches the filter.
+If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
+
+**Scopes**
+
+```contacts:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+#### contactMany (query)
+
+Returns a list of Contacts that match the filter.
+If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
+
+**Scopes**
+
+```contacts:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
+| limit | Integer | The maximum number of results to return. |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+#### contactSearch (mutation)
+
+Returns a list of Contacts that match the search parameters.
+If you're doing complex searches of Contacts, you should probably use this instead of the 'contactMany' query.
+
+**Scopes**
+
+```contacts:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| q | String | A query string used to perform a text search. |
+| sortField | String | The field to sort results on. |
+| sortOrder| String | Either 'asc' or 'desc'. |
+| filters | String | An object containing search Filter, but JSON stringified right before being sent. See the section 'Search Filters' for full details. |
+| limit | Integer | The maximum number of results to return. |
+| offset | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+
+#### contentCount (query)
+
+Returns a count of the Content matching the filter.
+
+**Scopes**
+
+```content:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Content field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "type": "image"}, { "embed_format": "jpeg"] |
+
+**Returned fields**
+
+As with all counts, the returned data is an integer, not an object with its own fields, e.g.
+
+```
+{
+    "data": {
+        "contentCount": 6492
+    },
+}
+```
+
+#### contentOne (query)
+
+Returns the first Content that matches the filter.
+If you're doing complex searches of Content, you should probably use the mutation 'contentSearch' instead.
+
+**Scopes**
+
+```content:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Content field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "type": "image"}, { "embed_format": "jpeg"] |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+
+#### contentMany (query)
+
+Returns a list of Content that match the filter.
+If you're doing complex searches of Content, you should probably use the mutation 'contentSearch' instead.
+
+**Scopes**
+
+```content:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Content field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "type": "image"}, { "embed_format": "jpeg"] |
+| limit | Integer | The maximum number of results to return. |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+
+#### contentSearch (mutation)
+
+Returns a list of Content that match the search parameters.
+If you're doing complex searches of Content, you should probably use this instead of the 'contentMany' query.
+
+**Scopes**
+
+```content:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| q | String | A query string used to perform a text search. |
+| sortField | String | The field to sort results on. |
+| sortOrder| String | Either 'asc' or 'desc'. |
+| filters | String | An object containing search Filter, but JSON stringified right before being sent. See the section 'Search Filters' for full details. |
+| limit | Integer | The maximum number of results to return. |
+| offset | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+
+#### contentFindByIdentifier (query)
+
+Returns a piece of Content by matching the identifier.
+There shouldn't be any need to use this, ever, since identifiers are for internal ingestion use only.
+This is only used by the browser extension.
+
+**Scopes**
+
+```content:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | String | The identifier to search with. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+#### eventCount (query)
+
+Returns a count of the Events matching the filter.
+
+**Scopes**
+
+```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
+
+**Returned fields**
+
+As with all counts, the returned data is an integer, not an object with its own fields, e.g.
+
+```
+{
+    "data": {
+        "eventCount": 6492
+    },
+}
+```
+
+#### eventOne (query)
+
+Returns the first Event that matches the filter.
+If you're doing complex searches of Events, you should probably use the mutation 'eventSearch' instead.
+
+**Scopes**
+
+```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+#### eventMany (query)
+
+Returns a list of Events that match the filter.
+If you're doing complex searches of Events, you should probably use the mutation 'eventSearch' instead.
+
+**Scopes**
+
+```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
+| limit | Integer | The maximum number of results to return. |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+#### eventSearch (mutation)
+
+Returns a list of Events that match the search parameters.
+If you're doing complex searches of Events, you should probably use this instead of the 'eventMany' query.
+
+**Scopes**
+
+```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| q | String | A query string used to perform a text search. |
+| sortField | String | The field to sort results on. |
+| sortOrder| String | Either 'asc' or 'desc'. |
+| filters | String | An object containing search Filter, but JSON stringified right before being sent. See the section 'Search Filters' for full details. |
+| limit | Integer | The maximum number of results to return. |
+| offset | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+
+#### locationCount (query)
+
+Returns a count of the Locations matching the filter.
+
+**Scopes**
+
+```locations:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | Object | An object containing any Location field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "geo_format": "lat_lng"}, { "estimated": false] |
+
+**Returned fields**
+
+As with all counts, the returned data is an integer, not an object with its own fields, e.g.
+
+```
+{
+    "data": {
+        "locationCount": 6492
+    },
+}
+```
+
+#### locationFindManyById (query)
+
+Returns the Locations whose IDs are in an array passed as a variable
+
+**Scopes**
+
+```locations:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| ids | [String] | An array of Location IDs. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Location's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Location. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Location's ```connection_id```. |
+| created | Date | When the the Location was first created in LifeScope. |
+| datetime | Date | The exact date at which the user was at that Location. |
+| estimated | Boolean | Whether this Location was estimated or actually recorded by some service. |
+| geo_format | String | The format of the coordinates recorded in ```geolocation```. Currently the only valid value is 'lat_lng'.|
+| geolocation | [Double] | The coordinates of the Location. Currently, they are in [longitude, latitude] order.|
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Location's ```provider_id```. |
+| tracked| Boolean | Whether or not this Location came from LifeScope's location tracking. |
+| updated | Date | The last time the Location was updated in LifeScope. |
+| uploaded | Boolean | Whether or not this Location was uploaded in a file. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Location. |
+| user_id_string | String | A virtual field containing a human-readable form of the Location's ```user_id```. |
+
+#### userBasic (query)
+
+Returns basic information about the user.
+At present, this is just their LifeScope ID.
+
+**Scopes**
+
+```basic```
+
+**Variables**
+
+None
+
+**Returned Fields**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+
+
+#### Search Filters
+
+LifeScope's search mutations use custom filters as one of the input variables.
+There are six basic types of filters: 
+
+* Who Filters (filtering by Contacts)
+* What Filters (filtering by Content type)
+* When Filters (filtering by Event's occurrence)
+* Where Filters (filtering by Location)
+* Connector Filters (filtering by Connection or Provider)
+* Tag Filters (filtering by active, i.e. non-removed, tags)
+
+One important thing to note is that **filters of the same type are ORed with each other, while different types of filters are ANDed with each other**.
+If you use two different What filters, results that match either of them will potentially be added to the return pool.
+If you use a Who and a What filter, the search result must match Contacts specified by the Who filter AND Content specified by the What filter; results that match one but not the other will not be returned.
+
+##### Who Filters
+
+Who filters filter by a Contact's ```name``` and/or ```handle```.
+They can also filter by ```contact_interaction_type``` on an Event; this field can be 'to', 'from', or 'with'.
+
+Who filters are sent in the 'filters' variable under the key ```whoFilters```.
+The value is an array of filters..
+
+If the filter is just for the ```contact_interaction_type```, it would look like this:
+
+```
+{
+	"whoFilters": [
+		{
+			"event.contact_interaction_type": "to"
+		}
+	]
+}
+```
+
+If the filter is just for a ```name``` or ```handle```, it would look like this:
+
+```
+{
+	"whoFilters": [
+		{
+			"$or":[
+				{
+					"name": "steve"
+				},
+				{
+					"handle": "steve"
+				}
+			]
+		}
+	]
+}
+```
+
+If the filter combines both of those search parameters, it would look like this:
+
+```
+{
+	"whoFilters": [
+		{
+			"$and":[
+				{
+					"event.contact_interaction_type":
+					"to"
+				},
+				{
+					"$or":[
+						{
+							"name": "steve"
+						},
+						{
+							"handle": "steve"
+						}
+					]
+				}
+	]
+}
+```
+ 
+If sending multiple Who filters simultaneously, it would look like this:
+ 
+```
+{
+	"whoFilters": [
+		{
+			"$and":[
+				{
+					"event.contact_interaction_type": "from"
+				},
+				{
+					"$or":[
+						{
+							"name": "steve"
+						},
+						{
+							"handle": "steve"
+						}
+					]
+				}
+			]
+		},
+		{
+			"$or":[
+				{
+					"name": "bob"
+				},
+				{
+					"handle": "bob"
+				}
+			]
+		},
+		{
+			"event.contact_interaction_type": "to"
+		}
+	]
+}
+```
+
+##### What Filters
+
+What filters filter by a Content's ```type```.
+
+What filters are sent in the 'filters' variable under the key ```whatFilters```.
+The value is an array of filters.
+
+Here's an example of sending multiple What filters:
+
+```
+{
+	"whatFilters": [
+		{
+			"type": "code"
+		},
+		{
+			"type": "receipt"
+		},
+		{
+			"type": "image"
+		}
+	]
+}
+```
+
+##### When Filters
+
+When filters filter by an Event's ```datetime```.
+
+What filters are sent in the 'filters' variable under the key ```whatFilters```.
+The value is an array of filters.
+Dates should be sent in JSON Date format (ISO 8601) as a string, in UTC, as seen in the example below.
+
+Here's an example of sending multiple When filters:
+
+```
+{
+	"whenFilters": [
+		{
+			"datetime": {
+				"$gte":"2018-11-17T00:29:54.472Z"
+			}
+		},
+		{
+			"datetime":{
+				"$gte":"2018-06-30T23:29:54.472Z",
+				"$lte":"2018-07-01T23:29:54.472Z"
+			}
+		}
+	]
+}
+```
+
+
+##### Where Filters
+
+Where filters filter by an Event's Location.
+
+Where filters are sent in the 'filters' variable under the key ```whereFilters```.
+The value is an array of filters.
+Filters can either explicitly exclude estimated Locations, or, if not specified, will include estimated and non-estimated Locations.
+The coordinates are passed as an array containing an array that contains a set of arrays, with each innermost array being a pair of [```longitude```, ```latitude```] points. The final point must match the first point.
+
+Here's an example of sending multiple Where filters:
+
+```
+{
+	"whereFilters": [
+		{
+			"$and": [
+				{
+					"hydratedLocation.geolocation": {
+						"$geoWithin":{
+							"$geometry": {
+								"type": "Polygon",
+								"coordinates": [
+									[
+										[-127.42089843750128,40.512737220154264], 
+										[-108.61230468750249,39.70611205302902],
+										[-119.15917968750159,26.66584756122161],
+										[-127.42089843750128,40.512737220154264]
+									]
+								]
+							}
+						}
+					}
+				}
+			]
+		},
+		{
+			"$and": [
+				{
+					"hydratedLocation.geolocation": {
+						"$not": {
+							"$geoWithin": {
+								"$geometry": {
+									"type": "Polygon",
+									"coordinates": [
+										[
+											[-105.62402343750237,49.55281934390436],
+											[-85.49707031250644,45.766548576851505],
+											[-99.99902343750249,41.1114163934007],
+											[-105.62402343750237,49.55281934390436]
+										]
+									]
+								}
+							}
+						}
+					}
+				},
+				{
+					"hydratedLocation.estimated": false
+				}
+			]
+		}
+	]
+}
+```
+Note, in the second filter, that the geolocation uses a '$not'.
+This filter would return results whose Locations fall **outside** the specified coordinates.
+In the first filter, only results whose Locations fell **inside** the specified coordinates would be returned.
+
+##### Connector Filters
+
+Connector filters filter by the ID of the Connection or Provider which the objects came from.
+
+Connector filters are sent in the 'filters' variable under the key ```connectorFilters```.
+The value is an array of filters.
+You specify either the ```provider_id_string``` or the ```connection_id_string``` as the key and the ID in string format as the value for each filter.
+
+Here is an example of sending multiple Connector filters:
+
+```
+
+{
+	"connectorFilters": [
+		{
+			"provider_id_string: "50e95221070d4413827dd0309d93bbc4"
+		},
+		{
+			"connection_id_string": "d79396a197df43f0bf9632f5f78457f3"
+		}
+	]
+}
+```
+
+##### Tag Filters
+
+Tag filters filter by the active, i.e. non-removed, tags on objects.
+
+Tag filters are sent in the 'filters' variable under the key ```tagFilters```.
+The value is an array of strings, where each string is a tag.
+
+Here is an example of sending multiple Connector filters:
+
+```
+
+{
+	"tagFilters": [
+		"guardian",
+		"beachparty",
+		"limes"
+	]
+}
+```
