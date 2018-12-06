@@ -15,6 +15,8 @@ import { LocationTC } from './locations';
 import { SearchTC } from "./searches";
 import { SessionTC } from "./sessions";
 import { TagTC } from "./tags";
+import {OAuthTokenSessionTC} from "./oauth-token-sessions";
+import {LocationFileTC} from "./location-files";
 
 const AccountTypeSchema = new mongoose.Schema(
 	{
@@ -337,7 +339,31 @@ UserTC.addResolver({
 			}
 		});
 
-		await SessionTC.getResolver('removeMany').resolve({
+		await LocationFileTC.getResolver('removeOne').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await OAuthAppTC.getResolver('removeOne').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await OAuthTokenTC.getResolver('removeOne').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await OAuthTokenSessionTC.getResolver('removeOne').resolve({
 			args: {
 				filter: {
 					user_id_string: req.user._id.toString('hex')
@@ -348,7 +374,15 @@ UserTC.addResolver({
 		await SearchTC.getResolver('removeMany').resolve({
 			args: {
 				filter: {
-					id: req.user._id.toString('hex')
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await SessionTC.getResolver('removeMany').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
 				}
 			}
 		});

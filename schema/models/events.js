@@ -106,7 +106,7 @@ export const EventsSchema = new mongoose.Schema(
 			index: false
 		},
 
-		contacts: {
+		contact_ids: {
 			type: [Buffer],
 			index: false
 		},
@@ -114,15 +114,15 @@ export const EventsSchema = new mongoose.Schema(
 		contact_id_strings: {
 			type: [String],
 			get: function() {
-				if (this.contacts) {
-					return _.map(this.contacts, function(contact) {
-						return contact.toString('hex');
+				if (this.contact_ids) {
+					return _.map(this.contact_ids, function(contactId) {
+						return contactId.toString('hex');
 					});
 				}
 			}
 		},
 
-		content: {
+		content_ids: {
 			type: [Buffer],
 			index: false
 		},
@@ -130,9 +130,9 @@ export const EventsSchema = new mongoose.Schema(
 		content_id_strings: {
 			type: [String],
 			get: function() {
-				if (this.content) {
-					return _.map(this.content, function(content) {
-						return content.toString('hex');
+				if (this.content_ids) {
+					return _.map(this.content_ids, function(contentId) {
+						return contentId.toString('hex');
 					});
 				}
 			}
@@ -159,7 +159,7 @@ export const EventsSchema = new mongoose.Schema(
 			index: false
 		},
 
-		location: {
+		location_id: {
 			type: Buffer,
 			index: false,
 		},
@@ -167,8 +167,8 @@ export const EventsSchema = new mongoose.Schema(
 		location_id_string: {
 			type: String,
 			get: function() {
-				if (this.location) {
-					return this.location.toString('hex');
+				if (this.location_id) {
+					return this.location_id.toString('hex');
 				}
 			},
 			set: function(val) {
@@ -273,7 +273,7 @@ EventTC.addRelation('hydratedContacts', {
 				}
 			};
 
-			_.each(source.contacts, function(item) {
+			_.each(source.contact_ids, function(item) {
 				if (item != null) {
 					returned.id.$in.push(item.toString('hex'));
 				}
@@ -294,7 +294,7 @@ EventTC.addRelation('hydratedContent', {
 				}
 			};
 
-			_.each(source.content, function(item) {
+			_.each(source.content_ids, function(item) {
 				if (item != null) {
 					returned.id.$in.push(item.toString('hex'));
 				}
@@ -309,7 +309,7 @@ EventTC.addRelation('hydratedLocation', {
 	resolver: () => LocationTC.getResolver('findOne'),
 	prepareArgs: {
 		filter: function(source) {
-			if (source.location != null) {
+			if (source.location_id != null) {
 				return {
 					id: source.location.toString('hex')
 				};
@@ -480,13 +480,13 @@ EventTC.addResolver({
 			let $contactEventLookup = {
 				from: 'events',
 				localField: '_id',
-				foreignField: 'contacts',
+				foreignField: 'contact_ids',
 				as: 'event'
 			};
 
 			let $contactContentLookup = {
 				from: 'content',
-				localField: 'event.content',
+				localField: 'event.content_ids',
 				foreignField: '_id',
 				as: 'content'
 			};
@@ -494,34 +494,34 @@ EventTC.addResolver({
 			let $contentEventLookup = {
 				from: 'events',
 				localField: '_id',
-				foreignField: 'content',
+				foreignField: 'content_ids',
 				as: 'event'
 			};
 
 			let $contentContactLookup = {
 				from: 'contacts',
-				localField: 'event.contacts',
+				localField: 'event.contact_ids',
 				foreignField: '_id',
 				as: 'contact'
 			};
 
 			let $eventLocationLookup = {
 				from: 'locations',
-				localField: 'location',
+				localField: 'location_id',
 				foreignField: '_id',
 				as: 'hydratedLocation'
 			};
 
 			let $contactLocationLookup = {
 				from: 'locations',
-				localField: 'event.location',
+				localField: 'event.location_id',
 				foreignField: '_id',
 				as: 'hydratedLocation'
 			};
 
 			let $contentLocationLookup = {
 				from: 'locations',
-				localField: 'event.location',
+				localField: 'event.location_id',
 				foreignField: '_id',
 				as: 'hydratedLocation'
 			};
@@ -963,7 +963,6 @@ EventTC.addResolver({
 						_id: true,
 						'event._id': true
 					});
-
 			}
 
 			if (contentSearched === true) {
@@ -1161,31 +1160,31 @@ function MongoEvent(data) {
 	this.user_id = data.user_id;
 
 	if (data.contacts) {
-		this.contacts = new Array(data.contacts.length);
+		this.contact_ids = new Array(data.contacts.length);
 
 		for (let i = 0; i < data.contacts.length; i++) {
-			this.contacts[i] = data.contacts[i]._id;
+			this.contact_ids[i] = data.contacts[i]._id;
 		}
 	}
 
 	if (data.content) {
-		this.content = new Array(data.content.length);
+		this.content_ids = new Array(data.content.length);
 
 		for (let i = 0; i < data.content.length; i++) {
-			this.content[i] = data.content[i]._id;
+			this.content_ids[i] = data.content[i]._id;
 		}
 	}
 
 	if (data.things) {
-		this.things = new Array(data.things.length);
+		this.thing_ids = new Array(data.things.length);
 
 		for (let i = 0; i < data.things.length; i++) {
-			this.things[i] = data.things[i]._id;
+			this.thing_ids[i] = data.things[i]._id;
 		}
 	}
 
 	if (data.location) {
-		this.location = data.location._id;
+		this.location_id = data.location._id;
 	}
 
 	if (this.tagMasks == null) {
