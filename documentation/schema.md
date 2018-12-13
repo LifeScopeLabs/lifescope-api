@@ -33,21 +33,21 @@ Note that the related object also requires you to specify which of its fields yo
 All of the objects' IDs are UUID4s.
 These UUIDs are stored as Binaries, and directly accessing them via the API will return a garbled jumble that's the direct stringification of those binary characters.
 In order to get the human-readable form, a virtual field is provided on the schema; this field is usually titled ```<field>_id_string```.
-The only exception is that the human-readable form of ```_id```, the ID of the object in question, is just called ```id```.
+The only exception is that the ID of an object is stored as ```_id```, and the human-readable virtual field is just called ```id```.
 Due to the way virtual fields work, you **must** request the binary fields as well when making the GraphQL request. 
 
 For example, an Event is stored with a UUID4 for its ```_id```, ```connection_id```, and ```provider_id```.
-To get human-readable form of those fields, one would make the following GraphQL request:
+To get human-readable forms of those fields, one would make the following GraphQL request:
 
 ```
-	mutation eventSearch(<various variables>) {
-		_id,
-		id,
-		connection_id,
-		connection_id_string,
-		provider_id,
-		provider_id_string
-	}
+mutation eventSearch(<various variables>) {
+	_id,
+	id,
+	connection_id,
+	connection_id_string,
+	provider_id,
+	provider_id_string
+}
 ```
 
 It is **not** required to request the binary field when requesting related fields.
@@ -61,7 +61,7 @@ They represent an action in a user's history, and are related to virtually every
 ### Fields
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
@@ -91,8 +91,8 @@ They represent an action in a user's history, and are related to virtually every
 
 As mentioned in 'Retrieving Related Objects', if you are requesting any of these related objects, you must specify which of the related objects' fields you want retrieved as well.
 
-| Name |  Related Object |
-| --- | --- |
+| Name | Related Object |
+| :--- | :--- |
 | hydratedContacts | Contacts |
 | hydratedContent | Content |
 | hydratedLocation | Locations |
@@ -165,7 +165,7 @@ A Contact has no record of which Events it's associated with.
 ### Fields
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
 | avatar_url | String | The URL to the Contact's avatar image. |
@@ -221,7 +221,7 @@ A Content has no record of which Events it's associated with.
 ### Fields
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
@@ -289,7 +289,7 @@ We hope to introduce a new object in the future to generalize related Locations 
 ### Fields
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Location's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Location. |

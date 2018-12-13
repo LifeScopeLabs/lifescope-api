@@ -12,10 +12,10 @@ If approved, your service will receive an OAuth token that you can use to make r
 
 ### Creating an OAuth app
 
-1) Go to the [Developer settings page](https://app.lifescope.io/settings/developer) in LifeScope and click the button 'Generate New OAuth App' under 'OAuth2 Apps'.
-2) Enter a name, description homepage URL, and privacy policy URL in the appropriate fields; all are required.
-3) When the app is created, you should be redirected to the the page for it. You must enter at least one redirect URI; this is where the app will redirect user traffic once they have authorized your access to their data.
-4) Click the 'Save App' button to save any changes you've made, including changes to Redirect URIs.
+1) Go to the [Developer settings page](https://app.lifescope.io/settings/developer) in LifeScope and click the button 'Generate New OAuth App' under 'OAuth2 Apps'.  
+2) Enter a name, description homepage URL, and privacy policy URL in the appropriate fields; all are required.  
+3) When the app is created, you should be redirected to the the page for it. You must enter at least one redirect URI; this is where the app will redirect user traffic once they have authorized your access to their data.  
+4) Click the 'Save App' button to save any changes you've made, including changes to Redirect URIs.  
 
 OAuth apps have two keys for identification, a ```client_id```, which is a public key, and a ```client_secret```, which is a private key.
 The ```client_secret``` should never be given out to anyone, and is hidden by default on the page for your app.
@@ -27,12 +27,12 @@ The page for your app also lets you invalidate all of the existing keys for your
 
 #### General workflow
 
-1) Your app generates a LifeScope URL for the user to follow in a browser; this URL contains information specific to your OAuth app and the scope of information you are requesting.
-2) The user is redirected to that URL and chooses to accept or deny your app's request for access.
-3) If accepted, a short-term code is generated, and the user is redirected back to your site via an approved Redirect URI that you registered in your OAuth app.
-4) Your servers exchange this code for an access token, and you should save this token in some database.
-5) Your application uses the access token to make requests for the user's information.
-6) (Optional) Your application refreshes the access_token once it's expired. 
+1) Your app generates a LifeScope URL for the user to follow in a browser; this URL contains information specific to your OAuth app and the scope of information you are requesting.  
+2) The user is redirected to that URL and chooses to accept or deny your app's request for access.  
+3) If accepted, a short-term code is generated, and the user is redirected back to your site via an approved Redirect URI that you registered in your OAuth app.  
+4) Your servers exchange this code for an access token, and you should save this token in some database.  
+5) Your application uses the access token to make requests for the user's information.  
+6) (Optional) Your application refreshes the access_token once it's expired.   
 
 #### User Authorization (steps 1-3 above)
 
@@ -48,7 +48,7 @@ There are several query parameters that can be sent as part of this request, and
 **Outgoing Parameters** (Required are bolded)
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | **client_id** | string | The client_id for your registered OAuth app. |
 | **redirect_uri** | string | A redirect URI registered to your Oauht app. This is where the user will be redirected with the short-term key after they've authorized your app. |
 | **scope** | string | A comma-delimited list of scopes that your app is requesting access to. See the section on scopes for more detail on what scopes are available. |
@@ -67,7 +67,7 @@ If they deny it, they will be directed back to the specified redirect_uri along 
 **Incoming Parameters**
 
 | Name | Type | Value |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | error | string | access_denied |
 | error_description | string | The user denied the request |
 
@@ -80,7 +80,7 @@ If the user allows the request and there are no errors, they will be redirected 
 **Incoming Parmaeters**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | code | string | A short-term code used to authorize the next step of the process. |
 | state | string | The state variable you optionally passed as part of the authorization URL |
 
@@ -103,7 +103,7 @@ ALL of them are required.
 **Outgoing Variables** (Required are bolded)
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | **grant_type** | string | Must be 'authorization_code' for this operation.
 | **client_id** | string | The client_id for your registered OAuth app. |
 | **client_secret** | string | The client_secret for your registered OAuth app. |
@@ -115,7 +115,7 @@ The response will have three fields
 **Returned Fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | access_token | string | The scoped token that you can use to access the user's information. |
 | refresh_token | string | A token used to generate a new access_token when the current one expires. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
@@ -148,7 +148,7 @@ with the following parameters:
 **Outgoing Parameters** (Required are bolded)
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | **grant_type** | string | Must be 'authorization_code' for this operation.
 | **client_id** | string | The client_id for your registered OAuth app. |
 | **client_secret** | string | The client_secret for your registered OAuth app. |
@@ -161,7 +161,7 @@ The response will be in JSON format and will have the following fields:
 **Returned Fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | access_token | string | The scoped token that you can use to access the user's information. |
 | refresh_token | string | A token used to generate a new access_token when the current one expires. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
@@ -202,7 +202,7 @@ The variables you pass are slightly different than the original access_token req
 **Outgoing Variables** (Required are bolded)
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | **grant_type** | string | Must be 'refresh_token' for this operation. |
 | **client_id** | string | The client_id for your registered OAuth app. |
 | **client_secret** | string | The client_secret for your registered OAuth app. |
@@ -213,7 +213,7 @@ The response will have two fields
 **Returned Fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | access_token | string | The new scoped token that you can use to access the user's information. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
 
@@ -247,7 +247,7 @@ with the following parameters:
 **Outgoing Parameters** (Required are bolded)
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | **grant_type** | string | Must be 'refresh_token' for this operation.
 | **client_id** | string | The client_id for your registered OAuth app. |
 | **client_secret** | string | The client_secret for your registered OAuth app. |
@@ -259,7 +259,7 @@ The response will be in JSON format and will have the following fields:
 **Returned Fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | access_token | string | The new scoped token that you can use to access the user's information. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
 
@@ -272,13 +272,14 @@ POST https://api.lifescope.io/auth/access_token?grant_type=refresh_token_token&c
 Overwrite the old ```access_token``` with the new one.
 
 
-### OAuth2 endpoints
+## OAuth2 Endpoints
 
 Many of the GraphQL endpoints used by the LifeScope app are available via OAuth with appropriate scopes.
 As of this writing, due to the close links between Events and Contacts/Content/Locations, any endpoint covered by one of the latter scopes is also accessible using the Events scope.
 The LifeScope GraphQL URL is ```https://api.lifescope.io/gql```.
+For futher documentation on the LifeScope Schema, see [here](https://lifescope.io/schema).
 
-#### contactCount (query)
+### contactCount (query)
 
 Returns a count of the Contacts matching the filter.
 
@@ -289,7 +290,7 @@ Returns a count of the Contacts matching the filter.
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
 
 **Returned fields**
@@ -304,7 +305,7 @@ As with all counts, the returned data is an integer, not an object with its own 
 }
 ```
 
-#### contactOne (query)
+### contactOne (query)
 
 Returns the first Contact that matches the filter.
 If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
@@ -316,14 +317,14 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
 | skip | Integer | The number of results to skip. |
 
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
 | avatar_url | String | The URL to the Contact's avatar image. |
@@ -341,7 +342,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
 | user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
 
-#### contactMany (query)
+### contactMany (query)
 
 Returns a list of Contacts that match the filter.
 If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
@@ -353,7 +354,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
 | limit | Integer | The maximum number of results to return. |
 | skip | Integer | The number of results to skip. |
@@ -361,7 +362,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
 | avatar_url | String | The URL to the Contact's avatar image. |
@@ -379,7 +380,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
 | user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
 
-#### contactSearch (mutation)
+### contactSearch (mutation)
 
 Returns a list of Contacts that match the search parameters.
 If you're doing complex searches of Contacts, you should probably use this instead of the 'contactMany' query.
@@ -391,7 +392,7 @@ If you're doing complex searches of Contacts, you should probably use this inste
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | q | String | A query string used to perform a text search. |
 | sortField | String | The field to sort results on. |
 | sortOrder| String | Either 'asc' or 'desc'. |
@@ -402,7 +403,7 @@ If you're doing complex searches of Contacts, you should probably use this inste
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
 | avatar_url | String | The URL to the Contact's avatar image. |
@@ -421,7 +422,7 @@ If you're doing complex searches of Contacts, you should probably use this inste
 | user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
 
 
-#### contentCount (query)
+### contentCount (query)
 
 Returns a count of the Content matching the filter.
 
@@ -432,7 +433,7 @@ Returns a count of the Content matching the filter.
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Content field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "type": "image"}, { "embed_format": "jpeg"] |
 
 **Returned fields**
@@ -447,7 +448,7 @@ As with all counts, the returned data is an integer, not an object with its own 
 }
 ```
 
-#### contentOne (query)
+### contentOne (query)
 
 Returns the first Content that matches the filter.
 If you're doing complex searches of Content, you should probably use the mutation 'contentSearch' instead.
@@ -459,14 +460,14 @@ If you're doing complex searches of Content, you should probably use the mutatio
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Content field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "type": "image"}, { "embed_format": "jpeg"] |
 | skip | Integer | The number of results to skip. |
 
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
@@ -491,7 +492,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 | user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
 
 
-#### contentMany (query)
+### contentMany (query)
 
 Returns a list of Content that match the filter.
 If you're doing complex searches of Content, you should probably use the mutation 'contentSearch' instead.
@@ -503,7 +504,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Content field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "type": "image"}, { "embed_format": "jpeg"] |
 | limit | Integer | The maximum number of results to return. |
 | skip | Integer | The number of results to skip. |
@@ -511,7 +512,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
@@ -536,7 +537,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 | user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
 
 
-#### contentSearch (mutation)
+### contentSearch (mutation)
 
 Returns a list of Content that match the search parameters.
 If you're doing complex searches of Content, you should probably use this instead of the 'contentMany' query.
@@ -548,7 +549,7 @@ If you're doing complex searches of Content, you should probably use this instea
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | q | String | A query string used to perform a text search. |
 | sortField | String | The field to sort results on. |
 | sortOrder| String | Either 'asc' or 'desc'. |
@@ -559,7 +560,7 @@ If you're doing complex searches of Content, you should probably use this instea
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
@@ -584,7 +585,7 @@ If you're doing complex searches of Content, you should probably use this instea
 | user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
 
 
-#### contentFindByIdentifier (query)
+### contentFindByIdentifier (query)
 
 Returns a piece of Content by matching the identifier.
 There shouldn't be any need to use this, ever, since identifiers are for internal ingestion use only.
@@ -597,13 +598,13 @@ This is only used by the browser extension.
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | id | String | The identifier to search with. |
 
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
@@ -627,7 +628,7 @@ This is only used by the browser extension.
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
 | user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
 
-#### eventCount (query)
+### eventCount (query)
 
 Returns a count of the Events matching the filter.
 
@@ -638,7 +639,7 @@ Returns a count of the Events matching the filter.
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
 
 **Returned fields**
@@ -653,7 +654,7 @@ As with all counts, the returned data is an integer, not an object with its own 
 }
 ```
 
-#### eventOne (query)
+### eventOne (query)
 
 Returns the first Event that matches the filter.
 If you're doing complex searches of Events, you should probably use the mutation 'eventSearch' instead.
@@ -665,14 +666,14 @@ If you're doing complex searches of Events, you should probably use the mutation
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
 | skip | Integer | The number of results to skip. |
 
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
@@ -697,7 +698,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
 | user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
 
-#### eventMany (query)
+### eventMany (query)
 
 Returns a list of Events that match the filter.
 If you're doing complex searches of Events, you should probably use the mutation 'eventSearch' instead.
@@ -709,7 +710,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
 | limit | Integer | The maximum number of results to return. |
 | skip | Integer | The number of results to skip. |
@@ -717,7 +718,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
@@ -742,7 +743,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
 | user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
 
-#### eventSearch (mutation)
+### eventSearch (mutation)
 
 Returns a list of Events that match the search parameters.
 If you're doing complex searches of Events, you should probably use this instead of the 'eventMany' query.
@@ -754,7 +755,7 @@ If you're doing complex searches of Events, you should probably use this instead
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | q | String | A query string used to perform a text search. |
 | sortField | String | The field to sort results on. |
 | sortOrder| String | Either 'asc' or 'desc'. |
@@ -765,7 +766,7 @@ If you're doing complex searches of Events, you should probably use this instead
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
@@ -791,7 +792,7 @@ If you're doing complex searches of Events, you should probably use this instead
 | user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
 
 
-#### locationCount (query)
+### locationCount (query)
 
 Returns a count of the Locations matching the filter.
 
@@ -802,7 +803,7 @@ Returns a count of the Locations matching the filter.
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | filter | Object | An object containing any Location field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "geo_format": "lat_lng"}, { "estimated": false] |
 
 **Returned fields**
@@ -817,7 +818,7 @@ As with all counts, the returned data is an integer, not an object with its own 
 }
 ```
 
-#### locationFindManyById (query)
+### locationFindManyById (query)
 
 Returns the Locations whose IDs are in an array passed as a variable
 
@@ -828,13 +829,13 @@ Returns the Locations whose IDs are in an array passed as a variable
 **Variables**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | ids | [String] | An array of Location IDs. |
 
 **Returned fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Location's ```_id```. |
 | connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Location. |
@@ -853,7 +854,7 @@ Returns the Locations whose IDs are in an array passed as a variable
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Location. |
 | user_id_string | String | A virtual field containing a human-readable form of the Location's ```user_id```. |
 
-#### userBasic (query)
+### userBasic (query)
 
 Returns basic information about the user.
 At present, this is just their LifeScope ID.
@@ -869,12 +870,12 @@ None
 **Returned Fields**
 
 | Name | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
 
 
-#### Search Filters
+### Search Filters
 
 LifeScope's search mutations use custom filters as one of the input variables.
 There are six basic types of filters: 
@@ -890,7 +891,7 @@ One important thing to note is that **filters of the same type are ORed with eac
 If you use two different What filters, results that match either of them will potentially be added to the return pool.
 If you use a Who and a What filter, the search result must match Contacts specified by the Who filter AND Content specified by the What filter; results that match one but not the other will not be returned.
 
-##### Who Filters
+#### Who Filters
 
 Who filters filter by a Contact's ```name``` and/or ```handle```.
 They can also filter by ```contact_interaction_type``` on an Event; this field can be 'to', 'from', or 'with'.
@@ -993,7 +994,7 @@ If sending multiple Who filters simultaneously, it would look like this:
 }
 ```
 
-##### What Filters
+#### What Filters
 
 What filters filter by a Content's ```type```.
 
@@ -1018,7 +1019,7 @@ Here's an example of sending multiple What filters:
 }
 ```
 
-##### When Filters
+#### When Filters
 
 When filters filter by an Event's ```datetime```.
 
@@ -1047,7 +1048,7 @@ Here's an example of sending multiple When filters:
 ```
 
 
-##### Where Filters
+#### Where Filters
 
 Where filters filter by an Event's Location.
 
@@ -1115,7 +1116,7 @@ Note, in the second filter, that the geolocation uses a '$not'.
 This filter would return results whose Locations fall **outside** the specified coordinates.
 In the first filter, only results whose Locations fell **inside** the specified coordinates would be returned.
 
-##### Connector Filters
+#### Connector Filters
 
 Connector filters filter by the ID of the Connection or Provider which the objects came from.
 
@@ -1139,7 +1140,7 @@ Here is an example of sending multiple Connector filters:
 }
 ```
 
-##### Tag Filters
+#### Tag Filters
 
 Tag filters filter by the active, i.e. non-removed, tags on objects.
 
