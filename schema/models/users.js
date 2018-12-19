@@ -15,6 +15,8 @@ import { LocationTC } from './locations';
 import { SearchTC } from "./searches";
 import { SessionTC } from "./sessions";
 import { TagTC } from "./tags";
+import {OAuthAppTC} from "./oauth-apps";
+import {OAuthTokenTC} from "./oauth-tokens";
 import {OAuthTokenSessionTC} from "./oauth-token-sessions";
 import {LocationFileTC} from "./location-files";
 
