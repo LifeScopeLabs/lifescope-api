@@ -116,7 +116,9 @@ export const EventsSchema = new mongoose.Schema(
 			get: function() {
 				if (this.contact_ids) {
 					return _.map(this.contact_ids, function(contactId) {
-						return contactId.toString('hex');
+						if (contactId != null) {
+							return contactId.toString('hex');
+						}
 					});
 				}
 			}
@@ -132,7 +134,9 @@ export const EventsSchema = new mongoose.Schema(
 			get: function() {
 				if (this.content_ids) {
 					return _.map(this.content_ids, function(contentId) {
-						return contentId.toString('hex');
+						if (contentId != null) {
+							return contentId.toString('hex');
+						}
 					});
 				}
 			}
