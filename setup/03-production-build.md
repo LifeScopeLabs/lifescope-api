@@ -69,3 +69,6 @@ Finally, click Save.
 Everything should be configured at this point, so click 'Create environment'.
 Elastic Beanstalk should take a few minutes to set up everything for you.
 When it's done, you should be able to hit the URL followed by '/gql-i', and a GraphiQL interface should appear.
+
+
+# [Step 3: Production Build](https://github.com/LifeScopeLabs/lifescope-api/blob/master/setup/03-production-build.md)

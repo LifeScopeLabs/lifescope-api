@@ -118,3 +118,5 @@ Click on the 'Keys and Access Tokens' tab and copy the Consumer Key and Consumer
 
 Repeat the above steps starting with creating a new app to make a separate application and Map for Twitter Login.
 Twitter does not allow for multiple callback URLs on the same application, so for simplicity we're using one Map for Login and another Map for retrieving data.
+
+# [Step 2: Local Build](https://github.com/LifeScopeLabs/lifescope-api/blob/master/setup/02-local-build.md)
