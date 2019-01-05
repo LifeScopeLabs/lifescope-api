@@ -13,7 +13,8 @@ import {EventTC} from './models/events';
 import {LocationTC} from './models/locations';
 import {LocationFileTC} from './models/location-files';
 import {OAuthAppTC} from './models/oauth-apps'
-import {OAuthTokenTC} from "./models/oauth-tokens";
+import {OAuthTokenTC} from './models/oauth-tokens';
+import {PeopleTC} from './models/people';
 import {ProviderTC} from './models/providers';
 import {SearchTC} from './models/searches';
 import {SessionTC} from './models/sessions';
@@ -80,6 +81,12 @@ GQC.rootQuery().addFields({
 			oauthAppOne: OAuthAppTC.getResolver('findOne'),
 
 			oauthAppAuthorizedMany: OAuthAppTC.getResolver('authorizedApps'),
+		}),
+
+		...restrictByScope(Resolver, 'people:read', {
+			peopleCount: PeopleTC.getResolver('count'),
+			peopleMany: PeopleTC.getResolver('findMany'),
+			peopleOne: PeopleTC.getResolver('findOne')
 		}),
 
 		...restrictByScope(Resolver, 'searches:read', {
@@ -161,6 +168,12 @@ GQC.rootMutation().addFields({
 			oauthAppRevokeTokens: OAuthAppTC.getResolver('revokeApp'),
 
 			oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
+		}),
+
+		...restrictByScope(Resolver, 'people:write', {
+			peopleCreate: PeopleTC.getResolver('create'),
+			peopleRemove: PeopleTC.getResolver('removeOne'),
+			peopleUpdate: PeopleTC.getResolver('update')
 		}),
 
 		...restrictByScope(Resolver, 'searches:read', {
