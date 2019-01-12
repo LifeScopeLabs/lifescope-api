@@ -1,7 +1,8 @@
 /* @flow */
 
-import config from 'config';
 import _ from 'lodash';
+import config from 'config';
+import httpErrors from 'http-errors';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
 
@@ -209,7 +210,7 @@ export const ContentTC = composeWithMongoose(Content);
 
 
 ContentTC.addResolver({
-	name: 'addContentTags',
+	name: 'addTags',
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
@@ -222,7 +223,7 @@ ContentTC.addResolver({
 });
 
 ContentTC.addResolver({
-	name: 'removeContentTags',
+	name: 'removeTags',
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {

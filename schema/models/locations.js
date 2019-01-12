@@ -187,8 +187,6 @@ LocationTC.addResolver({
 			}
 		}).toArray();
 
-		let endTime = moment();
-
 		_.each(result, function(location) {
 			location.id = location._id.toString('hex');
 		});

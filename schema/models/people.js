@@ -1,14 +1,15 @@
 /* @flow */
 
-import config from 'config';
 import _ from 'lodash';
+import config from 'config';
+import httpErrors from 'http-errors';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
 import uuid from "../../lib/util/uuid";
 import {add as addTags, remove as removeTags} from './templates/tag';
-import {ContactTC} from "./contacts";
+import {Contacts, ContactTC} from "./contacts";
 import {TagTC} from "./tags";
 import {UserTC} from "./users";
 
@@ -181,6 +182,8 @@ PeopleTC.addResolver({
 		avatar_url: 'String'
 	},
 	resolve: async function({ source, args, context, info}) {
+		let userIDString = context.req.user._id.toString('hex');
+
 		let person = {
 			_id: uuid(uuid()),
 			contact_ids: [],
@@ -201,10 +204,16 @@ PeopleTC.addResolver({
 			person.last_name = args.last_name;
 		}
 
+		if (args.avatar_url != null) {
+			person.avatar_url = args.avatar_url;
+		}
+
 		let promise;
 
 		if (args.contact_id_strings) {
 			let contacts;
+
+			console.log(args.contact_id_strings);
 
 			let promises = _.map(args.contact_id_strings, function(contact_id_string) {
 				return ContactTC.getResolver('findOne').resolve({
@@ -217,6 +226,8 @@ PeopleTC.addResolver({
 				})
 					.then(function(contact) {
 						if (contact == null) {
+							console.log(contact_id_string);
+
 							return Promise.reject(httpErrors(400, 'Invalid Contact ID'));
 						}
 						else {
@@ -245,11 +256,78 @@ PeopleTC.addResolver({
 
 		await promise;
 
-		return await PeopleTC.getResolver('createOne').resolve({
+		let personResult = await PeopleTC.getResolver('createOne').resolve({
 			args: {
 				record: person
 			}
 		});
+
+		let promises = [];
+
+		_.each(personResult.record.contact_ids, function(contactId) {
+			promises.push(ContactTC.getResolver('updateOne').resolve({
+				args: {
+					filter: {
+						id: contactId.toString('hex'),
+						user_id_string: userIDString
+					},
+					record: {
+						people_id: personResult.record._id
+					}
+				}
+			}))
+		});
+
+		await Promise.all(promises);
+	}
+});
+
+
+PeopleTC.addResolver({
+	name: 'delete',
+	kind: 'mutation',
+	type: PeopleTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		try {
+			let person = await PeopleTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						id: args.id,
+						user_id_string: context.req.user._id.toString('hex')
+					}
+				}
+			});
+
+			let promises = _.map(person.contact_ids, function(contactId) {
+				return ContactTC.getResolver('updateOne').resolve({
+					args: {
+						filter: {
+							id: contactId.toString('hex'),
+							user_id_string: context.req.user._id.toString('hex')
+						},
+						record: {
+							people_id: null
+						}
+					}
+				});
+			});
+
+			await Promise.all(promises);
+
+			return PeopleTC.getResolver('removeOne').resolve({
+				args: {
+					filter: {
+						id: args.id,
+						user_id_string: context.req.user._id.toString('hex')
+					}
+				}
+			});
+		} catch(err) {
+			throw new Error(err);
+		}
 	}
 });
 
@@ -306,12 +384,23 @@ PeopleTC.addResolver({
 		if (args.contact_id_strings) {
 			let contacts;
 
+			let person = await PeopleTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						id: args.id,
+						user_id_string: userIDString
+					}
+				}
+			});
+
+			let removed = person.contact_id_strings;
+
 			let promises = _.map(args.contact_id_strings, function(contact_id_string) {
 				return ContactTC.getResolver('findOne').resolve({
 					args: {
 						filter: {
 							id: contact_id_string,
-							user_id_string: context.req.user._id.toString('hex')
+							user_id_string: userIDString
 						}
 					}
 				})
@@ -320,6 +409,8 @@ PeopleTC.addResolver({
 							return Promise.reject(httpErrors(400, 'Invalid Contact ID'));
 						}
 						else {
+							_.remove(removed, contact.id);
+
 							return Promise.resolve(contact);
 						}
 					});
@@ -331,13 +422,45 @@ PeopleTC.addResolver({
 				throw err;
 			}
 
-			let contactIDs = _.map(contacts, function(contact) {
-				return contact._id;
+			promises = [];
+
+			let contactIDs = [];
+
+			_.each(contacts, function(contact) {
+				contactIDs.push(contact._id);
+
+				_.pull(removed, contact.id);
+
+				promises.push(ContactTC.getResolver('updateOne').resolve({
+					args: {
+						filter: {
+							id: contact.id,
+							user_id_string: userIDString
+						},
+						record: {
+							people_id: uuid(args.id)
+						}
+					}
+				}))
+			});
+
+			_.each(removed, function(contactIdString) {
+				promises.push(ContactTC.getResolver('updateOne').resolve({
+					args: {
+						filter: {
+							id: contactIdString,
+							user_id_string: userIDString
+						},
+						record: {
+							people_id: null
+						}
+					}
+				}));
 			});
 
 			update.contact_ids = contactIDs;
 
-			promise = Promise.resolve();
+			promise = Promise.all(promises);
 		}
 		else {
 			promise = Promise.resolve();
@@ -455,26 +578,33 @@ PeopleTC.addResolver({
 		}
 
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
-			let contactAggregation = People.aggregate();
+			let peopleAggregation = People.aggregate();
 
-			let contactPreLookupMatch = {
+			let peoplePreLookupMatch = {
 				user_id: context.req.user._id
 			};
 
-			let contactPostLookupMatch = {};
+			let $peopleContactLookup = {
+				from: 'contacts',
+				localField: 'contact_ids',
+				foreignField: '_id',
+				as: 'contacts'
+			};
+
+			let peoplePostLookupMatch = {};
 
 			if (query.q != null && query.q.length > 0) {
-				contactPreLookupMatch.$text = {
+				peoplePreLookupMatch.$text = {
 					$search: query.q
 				};
 			}
 
 			if (_.has(query, 'filters.tagFilters') && query.filters.tagFilters.length > 0) {
-				if (contactPreLookupMatch.$and == null) {
-					contactPreLookupMatch.$and = [];
+				if (peoplePreLookupMatch.$and == null) {
+					peoplePreLookupMatch.$and = [];
 				}
 
-				contactPreLookupMatch.$and.push({
+				peoplePreLookupMatch.$and.push({
 					$or: [{
 						$or: [{
 							$and: [{
@@ -501,42 +631,86 @@ PeopleTC.addResolver({
 				});
 			}
 
-			if (_.has(query, 'filters.whatFilters') && query.filters.whatFilters.length > 0) {
-				if (contactPreLookupMatch.$and == null) {
-					contactPreLookupMatch.$and = [];
-				}
+			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
+				let peopleFilters = [];
 
-				contactPreLookupMatch.$and.push({
-					$or: query.filters.whatFilters
+				_.each(query.filters.whoFilters, function(whoFilter) {
+					if (whoFilter.text) {
+						if (whoFilter.text.operand) {
+							peopleFilters.push({
+								$and: [
+									whoFilter.text.operand,
+									{
+										$or: [
+											{
+												'contacts.name': whoFilter.text.text
+											},
+											{
+												'contacts.handle': whoFilter.text.text
+											},
+											{
+												first_name: whoFilter.text.text
+											},
+											{
+												middle_name: whoFilter.text.text
+											},
+											{
+												last_name: whoFilter.text.text
+											}
+										]
+									}
+								]
+							});
+						}
+						else {
+							peopleFilters.push({
+								$or: [
+									{
+										'contacts.name': whoFilter.text.text
+									},
+									{
+										'contacts.handle': whoFilter.text.text
+									},
+									{
+										first_name: whoFilter.text.text
+									},
+									{
+										middle_name: whoFilter.text.text
+									},
+									{
+										last_name: whoFilter.text.text
+									}
+								]
+							});
+						}
+					}
+					else if (whoFilter.person_id_string) {
+						peopleFilters.push({
+							_id: uuid(whoFilter.person_id_string)
+						});
+					}
 				});
+
+				if (peopleFilters.length > 0) {
+					if (peoplePostLookupMatch.$and == null) {
+						peoplePostLookupMatch.$and = [];
+					}
+
+					peoplePostLookupMatch.$and.push({
+						$or: peopleFilters
+					});
+				}
 			}
 
-			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
-				let lookupConnectorFilters = _.map(query.filters.connectorFilters, function(filter) {
-					if (filter.connection_id_string) {
-						return {
-							connection_id: uuid(filter.connection_id_string)
-						};
-					}
-					else if (filter.provider_id_string) {
-						return {
-							provider_id: uuid(filter.provider_id_string)
-						};
-					}
-				});
-
-				if (contactPostLookupMatch.$and == null) {
-					contactPostLookupMatch.$and = [];
-				}
-
-				contactPostLookupMatch.$and.push({
-					$or: lookupConnectorFilters
-				});
-			}
-
-			contactAggregation
-				.match(contactPreLookupMatch)
-				.match(contactPostLookupMatch)
+			peopleAggregation
+				.match(peoplePreLookupMatch)
+				.unwind('$contact_ids')
+				.lookup($peopleContactLookup)
+				.unwind({
+					path: '$contacts',
+					preserveNullAndEmptyArrays: true
+				})
+				.match(peoplePostLookupMatch)
 				.sort(sort)
 				.skip(query.offset)
 				.limit(query.limit)
@@ -544,50 +718,39 @@ PeopleTC.addResolver({
 					_id: true
 				});
 
-			let aggregatedPeople = await contactAggregation.exec();
+			let aggregatedPeople = await peopleAggregation.exec();
 
-			let contactIds = [];
+			let peopleIds = [];
 
 			if (aggregatedPeople.length > 0) {
-				_.each(aggregatedPeople, function(contact) {
-					contactIds.push(contact._id);
+				_.each(aggregatedPeople, function(person) {
+					peopleIds.push(person._id);
 				});
 			}
 
 			let filter = {
 				user_id_string: context.req.user._id.toString('hex'),
 				_id: {
-					$in: contactIds
+					$in: peopleIds
 				}
 			};
 
-			let contactMatches = await PeopleTC.getResolver('findMany').resolve({
-				args: {
-					filter: filter,
-					sort: sort
-				},
-				projection: {
-					id: true,
-					connection_id: true,
-					connection_id_string: true,
-					provider_id: true,
-					provider_id_string: true,
-					avatar_url: true,
-					handle: true,
-					name: true,
-					tagMasks: true
-				}
-			});
-
-			let contactMatchCount = await PeopleTC.getResolver('count').resolve({
+			let peopleMatches = await PeopleTC.getResolver('findMany').resolve({
 				args: {
 					filter: filter,
 					sort: sort
 				}
 			});
 
-			documents = contactMatches;
-			count = contactMatchCount;
+			let peopleMatchCount = await PeopleTC.getResolver('count').resolve({
+				args: {
+					filter: filter,
+					sort: sort
+				}
+			});
+
+			documents = peopleMatches;
+			count = peopleMatchCount;
 
 		}
 		else {
@@ -595,47 +758,42 @@ PeopleTC.addResolver({
 				user_id_string: context.req.user._id.toString('hex')
 			};
 
-			if (query.sortField === 'name') {
-				filter.name = {
+			if (query.sortField === 'first_name') {
+				filter.first_name = {
 					$nin: [null, '']
 				};
 			}
 
-			if (query.sortField === 'handle') {
-				filter.handle = {
+			if (query.sortField === 'middle_name') {
+				filter.middle_name = {
 					$nin: [null, '']
 				};
 			}
 
-			let contactMatches = await PeopleTC.getResolver('findMany').resolve({
+			if (query.sortField === 'last_name') {
+				filter.last_name = {
+					$nin: [null, '']
+				};
+			}
+
+			let peopleMatches = await PeopleTC.getResolver('findMany').resolve({
 				args: {
 					filter: filter,
 					sort: sort,
 					limit: query.limit,
 					skip: query.offset
-				},
-				projection: {
-					id: true,
-					connection_id: true,
-					connection_id_string: true,
-					provider_id: true,
-					provider_id_string: true,
-					avatar_url: true,
-					handle: true,
-					name: true,
-					tagMasks: true
 				}
 			});
 
-			let contactMatchCount = await PeopleTC.getResolver('count').resolve({
+			let peopleMatchCount = await PeopleTC.getResolver('count').resolve({
 				args: {
 					filter: filter,
 					sort: sort
 				},
 			});
 
-			documents = contactMatches;
-			count = contactMatchCount;
+			documents = peopleMatches;
+			count = peopleMatchCount;
 		}
 
 		// let q = validationVal.q;

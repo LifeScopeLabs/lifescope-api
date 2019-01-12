@@ -1,7 +1,8 @@
 /* @flow */
 
-import config from 'config';
 import _ from 'lodash';
+import config from 'config';
+import httpErrors from 'http-errors';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
 
@@ -9,6 +10,7 @@ import uuid from "../../lib/util/uuid";
 import {add as addTags, remove as removeTags} from './templates/tag';
 import {TagTC} from "./tags";
 import {UserTC} from "./users";
+import {PeopleTC} from "./people";
 
 export const ContactsSchema = new mongoose.Schema(
 	{
@@ -102,6 +104,26 @@ export const ContactsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		people_id: {
+			type: Buffer
+		},
+
+		people_id_string: {
+			type: String,
+			get: function() {
+				return this.people_id ? this.people_id.toString('hex') : null;
+			},
+			set: function(val) {
+				if (val && this._conditions && this._conditions.people_id_string) {
+					this._conditions.people_id = uuid(val);
+
+					delete this._conditions.people_id_string;
+				}
+
+				this.people_id = uuid(val);
+			}
+		},
+
 		provider_id: {
 			type: Buffer,
 			index: false
@@ -182,9 +204,29 @@ export const Contacts = mongoose.model('Contacts', ContactsSchema);
 export const ContactTC = composeWithMongoose(Contacts);
 
 
+ContactTC.addRelation('hydratedPerson', {
+	resolver: () => PeopleTC.getResolver('findOne'),
+	prepareArgs: {
+		filter: function(source) {
+			let returned = {
+				id: {
+					$in: []
+				}
+			};
+
+			if (source.people_id) {
+				returned.id.$in.push(source.people_id.toString('hex'));
+			}
+
+			return returned;
+		}
+	}
+});
+
+
 
 ContactTC.addResolver({
-	name: 'addContactTags',
+	name: 'addTags',
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
@@ -197,7 +239,7 @@ ContactTC.addResolver({
 });
 
 ContactTC.addResolver({
-	name: 'removeContactTags',
+	name: 'removeTags',
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
@@ -206,6 +248,45 @@ ContactTC.addResolver({
 	},
 	resolve: async function({source, args, context, info}) {
 		return await removeTags(context.req, args, ContactTC);
+	}
+});
+
+ContactTC.addResolver({
+	name: 'unpersonedContacts',
+	kind: 'query',
+	type: ContactTC.getResolver('findMany').getType(),
+	args: {
+		q: 'String'
+	},
+	resolve: async function({ source, args, context, info}) {
+		let results = await mongoose.connection.db.collection('contacts').find({
+			$text: {
+				$search: args.q || ''
+			},
+			$or: [
+				{
+					people_id: {
+						$exists: false
+					}
+				},
+				{
+					people_id: null
+				}
+			]
+		}).toArray();
+
+		_.each(results, function(contact) {
+			contact.id = contact._id.toString('hex');
+			contact._id = Buffer.from(contact.id);
+			contact.user_id_string = contact.user_id.toString('hex');
+			contact.user_id = Buffer.from(contact.user_id);
+			contact.connection_id_string = contact.connection_id.toString('hex');
+			contact.connection_id = Buffer.from(contact.connection_id_string);
+			contact.provider_id_string = contact.provider_id.toString('hex');
+			contact.provider_id = Buffer.from(contact.provider_id_string);
+		});
+
+		return results;
 	}
 });
 
@@ -287,6 +368,13 @@ ContactTC.addResolver({
 				user_id: context.req.user._id
 			};
 
+			let $contactPersonLookup = {
+				from: 'people',
+				localField: 'people_id',
+				foreignField: '_id',
+				as: 'person'
+			};
+
 			let contactPostLookupMatch = {};
 
 			if (query.q != null && query.q.length > 0) {
@@ -327,14 +415,75 @@ ContactTC.addResolver({
 				});
 			}
 
-			if (_.has(query, 'filters.whatFilters') && query.filters.whatFilters.length > 0) {
-				if (contactPreLookupMatch.$and == null) {
-					contactPreLookupMatch.$and = [];
-				}
+			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
+				let contactFilters = [];
 
-				contactPreLookupMatch.$and.push({
-					$or: query.filters.whatFilters
+				_.each(query.filters.whoFilters, function(whoFilter) {
+					if (whoFilter.text) {
+						if (whoFilter.text.operand) {
+							contactFilters.push({
+								$and: [
+									whoFilter.text.operand,
+									{
+										$or: [
+											{
+												name: whoFilter.text.text
+											},
+											{
+												handle: whoFilter.text.text
+											},
+											{
+												'person.first_name': whoFilter.text.text
+											},
+											{
+												'person.middle_name': whoFilter.text.text
+											},
+											{
+												'person.last_name': whoFilter.text.text
+											}
+										]
+									}
+								]
+							});
+						}
+						else {
+							contactFilters.push({
+								$or: [
+									{
+										name: whoFilter.text.text
+									},
+									{
+										handle: whoFilter.text.text
+									},
+									{
+										'person.first_name': whoFilter.text.text
+									},
+									{
+										'person.middle_name': whoFilter.text.text
+									},
+									{
+										'person.last_name': whoFilter.text.text
+									}
+								]
+							});
+						}
+					}
+					else if (whoFilter.person_id_string) {
+						contactFilters.push({
+							'person._id': uuid(whoFilter.person_id_string)
+						});
+					}
 				});
+
+				if (contactFilters.length > 0) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: contactFilters
+					});
+				}
 			}
 
 			if (_.has(query, 'filters.connectorFilters') && query.filters.connectorFilters.length > 0) {
@@ -362,6 +511,11 @@ ContactTC.addResolver({
 
 			contactAggregation
 				.match(contactPreLookupMatch)
+				.lookup($contactPersonLookup)
+				.unwind({
+					path: '$people',
+					preserveNullAndEmptyArrays: true
+				})
 				.match(contactPostLookupMatch)
 				.sort(sort)
 				.skip(query.offset)

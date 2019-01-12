@@ -253,7 +253,8 @@
         "type": "who",
         "data": {
           "interaction": "from",
-          "contact": "Steve"
+          "text": "Steve",
+          "type": "text"
         }
       }
     ],

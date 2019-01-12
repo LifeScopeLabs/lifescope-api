@@ -17,6 +17,7 @@ import {Content, ContentTC} from './content';
 import {add as addTags, remove as removeTags} from './templates/tag';
 import {ConnectionTC} from "./connections";
 import {LocationTC} from "./locations";
+import {People, PeopleTC} from "./people";
 import {TagTC} from "./tags";
 import {UserTC} from "./users";
 
@@ -182,7 +183,7 @@ export const EventsSchema = new mongoose.Schema(
 					delete this._conditions.location_id_string;
 				}
 
-				this.location = uuid(val);
+				this.location_id = uuid(val);
 			}
 		},
 
@@ -288,6 +289,29 @@ EventTC.addRelation('hydratedContacts', {
 	}
 });
 
+
+
+EventTC.addRelation('hydratedPeople', {
+	resolver: () => PeopleTC.getResolver('findMany'),
+	prepareArgs: {
+		filter: function(source) {
+			let returned = {
+				contact_ids: {
+					$in: []
+				}
+			};
+
+			_.each(source.contact_ids, function(item) {
+				if (item != null) {
+					returned.contact_ids.$in.push(item);
+				}
+			});
+
+			return returned;
+		},
+	}
+});
+
 EventTC.addRelation('hydratedContent', {
 	resolver: () => ContentTC.getResolver('findMany'),
 	prepareArgs: {
@@ -353,7 +377,7 @@ let specialSorts = {
 };
 
 EventTC.addResolver({
-	name: 'addEventTags',
+	name: 'addTags',
 	kind: 'mutation',
 	type: EventTC.getResolver('findOne').getType(),
 	args: {
@@ -366,7 +390,7 @@ EventTC.addResolver({
 });
 
 EventTC.addResolver({
-	name: 'removeEventTags',
+	name: 'removeTags',
 	kind: 'mutation',
 	type: EventTC.getResolver('findOne').getType(),
 	args: {
@@ -460,10 +484,12 @@ EventTC.addResolver({
 			let contactsSearched = false;
 			let contentSearched = false;
 			let eventsSearched = false;
+			let peopleSearched = false;
 
 			let contactAggregation = Contacts.aggregate();
 			let contentAggregation = Content.aggregate();
 			let eventAggregation = Events.aggregate();
+			let peopleAggregation = People.aggregate();
 
 			let contactPreLookupMatch = {
 				user_id: context.req.user._id
@@ -477,9 +503,14 @@ EventTC.addResolver({
 				user_id: context.req.user._id
 			};
 
+			let peoplePreLookupMatch = {
+				user_id: context.req.user._id
+			};
+
 			let contactPostLookupMatch = {};
 			let contentPostLookupMatch = {};
 			let eventPostLookupMatch = {};
+			let peoplePostLookupMatch = {};
 
 			let $contactEventLookup = {
 				from: 'events',
@@ -530,6 +561,27 @@ EventTC.addResolver({
 				as: 'hydratedLocation'
 			};
 
+			let $peopleEventLookup = {
+				from: 'events',
+				localField: 'contact_ids',
+				foreignField: 'contact_ids',
+				as: 'event'
+			};
+
+			let $peopleContentLookup = {
+				from: 'content',
+				localField: 'event.content_ids',
+				foreignField: '_id',
+				as: 'content'
+			};
+
+			let $peopleLocationLookup = {
+				from: 'locations',
+				localField: 'event.location_id',
+				foreignField: '_id',
+				as: 'hydratedLocation'
+			};
+
 			if (query.q != null && query.q.length > 0) {
 				contactPreLookupMatch.$text = {
 					$search: query.q
@@ -547,15 +599,102 @@ EventTC.addResolver({
 			}
 
 			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
-				if (contactPostLookupMatch.$and == null) {
-					contactPostLookupMatch.$and = [];
-				}
+				let contactFilters = [];
+				let peopleFilters = [];
 
-				contactPostLookupMatch.$and.push({
-					$or: query.filters.whoFilters
+				_.each(query.filters.whoFilters, function(whoFilter) {
+					if (whoFilter.text) {
+						if (whoFilter.text.operand) {
+							contactFilters.push({
+								$and: [
+									whoFilter.text.operand,
+									{
+										$or: [
+											{
+												name: whoFilter.text.text
+											},
+											{
+												handle: whoFilter.text.text
+											}
+										]
+									}
+								]
+							});
+
+							peopleFilters.push({
+								$and: [
+									whoFilter.text.operand,
+									{
+										$or: [
+											{
+												first_name: whoFilter.text.text
+											},
+											{
+												middle_name: whoFilter.text.text
+											},
+											{
+												last_name: whoFilter.text.text
+											}
+										]
+									}
+								]
+							});
+						}
+						else {
+							contactFilters.push({
+								$or: [
+									{
+										name: whoFilter.text.text
+									},
+									{
+										handle: whoFilter.text.text
+									}
+								]
+							});
+
+							peopleFilters.push({
+								$or: [
+									{
+										first_name: whoFilter.text.text
+									},
+									{
+										middle_name: whoFilter.text.text
+									},
+									{
+										last_name: whoFilter.text.text
+									}
+								]
+							});
+						}
+					}
+					else if (whoFilter.person_id_string) {
+						peopleFilters.push({ _id: uuid(whoFilter.person_id_string) });
+					}
 				});
 
-				contactsSearched = true;
+				if (contactFilters.length > 0) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: contactFilters
+					});
+
+					contactsSearched = true;
+				}
+
+				if (peopleFilters.length > 0) {
+					if (peoplePostLookupMatch.$and == null) {
+						peoplePostLookupMatch.$and = [];
+					}
+
+					peoplePostLookupMatch.$and.push({
+						$or: peopleFilters
+					});
+
+					peopleSearched = true;
+				}
 			}
 
 			if (_.has(query, 'filters.whatFilters') && query.filters.whatFilters.length > 0) {
@@ -563,11 +702,39 @@ EventTC.addResolver({
 					contentPreLookupMatch.$and = [];
 				}
 
-				contentPreLookupMatch.$and.push({
-					$or: query.filters.whatFilters
+				let lookupWhatFilters = _.map(query.filters.whatFilters, function(filter) {
+					return {
+						'content.type': filter.type
+					}
 				});
 
-				contentSearched = true;
+				if (contactsSearched === true) {
+					if (contactPostLookupMatch.$and == null) {
+						contactPostLookupMatch.$and = [];
+					}
+
+					contactPostLookupMatch.$and.push({
+						$or: lookupWhatFilters
+					});
+				}
+
+				if (peopleSearched === true) {
+					if (peoplePostLookupMatch.$and == null) {
+						peoplePostLookupMatch.$and = [];
+					}
+
+					peoplePostLookupMatch.$and.push({
+						$or: lookupWhatFilters
+					});
+				}
+
+				if (contactsSearched !== true && peopleSearched !== true) {
+					contentPreLookupMatch.$and.push({
+						$or: query.filters.whatFilters
+					});
+
+					contentSearched = true;
+				}
 			}
 
 			if (_.has(query, 'filters.whenFilters') && query.filters.whenFilters.length > 0) {
@@ -593,6 +760,16 @@ EventTC.addResolver({
 					}
 
 					contactPostLookupMatch.$and.push({
+						$or: lookupWhenFilters
+					});
+				}
+
+				if (peopleSearched === true) {
+					if (peoplePostLookupMatch.$and == null) {
+						peoplePostLookupMatch.$and = [];
+					}
+
+					peoplePostLookupMatch.$and.push({
 						$or: lookupWhenFilters
 					});
 				}
@@ -626,6 +803,17 @@ EventTC.addResolver({
 						$or: query.filters.whereFilters
 					});
 				}
+
+				if (peopleSearched === true) {
+					if (peoplePostLookupMatch.$and == null) {
+						peoplePostLookupMatch.$and = [];
+					}
+
+					peoplePostLookupMatch.$and.push({
+						$or: query.filters.whereFilters
+					});
+				}
+
 
 				if (contentSearched === true) {
 					if (contentPostLookupMatch.$and == null) {
@@ -808,6 +996,113 @@ EventTC.addResolver({
 
 				contactsSearched = true;
 
+				if (peopleSearched === true) {
+					if (peoplePostLookupMatch.$and == null) {
+						peoplePostLookupMatch.$and = [];
+					}
+
+					peoplePostLookupMatch.$and.push({
+						$or: [{
+							$or: [{
+								$and: [{
+									'tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}, {
+							$or: [{
+								$and: [{
+									'content.tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'content.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'content.tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'content.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}, {
+							$or: [{
+								$and: [{
+									'event.tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'event.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'event.tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'event.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}]
+					});
+				}
+				else {
+					if (peoplePreLookupMatch.$and == null) {
+						peoplePreLookupMatch.$and = [];
+					}
+
+					peoplePreLookupMatch.$and.push({
+						$or: [{
+							$and: [{
+								'tagMasks.source': {
+									$in: query.filters.tagFilters
+								},
+
+								'tagMasks.removed': {
+									$nin: query.filters.tagFilters
+								}
+							}]
+						}, {
+							$and: [{
+								'tagMasks.added': {
+									$in: query.filters.tagFilters
+								},
+
+								'tagMasks.removed': {
+									$nin: query.filters.tagFilters
+								}
+							}]
+						}]
+					});
+				}
+
+				peopleSearched = true;
+
 				if (contentSearched === true) {
 					if (contentPostLookupMatch.$and == null) {
 						contentPostLookupMatch.$and = [];
@@ -876,6 +1171,28 @@ EventTC.addResolver({
 									},
 
 									'event.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}]
+						}, {
+							$or: [{
+								$and: [{
+									'people.tagMasks.source': {
+										$in: query.filters.tagFilters
+									},
+
+									'people.tagMasks.removed': {
+										$nin: query.filters.tagFilters
+									}
+								}]
+							}, {
+								$and: [{
+									'people.tagMasks.added': {
+										$in: query.filters.tagFilters
+									},
+
+									'people.tagMasks.removed': {
 										$nin: query.filters.tagFilters
 									}
 								}]
@@ -969,6 +1286,32 @@ EventTC.addResolver({
 					});
 			}
 
+			if (peopleSearched === true) {
+				peopleAggregation
+					.match(peoplePreLookupMatch)
+					.unwind('$contact_ids')
+					.lookup($peopleEventLookup)
+					.unwind('$event')
+					.lookup($peopleContentLookup)
+					.unwind({
+						path: '$content',
+						preserveNullAndEmptyArrays: true
+					})
+					.lookup($peopleLocationLookup)
+					.unwind({
+						path: '$hydratedLocation',
+						preserveNullAndEmptyArrays: true
+					})
+					.match(peoplePostLookupMatch)
+					.sort(contactSort)
+					.skip(query.offset)
+					.limit(query.limit)
+					.project({
+						_id: true,
+						'event._id': true
+					});
+			}
+
 			if (contentSearched === true) {
 				contentAggregation
 					.match(contentPreLookupMatch)
@@ -994,7 +1337,7 @@ EventTC.addResolver({
 					});
 			}
 
-			eventsSearched = (Object.keys(query.filters).length === 1 && Object.keys(query.filters)[0] === 'tagFilters') || (contactsSearched === false && contentSearched === false) || (Object.keys(contactPreLookupMatch).length === 0 && Object.keys(contentPreLookupMatch).length === 0 && Object.keys(contactPostLookupMatch).length === 0 && Object.keys(contentPostLookupMatch).length === 0);
+			eventsSearched = (Object.keys(query.filters).length === 1 && Object.keys(query.filters)[0] === 'tagFilters') || (contactsSearched === false && contentSearched === false && peopleSearched === false) || (Object.keys(contactPreLookupMatch).length === 0 && Object.keys(peoplePreLookupMatch).length === 0 && Object.keys(contentPreLookupMatch).length === 0 && Object.keys(contactPostLookupMatch).length === 0 && Object.keys(peoplePostLookupMatch).length === 0 && Object.keys(contentPostLookupMatch).length === 0);
 
 			if (eventsSearched === true) {
 				eventAggregation
@@ -1016,6 +1359,7 @@ EventTC.addResolver({
 			let aggregatedContacts = contactsSearched === true ? await contactAggregation.exec() : [];
 			let aggregatedContent = contentSearched === true ? await contentAggregation.exec(): [];
 			let aggregatedEvents = eventsSearched === true ? await eventAggregation.exec() : [];
+			let aggregatedPeople = peopleSearched === true ? await peopleAggregation.exec() : [];
 
 			let eventIds = [];
 
@@ -1034,6 +1378,12 @@ EventTC.addResolver({
 			if (aggregatedEvents.length > 0) {
 				_.each(aggregatedEvents, function(event) {
 					eventIds.push(event._id);
+				});
+			}
+
+			if (aggregatedPeople.length > 0) {
+				_.each(aggregatedPeople, function(person) {
+					eventIds.push(person.event._id);
 				});
 			}
 

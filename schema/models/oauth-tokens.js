@@ -21,7 +21,8 @@ let validScopes = [
 	'events:read',
 	'contacts:read',
 	'content:read',
-	'locations:read'
+	'locations:read',
+	'people:read'
 ];
 
 let authorizationType = new graphql.GraphQLObjectType({

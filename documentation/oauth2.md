@@ -854,6 +854,148 @@ Returns the Locations whose IDs are in an array passed as a variable
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Location. |
 | user_id_string | String | A virtual field containing a human-readable form of the Location's ```user_id```. |
 
+### personCount (query)
+
+Returns a count of the Contacts matching the filter.
+
+**Scopes**
+
+```people:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| filter | Object | An object containing any Person field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
+
+**Returned fields**
+
+As with all counts, the returned data is an integer, not an object with its own fields, e.g.
+
+```
+{
+    "data": {
+        "contactCount": 6492
+    },
+}
+```
+
+### contactOne (query)
+
+Returns the first Contact that matches the filter.
+If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
+
+**Scopes**
+
+```contacts:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+### contactMany (query)
+
+Returns a list of Contacts that match the filter.
+If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
+
+**Scopes**
+
+```contacts:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| filter | Object | An object containing any Contact field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "name": "Google"}, { "handle": "no-reply@google.com"] |
+| limit | Integer | The maximum number of results to return. |
+| skip | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+### contactSearch (mutation)
+
+Returns a list of Contacts that match the search parameters.
+If you're doing complex searches of Contacts, you should probably use this instead of the 'contactMany' query.
+
+**Scopes**
+
+```contacts:read``` OR ```events:read```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| q | String | A query string used to perform a text search. |
+| sortField | String | The field to sort results on. |
+| sortOrder| String | Either 'asc' or 'desc'. |
+| filters | String | An object containing search Filter, but JSON stringified right before being sent. See the section 'Search Filters' for full details. |
+| limit | Integer | The maximum number of results to return. |
+| offset | Integer | The number of results to skip. |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
 ### userBasic (query)
 
 Returns basic information about the user.

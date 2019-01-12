@@ -211,6 +211,17 @@ const config = require('config');
 				user_id: 1
 			}),
 
+			// `people` collection
+			db.db('live').collection('people').createIndex({
+				first_name: 'text',
+				middle_name: 'text',
+				last_name: 'text'
+			}),
+
+			db.db('live').collection('people').createIndex({
+				user_id: 1
+			}),
+
 			// `providers` collection
 			db.db('live').collection('providers').createIndex({
 				enabled: 1
