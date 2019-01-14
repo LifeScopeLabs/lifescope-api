@@ -5,6 +5,7 @@ LifeScope data is broken down into several different interrelated objects:
 * Events (actions the user took)
 * Content (digital objects such as videos, photos, receipts, text, etc.)
 * Contacts (entities a user interacted with)
+* People (meta-collection of Contacts)
 * Locations (where the user was)
 * Connections (a user's specific account with a Provider)
 * Providers (services a user used, e.g. Facebook, GitHub, Google Takeout)
@@ -17,6 +18,7 @@ For example, if you wanted to retrieve the Contacts related to an Event, you wou
 ```
 mutation eventSearch(<various variables>) {
 	id,
+	contact_ids,
 	hydratedContacts {
 		id,
 		avatar_url,
@@ -50,8 +52,8 @@ mutation eventSearch(<various variables>) {
 }
 ```
 
-It is **not** required to request the binary field when requesting related fields.
-As demonstrated in the example in 'Retrieving Related Objects', you would not need to request ```contact_ids``` in order to get ```hydratedContacts```. 
+It is **required** that you request the binary field when requesting related fields.
+As demonstrated in the example in 'Retrieving Related Objects', you would need to request ```contact_ids``` in order to get ```hydratedContacts```. 
 
 ## Events
 
@@ -156,11 +158,13 @@ mutation eventSearch($q: String, $offset: Int, $limit: Int, $filters: String, $s
 ## Contacts
 
 Contacts represent an entity that a user has interacted with through a digital service, such as a Twitter user or a Gmail account.
-As of this writing, there is no linkage between different Contacts; even if the same person controls those Twitter and Gmail accounts, each account is treated as a separate Contact.
-We hope to introduce a separate object in the future to represent a person in their entirety.
+Contacts on their own have no connection to any other Contact; even if your friend Elena owns both the Twitter account @elena19 and the Gmail account elena.placeholder@gmail.com, both of those are treated as completely separate entities.
+If you would like to associate multiple Contacts with a single person, you can manually create a Person as documented below.
 
 A Contact can be associated with multiple Events, though that association is strictly one-sided from the perspective of Events.
 A Contact has no record of which Events it's associated with.
+
+A Contact may only be associated with a single Person at a time.
 
 ### Fields
 
@@ -175,6 +179,8 @@ A Contact has no record of which Events it's associated with.
 | handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
 | provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
 | provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
 | provider_name | String | The name of the Provider from which this Contact was obtained. |
@@ -364,7 +370,67 @@ THis type of Location will have ```estimated``` be true, ```tracked``` be false,
 
 These Locations will always be associated with an Event.
 
-## tagMasks (not an object, but a field of most object)
+## People
+
+People are collections of Contacts that all belong to the same person.
+
+
+As of this writing, they must be manually constructed, and there is no independent verification of whether a Contact actually belongs to a Person. 
+
+### Fields
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contacts that are associated with this Person. |
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Contact's ```contact_ids```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| first_name | String | The Person's first name. |
+| middle_name | String | The Person's middle name. |
+| last_name | String | The Person's last name. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+ 
+### Relations
+
+As mentioned in 'Retrieving Related Objects', if you are requesting any of these related objects, you must specify which of the related objects' fields you want retrieved as well.
+
+| Name | Related Object |
+| :--- | :--- |
+| hydratedContacts | Contacts |
+
+### Example GraphQL Request with Schema
+
+```
+mutation personSearch($q: String, $offset: Int, $limit: Int, $filters: String, $sortField: String, $sortOrder: String) {
+    personSearch(q: $q, offset: $offset, limit: $limit, filters: $filters, sortField: $sortField, sortOrder: $sortOrder) {
+        id,
+        avatar_url,
+        first_name,
+        middle_name,
+        last_name,
+        contact_ids,
+        contact_id_strings,
+        hydratedContacts {
+        	id,
+			avatar_url,
+			handle,
+			name
+        },
+		tagMasks {
+			added,
+			removed,
+			source
+		}
+    }
+}
+```
+
+## tagMasks (not an object, but a field of most objects)
 
 One of LifeScope's useful features is the ability to tag objects.
 Many objects that are already tagged in the services they were generated from with '#<tag>' will be automatically tagged; for example, Tweets that have hashtags will automatically be tagged in LifeScope with those hashtags.

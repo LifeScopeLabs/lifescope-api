@@ -1,6 +1,6 @@
-# LifeScope OAuth2 documentation
+# LifeScope API Platform Documentation
 
-## OAuth2 apps
+## Creating Apps with OAuth2
 
 OAuth2 is a protocol that lets external applications or services access a user's data without giving the third-party service access to the user's credentials.
 In the context of LifeScope, this means that the third-party service does not have access to a user's OAuth Tokens for their Connections to other services.
@@ -285,7 +285,7 @@ Returns a count of the Contacts matching the filter.
 
 **Scopes**
 
-```contacts:read``` OR ```events:read```
+``` contacts:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -312,7 +312,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 
 **Scopes**
 
-```contacts:read``` OR ```events:read```
+``` contacts:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -334,6 +334,8 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
 | provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
 | provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
 | provider_name | String | The name of the Provider from which this Contact was obtained. |
@@ -349,7 +351,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 
 **Scopes**
 
-```contacts:read``` OR ```events:read```
+``` contacts:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -372,6 +374,8 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
 | provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
 | provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
 | provider_name | String | The name of the Provider from which this Contact was obtained. |
@@ -387,7 +391,7 @@ If you're doing complex searches of Contacts, you should probably use this inste
 
 **Scopes**
 
-```contacts:read``` OR ```events:read```
+``` contacts:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -413,6 +417,8 @@ If you're doing complex searches of Contacts, you should probably use this inste
 | handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
 | provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
 | provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
 | provider_name | String | The name of the Provider from which this Contact was obtained. |
@@ -428,7 +434,7 @@ Returns a count of the Content matching the filter.
 
 **Scopes**
 
-```content:read``` OR ```events:read```
+``` content:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -455,7 +461,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 
 **Scopes**
 
-```content:read``` OR ```events:read```
+``` content:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -499,7 +505,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 
 **Scopes**
 
-```content:read``` OR ```events:read```
+``` content:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -544,7 +550,7 @@ If you're doing complex searches of Content, you should probably use this instea
 
 **Scopes**
 
-```content:read``` OR ```events:read```
+``` content:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -593,7 +599,7 @@ This is only used by the browser extension.
 
 **Scopes**
 
-```content:read``` OR ```events:read```
+``` content:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -634,7 +640,7 @@ Returns a count of the Events matching the filter.
 
 **Scopes**
 
-```events:read```
+``` events:read ```
 
 **Variables**
 
@@ -642,7 +648,7 @@ Returns a count of the Events matching the filter.
 | :--- | :--- | :--- |
 | filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
 
-**Returned fields**
+**Returned Fields**
 
 As with all counts, the returned data is an integer, not an object with its own fields, e.g.
 
@@ -661,7 +667,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 
 **Scopes**
 
-```events:read```
+``` events:read ```
 
 **Variables**
 
@@ -670,7 +676,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 | filter | Object | An object containing any Event field. Can also AND or OR multiple filter objects together, e.g. AND: [{ "context": "Received"}, { "type": "messaged"] |
 | skip | Integer | The number of results to skip. |
 
-**Returned fields**
+*** Returned Fields ***
 
 | Name | Type | Description |
 | :--- | :--- | :--- |
@@ -705,7 +711,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 
 **Scopes**
 
-```events:read```
+``` events:read ```
 
 **Variables**
 
@@ -750,7 +756,7 @@ If you're doing complex searches of Events, you should probably use this instead
 
 **Scopes**
 
-```events:read```
+``` events:read ```
 
 **Variables**
 
@@ -798,7 +804,7 @@ Returns a count of the Locations matching the filter.
 
 **Scopes**
 
-```locations:read``` OR ```events:read```
+```locations:read``` OR ``` events:read ```
 
 **Variables**
 
@@ -824,7 +830,7 @@ Returns the Locations whose IDs are in an array passed as a variable
 
 **Scopes**
 
-```locations:read``` OR ```events:read```
+```locations:read``` OR ``` events:read ```
 
 **Variables**
 
@@ -860,7 +866,7 @@ Returns a count of the Contacts matching the filter.
 
 **Scopes**
 
-```people:read``` OR ```events:read```
+``` people:read``` OR ``` events:read ```
 
 **Variables**
 
@@ -880,14 +886,14 @@ As with all counts, the returned data is an integer, not an object with its own 
 }
 ```
 
-### contactOne (query)
+### personOne (query)
 
-Returns the first Contact that matches the filter.
-If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
+Returns the first Person that matches the filter.
+If you're doing complex searches of People, you should probably use the mutation 'personSearch' instead.
 
 **Scopes**
 
-```contacts:read``` OR ```events:read```
+``` people:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -903,28 +909,25 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
 | avatar_url | String | The URL to the Contact's avatar image. |
-| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
-| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contacts that are associated with this Person. |
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Contact's ```contact_ids```. |
 | created | Date | When the the Contact was first created in LifeScope. |
-| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
-| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
-| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
-| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
-| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
-| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| first_name | String | The Person's first name. |
+| middle_name | String | The Person's middle name. |
+| last_name | String | The Person's last name. |
 | tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
 | updated | Date | The last time the Contact was updated in LifeScope. |
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
 | user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
 
-### contactMany (query)
+### personMany (query)
 
-Returns a list of Contacts that match the filter.
-If you're doing complex searches of Contacts, you should probably use the mutation 'contactSearch' instead.
+Returns a list of People that match the filter.
+If you're doing complex searches of People, you should probably use the mutation 'personSearch' instead.
 
 **Scopes**
 
-```contacts:read``` OR ```events:read```
+``` people:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -941,28 +944,25 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
 | avatar_url | String | The URL to the Contact's avatar image. |
-| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
-| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contacts that are associated with this Person. |
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Contact's ```contact_ids```. |
 | created | Date | When the the Contact was first created in LifeScope. |
-| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
-| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
-| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
-| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
-| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
-| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| first_name | String | The Person's first name. |
+| middle_name | String | The Person's middle name. |
+| last_name | String | The Person's last name. |
 | tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
 | updated | Date | The last time the Contact was updated in LifeScope. |
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
 | user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
 
-### contactSearch (mutation)
+### personSearch (mutation)
 
-Returns a list of Contacts that match the search parameters.
-If you're doing complex searches of Contacts, you should probably use this instead of the 'contactMany' query.
+Returns a list of People that match the search parameters.
+If you're doing complex searches of People, you should probably use this instead of the 'personMany' query.
 
 **Scopes**
 
-```contacts:read``` OR ```events:read```
+``` people:read ``` OR ``` events:read ```
 
 **Variables**
 
@@ -982,15 +982,12 @@ If you're doing complex searches of Contacts, you should probably use this inste
 | _id | Binary | A UUID4 in binary form uniquely identifying this object. |
 | id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
 | avatar_url | String | The URL to the Contact's avatar image. |
-| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
-| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contacts that are associated with this Person. |
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Contact's ```contact_ids```. |
 | created | Date | When the the Contact was first created in LifeScope. |
-| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
-| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
-| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
-| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
-| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
-| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| first_name | String | The Person's first name. |
+| middle_name | String | The Person's middle name. |
+| last_name | String | The Person's last name. |
 | tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
 | updated | Date | The last time the Contact was updated in LifeScope. |
 | user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
@@ -998,12 +995,11 @@ If you're doing complex searches of Contacts, you should probably use this inste
 
 ### userBasic (query)
 
-Returns basic information about the user.
-At present, this is just their LifeScope ID.
+Returns basic information about the user. At present, this is just their LifeScope ID.
 
 **Scopes**
 
-```basic```
+``` basic ```
 
 **Variables**
 
@@ -1035,64 +1031,98 @@ If you use a Who and a What filter, the search result must match Contacts specif
 
 #### Who Filters
 
-Who filters filter by a Contact's ```name``` and/or ```handle```.
+Who filters filter either by text over a Contact's ```name``` and/or ```handle``` or by a Person's ```first_name```, ```middle_name```, and/or ```last_name```; or by a Person's ```_id```.
 They can also filter by ```contact_interaction_type``` on an Event; this field can be 'to', 'from', or 'with'.
 
 Who filters are sent in the 'filters' variable under the key ```whoFilters```.
-The value is an array of filters..
+The value varies based on whether the filter is for text or a Person's ID.
 
-If the filter is just for the ```contact_interaction_type```, it would look like this:
+If the Who filter is searching Contacts and/or People, it looks like this:
 
 ```
 {
 	"whoFilters": [
 		{
-			"event.contact_interaction_type": "to"
+			text: {
+				operand: {
+					"event.contact_interaction_type": "to
+				},
+				text: "Ernest"
+			}
 		}
 	]
 }
 ```
 
-If the filter is just for a ```name``` or ```handle```, it would look like this:
+Within a text filter, either the ```operand``` or ```text``` field can be omitted:
 
 ```
 {
 	"whoFilters": [
 		{
-			"$or":[
-				{
-					"name": "steve"
-				},
-				{
-					"handle": "steve"
-				}
-			]
+			text: {
+				text: "Ernest"
+			}
 		}
 	]
 }
 ```
 
-If the filter combines both of those search parameters, it would look like this:
+```
+{
+	"whoFilters": [
+		{
+			text: {
+				operand: {
+					"event.contact_interaction_type": "to
+				}
+			}
+		}
+	]
+}
+```
+
+If the Who filter is searching by a Person's ```_id```, it looks like this:
 
 ```
 {
 	"whoFilters": [
 		{
-			"$and":[
-				{
-					"event.contact_interaction_type":
-					"to"
-				},
-				{
-					"$or":[
-						{
-							"name": "steve"
-						},
-						{
-							"handle": "steve"
-						}
-					]
+			person_id_string: {
+				operand: {
+					"event.contact_interaction_type": "to
 				}
+				person_id_string: "12345678901234567890123456789012"
+			}
+		}
+	]
+}
+```
+
+As with text-based filters, either of the innermost fields can be omitted:
+
+```
+{
+	"whoFilters": [
+		{
+			person_id_string: {
+				person_id_string: "12345678901234567890123456789012"
+			}
+		}
+	]
+}
+```
+
+```
+{
+	"whoFilters": [
+		{
+			person_id_string: {
+				operand: {
+					"event.contact_interaction_type": "to
+				}
+			}
+		}
 	]
 }
 ```
@@ -1103,34 +1133,17 @@ If sending multiple Who filters simultaneously, it would look like this:
 {
 	"whoFilters": [
 		{
-			"$and":[
-				{
-					"event.contact_interaction_type": "from"
+			text: {
+				operand: {
+					"event.contact_interaction_type": "to
 				},
-				{
-					"$or":[
-						{
-							"name": "steve"
-						},
-						{
-							"handle": "steve"
-						}
-					]
-				}
-			]
+				text: "Ernest"
+			}
 		},
 		{
-			"$or":[
-				{
-					"name": "bob"
-				},
-				{
-					"handle": "bob"
-				}
-			]
-		},
-		{
-			"event.contact_interaction_type": "to"
+			person_id_string: {
+				person_id_string: "12345678901234567890123456789012"
+			}
 		}
 	]
 }
@@ -1139,6 +1152,7 @@ If sending multiple Who filters simultaneously, it would look like this:
 #### What Filters
 
 What filters filter by a Content's ```type```.
+The currently supported content types are ```acheivement```, ```audio```,  ```code```, ```file```, ```game```, ```image```, ```invite```, ```receipt```, ```software```, ```text```, ```video```, and ```web-page```.
 
 What filters are sent in the 'filters' variable under the key ```whatFilters```.
 The value is an array of filters.

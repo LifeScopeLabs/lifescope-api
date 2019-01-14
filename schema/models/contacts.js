@@ -469,9 +469,24 @@ ContactTC.addResolver({
 						}
 					}
 					else if (whoFilter.person_id_string) {
-						contactFilters.push({
-							'person._id': uuid(whoFilter.person_id_string)
-						});
+						if (whoFilter.person_id_string.operand) {
+							let filter = {
+								$and: [
+									whoFilter.person_id_string.operand
+								]
+							};
+
+							if (whoFilter.person_id_string.person_id_string) {
+								filter.$and.push({
+									'person._id': uuid(whoFilter.person_id_string.person_id_string)
+								});
+							}
+
+							contactFilters.push(filter);
+						}
+						else {
+							contactFilters.push({ 'person._id': uuid(whoFilter.person_id_string.person_id_string) });
+						}
 					}
 				});
 

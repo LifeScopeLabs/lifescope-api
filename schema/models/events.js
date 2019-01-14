@@ -668,7 +668,24 @@ EventTC.addResolver({
 						}
 					}
 					else if (whoFilter.person_id_string) {
-						peopleFilters.push({ _id: uuid(whoFilter.person_id_string) });
+						if (whoFilter.person_id_string.operand) {
+							let filter = {
+								$and: [
+									whoFilter.person_id_string.operand
+								]
+							};
+
+							if (whoFilter.person_id_string.person_id_string) {
+								filter.$and.push({
+									_id: uuid(whoFilter.person_id_string.person_id_string)
+								});
+							}
+
+							peopleFilters.push(filter);
+						}
+						else {
+							peopleFilters.push({ _id: uuid(whoFilter.person_id_string.person_id_string) });
+						}
 					}
 				});
 
