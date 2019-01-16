@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 
 import uuid from "../../lib/util/uuid";
 import {add as addTags, remove as removeTags} from './templates/tag';
+import {ConnectionTC} from "./connections";
 import {TagTC} from "./tags";
 import {UserTC} from "./users";
 import {PeopleTC} from "./people";
@@ -223,6 +224,25 @@ ContactTC.addRelation('hydratedPerson', {
 	}
 });
 
+ContactTC.addRelation('hydratedConnection', {
+	resolver: () => ConnectionTC.getResolver('findOne'),
+	prepareArgs: {
+		filter: function(source) {
+			let returned = {
+				id: {
+					$in: []
+				}
+			};
+
+			if (source.connection_id) {
+				returned.id.$in.push(source.connection_id.toString('hex'));
+			}
+
+			return returned;
+		}
+	}
+});
+
 
 
 ContactTC.addResolver({
@@ -272,18 +292,19 @@ ContactTC.addResolver({
 				{
 					people_id: null
 				}
-			]
+			],
+			user_id: context.req.user._id
 		}).toArray();
 
 		_.each(results, function(contact) {
 			contact.id = contact._id.toString('hex');
-			contact._id = Buffer.from(contact.id);
+			contact._id = contact._id.buffer;
 			contact.user_id_string = contact.user_id.toString('hex');
-			contact.user_id = Buffer.from(contact.user_id);
+			contact.user_id = contact.user_id.buffer;
 			contact.connection_id_string = contact.connection_id.toString('hex');
-			contact.connection_id = Buffer.from(contact.connection_id_string);
+			contact.connection_id = contact.connection_id.buffer;
 			contact.provider_id_string = contact.provider_id.toString('hex');
-			contact.provider_id = Buffer.from(contact.provider_id_string);
+			contact.provider_id = contact.provider_id.buffer;
 		});
 
 		return results;
