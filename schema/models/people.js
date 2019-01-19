@@ -85,6 +85,11 @@ export const PeopleSchema = new mongoose.Schema(
 			index: false
 		},
 
+		hidden: {
+			type: Boolean,
+			index: false
+		},
+
 		first_name: {
 			type: String,
 			index: false
@@ -166,6 +171,53 @@ PeopleTC.addRelation('hydratedContacts', {
 
 			return returned;
 		}
+	}
+});
+
+PeopleTC.addResolver({
+	name: 'hide',
+	kind: 'mutation',
+	type: PeopleTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		console.log('Hiding person ' + args.id);
+		return await PeopleTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				},
+				record: {
+					hidden: true
+				}
+			}
+		});
+	}
+});
+
+PeopleTC.addResolver({
+	name: 'unhide',
+	kind: 'mutation',
+	type: PeopleTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		console.log('Unhiding person ' + args.id);
+
+		return await PeopleTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				},
+				record: {
+					hidden: false
+				}
+			}
+		});
 	}
 });
 

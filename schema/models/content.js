@@ -97,6 +97,11 @@ export const ContentSchema = new mongoose.Schema(
 			index: false
 		},
 
+		hidden: {
+			type: Boolean,
+			index: false
+		},
+
 		identifier: {
 			type: String,
 			index: false
@@ -232,6 +237,50 @@ ContentTC.addResolver({
 	},
 	resolve: async function({source, args, context, info}) {
 		return await removeTags(context.req, args, ContentTC);
+	}
+});
+
+ContentTC.addResolver({
+	name: 'hide',
+	kind: 'mutation',
+	type: ContentTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		return await ContentTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				},
+				record: {
+					hidden: true
+				}
+			}
+		});
+	}
+});
+
+ContentTC.addResolver({
+	name: 'unhide',
+	kind: 'mutation',
+	type: ContentTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		return await ContentTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				},
+				record: {
+					hidden: false
+				}
+			}
+		});
 	}
 });
 

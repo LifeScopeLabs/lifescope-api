@@ -95,6 +95,11 @@ export const ContactsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		hidden: {
+			type: Boolean,
+			index: false
+		},
+
 		identifier: {
 			type: String,
 			index: false
@@ -268,6 +273,50 @@ ContactTC.addResolver({
 	},
 	resolve: async function({source, args, context, info}) {
 		return await removeTags(context.req, args, ContactTC);
+	}
+});
+
+ContactTC.addResolver({
+	name: 'hide',
+	kind: 'mutation',
+	type: ContactTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		return await ContactTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				},
+				record: {
+					hidden: true
+				}
+			}
+		});
+	}
+});
+
+ContactTC.addResolver({
+	name: 'unhide',
+	kind: 'mutation',
+	type: ContactTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!'
+	},
+	resolve: async function({ source, args, context, info}) {
+		return await ContactTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				},
+				record: {
+					hidden: false
+				}
+			}
+		});
 	}
 });
 
