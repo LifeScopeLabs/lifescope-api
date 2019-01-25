@@ -29,7 +29,9 @@
       "model": {
         "key": "login",
         "fields": {
-          "login": "string"
+          "login": "string",
+          "name": "string",
+          "avatar_url": "string"
         }
       }
     }
@@ -91,7 +93,9 @@
                     "owner": {
                       "type": "embedded",
                       "fields": {
-                        "login": "string"
+                        "login": "string",
+                        "name": "string",
+                        "avatar_url": "string"
                       }
                     }
                   }
@@ -106,7 +110,9 @@
                     "user": {
                       "type": "embedded",
                       "fields": {
-                        "login": "string"
+                        "login": "string",
+                        "name": "string",
+                        "avatar_url": "string"
                       }
                     }
                   }
@@ -123,7 +129,8 @@
                       "type": "embedded",
                       "fields": {
                         "name": "string",
-                        "email": "string"
+                        "email": "string",
+                        "avatar_url": "string"
                       }
                     }
                   }
@@ -205,7 +212,8 @@
           "fields": {
             "name": "string",
             "id": "number",
-            "login": "string"
+            "login": "string",
+            "avatar_url": "string"
           }
         }
       }

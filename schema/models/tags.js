@@ -144,3 +144,23 @@ TagTC.addResolver({
 	}
 });
 
+
+TagTC.setResolver('findMany', TagTC.getResolver('findMany')
+	.addFilterArg({
+		name: 'type',
+		type: 'String',
+		description: 'How to filter and sort the results',
+		query: function(query, value, resolveParams) {
+			if (value === 'shared') {
+				query.shared = true;
+			}
+		}
+	})
+	.addSortArg({
+		name: 'tag',
+		description: 'Alphabetical sort on tag',
+		value: {
+			tag: 1
+		}
+	})
+);

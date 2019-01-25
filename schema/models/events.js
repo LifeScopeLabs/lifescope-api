@@ -553,6 +553,18 @@ EventTC.addResolver({
 			};
 
 			let peoplePreLookupMatch = {
+				$or: [
+					{
+						self: {
+							$ne: true
+						}
+					},
+					{
+						self: {
+							$exists: false
+						}
+					}
+				],
 				user_id: context.req.user._id
 			};
 

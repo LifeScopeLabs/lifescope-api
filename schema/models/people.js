@@ -105,6 +105,8 @@ export const PeopleSchema = new mongoose.Schema(
 			index: false
 		},
 
+		self: Boolean,
+
 		tagMasks: {
 			added: {
 				type: [String]
@@ -182,7 +184,6 @@ PeopleTC.addResolver({
 		id: 'String!'
 	},
 	resolve: async function({ source, args, context, info}) {
-		console.log('Hiding person ' + args.id);
 		return await PeopleTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -205,8 +206,6 @@ PeopleTC.addResolver({
 		id: 'String!'
 	},
 	resolve: async function({ source, args, context, info}) {
-		console.log('Unhiding person ' + args.id);
-
 		return await PeopleTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -241,6 +240,7 @@ PeopleTC.addResolver({
 			contact_ids: [],
 			created: moment().utc().toDate(),
 			updated: moment().utc().toDate(),
+			self: false,
 			user_id: context.req.user._id
 		};
 
@@ -265,8 +265,6 @@ PeopleTC.addResolver({
 		if (args.contact_id_strings) {
 			let contacts;
 
-			console.log(args.contact_id_strings);
-
 			let promises = _.map(args.contact_id_strings, function(contact_id_string) {
 				return ContactTC.getResolver('findOne').resolve({
 					args: {
@@ -278,8 +276,6 @@ PeopleTC.addResolver({
 				})
 					.then(function(contact) {
 						if (contact == null) {
-							console.log(contact_id_string);
-
 							return Promise.reject(httpErrors(400, 'Invalid Contact ID'));
 						}
 						else {
@@ -633,6 +629,18 @@ PeopleTC.addResolver({
 			let peopleAggregation = People.aggregate();
 
 			let peoplePreLookupMatch = {
+				$or: [
+					{
+						self: {
+							$ne: true
+						}
+					},
+					{
+						self: {
+							$exists: false
+						}
+					}
+				],
 				user_id: context.req.user._id
 			};
 
@@ -991,3 +999,28 @@ PeopleTC.addResolver({
 		return searchResult;
 	}
 });
+
+
+PeopleTC.setResolver('findMany', PeopleTC.getResolver('findMany')
+	.addSortArg({
+		name: 'first_name',
+		description: 'Alphabetical sort on first_name',
+		value: {
+			first_name: 1
+		}
+	})
+	.addSortArg({
+		name: 'middle_name',
+		description: 'Alphabetical sort on middle_name',
+		value: {
+			middle_name: 1
+		}
+	})
+	.addSortArg({
+		name: 'last_name',
+		description: 'Alphabetical sort on last_name',
+		value: {
+			last_name: 1
+		}
+	})
+);

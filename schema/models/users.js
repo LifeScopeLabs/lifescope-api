@@ -18,6 +18,7 @@ import { TagTC } from "./tags";
 import {OAuthAppTC} from "./oauth-apps";
 import {OAuthTokenTC} from "./oauth-tokens";
 import {OAuthTokenSessionTC} from "./oauth-token-sessions";
+import {PeopleTC} from "./people";
 import {LocationFileTC} from "./location-files";
 
 const AccountTypeSchema = new mongoose.Schema(
@@ -366,6 +367,14 @@ UserTC.addResolver({
 		});
 
 		await OAuthTokenSessionTC.getResolver('removeOne').resolve({
+			args: {
+				filter: {
+					user_id_string: req.user._id.toString('hex')
+				}
+			}
+		});
+
+		await PeopleTC.getResolver('removeMany').resolve({
 			args: {
 				filter: {
 					user_id_string: req.user._id.toString('hex')
