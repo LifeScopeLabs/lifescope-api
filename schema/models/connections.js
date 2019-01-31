@@ -345,7 +345,8 @@ ConnectionTC.addResolver({
 					auth: {
 						status: {
 							complete: false
-						}
+						},
+						redirectUrl: authObj.redirectUrl
 					},
 					frequency: 1,
 					enabled: true,
@@ -369,7 +370,8 @@ ConnectionTC.addResolver({
 		id: 'String!',
 		enabled: 'Boolean',
 		permissions: 'JSON',
-		name: 'String'
+		name: 'String',
+		forceUnauthorized: 'Boolean',
 	},
 	resolve: async function({source, args, context, info}) {
 		let bitscoopConnection;
@@ -447,7 +449,7 @@ ConnectionTC.addResolver({
 			explorerConnection.enabled = args.enabled;
 		}
 
-		let permissionsUpdated = false;
+		let permissionsUpdated = args.forceUnauthorized === true;
 
 		_.each(permissions, function(value, name) {
 			if (!connection.permissions.hasOwnProperty(name)) {
@@ -546,6 +548,11 @@ ConnectionTC.addResolver({
 				}
 
 				explorerConnection.auth.redirectUrl = response.redirectUrl;
+				explorerConnection.last_run = null;
+
+				if (args.forceUnauthorized) {
+					explorerConnection.endpoint_data = {};
+				}
 			}
 		}
 
@@ -559,6 +566,8 @@ ConnectionTC.addResolver({
 		});
 
 		env.pubSub.publish('connectionUpdated', updateResult.record);
+
+		explorerConnection.id = args.id;
 
 		return {
 			connection: explorerConnection,

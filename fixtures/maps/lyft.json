@@ -78,7 +78,8 @@
 				"address": "string",
 				"time": "date"
 			  }
-			}
+			},
+			"status": "string"
 		  }
 		}
 	  }
