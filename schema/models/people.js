@@ -1000,8 +1000,68 @@ PeopleTC.addResolver({
 	}
 });
 
+PeopleTC.addResolver({
+	name: 'sharedSelfPerson',
+	kind: 'query',
+	type: PeopleTC.getResolver('findOne').getType(),
+	args: {
+		id: 'String!',
+		passcode: 'String!'
+	},
+	resolve: async function({source, args, context, info}) {
+		let personResult;
+
+		if (args.id == null || args.passcode == null) {
+			throw new httpErrors(404);
+		}
+
+		let tagResult = await TagTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					share: 'public',
+					passcode: args.passcode
+				}
+			}
+		});
+
+		if (tagResult != null) {
+			personResult = await PeopleTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						self: true,
+						user_id_string: tagResult.user_id.toString('hex')
+					}
+				}
+			});
+
+			if (personResult == null) {
+				throw new httpErrors(404);
+			}
+
+			let returned = _.pick(personResult, ['first_name', 'middle_name', 'last_name', 'avatar_url']);
+
+			return Promise.resolve(returned);
+		}
+		else {
+			throw new httpErrors(404);
+		}
+	}
+});
 
 PeopleTC.setResolver('findMany', PeopleTC.getResolver('findMany')
+	.addFilterArg({
+		name: 'self',
+		type: 'Boolean',
+		description: 'Filter by self being true or false',
+		query: function(query, value, resolveParams) {
+			if (value != null) {
+				query.self = value === true ? true : {
+					$ne: true
+				};
+			}
+		}
+	})
 	.addSortArg({
 		name: 'first_name',
 		description: 'Alphabetical sort on first_name',
@@ -1021,6 +1081,21 @@ PeopleTC.setResolver('findMany', PeopleTC.getResolver('findMany')
 		description: 'Alphabetical sort on last_name',
 		value: {
 			last_name: 1
+		}
+	})
+);
+
+PeopleTC.setResolver('findOne', PeopleTC.getResolver('findOne')
+	.addFilterArg({
+		name: 'self',
+		type: 'Boolean',
+		description: 'Filter by self being true or false',
+		query: function(query, value, resolveParams) {
+			if (value != null) {
+				query.self = value === true ? true : {
+					$ne: true
+				};
+			}
 		}
 	})
 );

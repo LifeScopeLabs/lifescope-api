@@ -31,7 +31,17 @@
 	  "model": {
 		"key": "id",
 		"fields": {
-		  "id": "string"
+		  "id": "string",
+		  "first_name": "string",
+		  "last_name": "string",
+		  "full_name": {
+			"type": "composite",
+			"parameters": [
+			  "{{ model.first_name }}",
+			  "{{ model.last_name }}"
+			],
+			"delimiter": " "
+		  }
 		}
 	  }
 	}

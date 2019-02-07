@@ -18,9 +18,12 @@
   },
   "meta": {
 	"uniqueness_location": "uuid",
-	"default_name_location": "uuid",
+	"default_name_location": "full_name",
 	"endpoint": {
 	  "method": "GET",
+	  "scopes": [
+		"profile"
+	  ],
 	  "route": {
 		"data": "",
 		"path": "/me"
@@ -28,7 +31,17 @@
 	  "model": {
 		"key": "uuid",
 		"fields": {
-		  "uuid": "string"
+		  "uuid": "string",
+		  "first_name": "string",
+		  "last_name": "string",
+		  "full_name": {
+			"type": "composite",
+			"parameters": [
+			  "{{ model.first_name }}",
+			  "{{ model.last_name }}"
+			],
+			"delimiter": " "
+		  }
 		}
 	  }
 	}

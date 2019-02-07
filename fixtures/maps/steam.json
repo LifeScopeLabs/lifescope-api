@@ -34,7 +34,9 @@
       "model": {
         "key": "steamid",
         "fields": {
-          "personaname": "string"
+          "personaname": "string",
+          "avatarfull": "string",
+          "realname": "string"
         }
       }
     }

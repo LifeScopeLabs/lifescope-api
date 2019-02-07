@@ -2,12 +2,10 @@
   "version": "1.0",
   "name": "Microsoft",
   "description": "Digital productivity and storage products",
-  "url": "https://www.googleapis.com",
+  "url": "https://graph.microsoft.com/v1.0",
   "tags": [
     "collaboration",
-    "media",
-    "productivity",
-    "video"
+    "productivity"
   ],
   "auth": {
     "type": "oauth2",
@@ -28,13 +26,15 @@
         "offline_access"
       ],
       "route": {
-        "data": "metadata.sources[0]",
-        "path": "https://people.googleapis.com/v1/people/me?requestMask.includeField=person.email_addresses,person.names"
+        "path": "/me"
       },
       "model": {
         "key": "id",
         "fields": {
-          "id": "string"
+          "id": "string",
+          "mail": "string",
+          "displayName": "string",
+          "userPrincipalName": "string"
         }
       }
     }

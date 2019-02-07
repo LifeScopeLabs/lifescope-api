@@ -110,6 +110,8 @@ GQC.rootQuery().addFields({
 		}),
 	}),
 
+	sharedTagSelfPerson: PeopleTC.getResolver('sharedSelfPerson'),
+
 	oauthAppOneAuthorization: OAuthAppTC.getResolver('authorizationLimited')
 });
 

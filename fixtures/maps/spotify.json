@@ -28,7 +28,15 @@
       "model": {
         "key": "id",
         "fields": {
-          "id": "string"
+          "id": "string",
+          "display_name": "string",
+          "images": {
+            "type": "embedded",
+            "many": true,
+            "fields": {
+              "url": "string"
+            }
+          }
         }
       }
     }

@@ -161,6 +161,8 @@ export const ContactsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		self: Boolean,
+
 		tagMasks: {
 			added: {
 				type: [String]

@@ -30,7 +30,9 @@
 	  "model": {
 		"key": "email",
 		"fields": {
-		  "email": "string"
+		  "email": "string",
+		  "real_name": "string",
+		  "image_original": "string"
 		}
 	  }
 	}

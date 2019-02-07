@@ -633,7 +633,7 @@ ConnectionTC.addResolver({
 			try {
 				let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
 			} catch(err) {
-
+				throw err;
 			}
 		}
 
