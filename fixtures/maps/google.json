@@ -21,14 +21,15 @@
   },
   "meta": {
     "uniqueness_location": "id",
-    "default_name_location": "id",
+    "default_name_location": "names[0].displayName",
     "endpoint": {
       "method": "GET",
       "scopes": [
-        "https://www.googleapis.com/auth/userinfo.profile"
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
       ],
       "route": {
-        "data": "metadata.sources[0]",
+        "data": "",
         "path": "https://people.googleapis.com/v1/people/me?personFields=emailAddresses,names,coverPhotos"
       },
       "model": {

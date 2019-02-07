@@ -32,7 +32,7 @@
 		"fields": {
 		  "email": "string",
 		  "real_name": "string",
-		  "image_original": "string"
+		  "image_512": "string"
 		}
 	  }
 	}
