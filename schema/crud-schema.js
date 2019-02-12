@@ -36,7 +36,7 @@ GQC.rootQuery().addFields({
 	providerWithMapMany: ProviderTC.getResolver('providerWithMapMany'),
 	providerWithMapOne: ProviderTC.getResolver('providerWithMapOne'),
 
-	sessionOne: SessionTC.getResolver('findOne'),
+	// sessionOne: SessionTC.getResolver('findOne'),
 
 	...restrictToUser(Resolver, {
 		...restrictByScope(Resolver, 'connections:read', {

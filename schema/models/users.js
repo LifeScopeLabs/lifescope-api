@@ -21,31 +21,33 @@ import {OAuthTokenSessionTC} from "./oauth-token-sessions";
 import {PeopleTC} from "./people";
 import {LocationFileTC} from "./location-files";
 
-const AccountTypeSchema = new mongoose.Schema(
-	{
-		language: String,
-		skill: {
-			type: String,
-			enum: ['free', 'plus', 'pro'],
-		},
-	},
-	{
-		_id: false,
-	}
-);
+// const AccountTypeSchema = new mongoose.Schema(
+// 	{
+// 		language: String,
+// 		skill: {
+// 			type: String,
+// 			enum: ['free', 'plus', 'pro'],
+// 		},
+// 	},
+// 	{
+// 		_id: false,
+// 	}
+// );
 
-const AddressSchema = new mongoose.Schema({
-	street: String,
-	geo: {
-		type: [Number], // [<longitude>, <latitude>]
-		index: '2dsphere', // create the geospatial index
-	},
-});
+// const AddressSchema = new mongoose.Schema({
+// 	street: String,
+// 	geo: {
+// 		type: [Number], // [<longitude>, <latitude>]
+// 		index: '2dsphere', // create the geospatial index
+// 	},
+// });
 
 let basicType = new graphql.GraphQLObjectType({
 	name: 'userBasic',
 	fields: {
-		id: graphql.GraphQLString
+		id: {
+			type: graphql.GraphQLString
+		}
 	}
 });
 
@@ -192,10 +194,10 @@ export const UserSchema = new mongoose.Schema(
 			index: true,
 		},
 
-		accountType: {
-			type: [AccountTypeSchema],
-			default: [],
-		},
+		// accountType: {
+		// 	type: [AccountTypeSchema],
+		// 	default: [],
+		// },
 
 		contacts: {
 			// another mongoose way for providing embedded documents
@@ -203,9 +205,9 @@ export const UserSchema = new mongoose.Schema(
 			phones: [String], // array of strings
 		},
 
-		address: {
-			type: AddressSchema,
-		},
+		// address: {
+		// 	type: AddressSchema,
+		// },
 
 		otherData: {
 			type: mongoose.Schema.Types.Mixed,
@@ -237,7 +239,9 @@ UserTC.addResolver({
 	type: new graphql.GraphQLObjectType({
 		name: 'deleteAccount',
 		fields: {
-			id: 'String'
+			id: {
+				type: graphql.GraphQLString
+			}
 		}
 	}),
 	resolve: async ({source, args, context, info}) => {

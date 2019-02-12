@@ -28,17 +28,27 @@ let validScopes = [
 let authorizationType = new graphql.GraphQLObjectType({
 	name: 'authorization',
 	fields: {
-		code: graphql.GraphQLString,
-		state: graphql.GraphQLString
+		code: {
+			type: graphql.GraphQLString
+		},
+		state: {
+			type: graphql.GraphQLString
+		}
 	}
 });
 
 let tokenType = new graphql.GraphQLObjectType({
 	name: 'token',
 	fields: {
-		access_token: graphql.GraphQLString,
-		refresh_token: graphql.GraphQLString,
-		expires_in: graphql.GraphQLString
+		access_token: {
+			type: graphql.GraphQLString
+		},
+		refresh_token: {
+			type: graphql.GraphQLString
+		},
+		expires_in: {
+			type: graphql.GraphQLString
+		}
 	}
 });
 

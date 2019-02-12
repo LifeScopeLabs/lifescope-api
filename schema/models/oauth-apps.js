@@ -20,11 +20,21 @@ let urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b(
 let authorizationLimitedType = new graphql.GraphQLObjectType({
 	name: 'authorizationLimited',
 	fields: {
-		client_id: graphql.GraphQLString,
-		description: graphql.GraphQLString,
-		homepage_url: graphql.GraphQLString,
-		name: graphql.GraphQLString,
-		privacy_policy_url: graphql.GraphQLString
+		client_id: {
+			type: graphql.GraphQLString
+		},
+		description: {
+			type: graphql.GraphQLString
+		},
+		homepage_url: {
+			type: graphql.GraphQLString
+		},
+		name: {
+			type: graphql.GraphQLString
+		},
+		privacy_policy_url: {
+			type: graphql.GraphQLString
+		}
 	}
 });
 
