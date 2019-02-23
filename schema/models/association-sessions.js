@@ -48,6 +48,10 @@ export const AssociationSessionSchema = new mongoose.Schema(
 			}
 		},
 
+		app_session_token: {
+			type: String
+		},
+
 		connection_id: {
 			type: Buffer
 		},

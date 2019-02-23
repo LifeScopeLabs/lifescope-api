@@ -14,6 +14,7 @@ import type from 'type-detect';
 import deleteConnection from '../../lib/util/delete-connection';
 import {AssociationSessionTC} from './association-sessions';
 import {ProviderTC} from './providers';
+import { Create as CreateSession } from '../../lib/sessions';
 
 import uuid from '../../lib/util/uuid';
 
@@ -276,9 +277,11 @@ ConnectionTC.addResolver({
 	args: {
 		provider_id_string: 'String!',
 		name: 'String',
-		permissions: 'JSON'
+		permissions: 'JSON',
+		app_session: 'Boolean',
 	},
 	resolve: async ({source, args, context, info}) => {
+		let appSession;
 		let bitscoop = env.bitscoop;
 
 		await env.validate('#/types/uuid4', args.provider_id_string)
@@ -341,13 +344,27 @@ ConnectionTC.addResolver({
 
 		endpoints = _.uniq(endpoints);
 
+		if (args.app_session === true) {
+			appSession = await CreateSession(context.req, context.req.user, {
+				persist: true,
+				pending: true
+			});
+
+			context.res.cookie(config.sessions.cookieName, appSession.token, {
+				domain: config.domain,
+				secure: true,
+				httpOnly: true,
+				expires: appSession.expires
+			});
+		}
+
 		let authObj = await bitscoop.createConnection(provider.remote_map_id.toString('hex'), {
 			name: args.name,
 			endpoints: endpoints,
 			redirect_url: remoteProvider.auth.redirect_url + '?map_id=' + provider.remote_map_id.toString('hex')
 		});
 
-		await insertAssociationSessions(context, authObj);
+		await insertAssociationSessions(context, authObj, appSession);
 
 		await ConnectionTC.getResolver('createOne').resolve({
 			args: {
@@ -751,7 +768,7 @@ ConnectionTC.addResolver({
 });
 
 
-async function insertAssociationSessions(context, authObj) {
+async function insertAssociationSessions(context, authObj, appSession) {
 	if (context.req.user == null) {
 		// Only run if the user is not logged in
 		let connectionId = authObj.id;
@@ -763,14 +780,20 @@ async function insertAssociationSessions(context, authObj) {
 		// Review if we do need to have a different cookie for each provider.
 		let cookieName = 'login_assoc';
 
+		let record = {
+			id: id,
+			token_string: token,
+			connection_id_string: connectionId,
+			ttl: expiration
+		};
+
+		if (appSession != null && appSession.token != null) {
+			record.app_session_token = appSession.token
+		}
+
 		await AssociationSessionTC.getResolver('createOne').resolve({
 			args: {
-				record: {
-					id: id,
-					token_string: token,
-					connection_id_string: connectionId,
-					ttl: expiration
-				}
+				record: record
 			}
 		});
 

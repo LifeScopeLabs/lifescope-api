@@ -97,6 +97,10 @@ export const SessionSchema = new mongoose.Schema(
 			},
 		},
 
+		pending: {
+			type: Boolean
+		},
+
 		persist: {
 			type: Boolean
 		},

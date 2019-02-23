@@ -43,7 +43,8 @@
 
   "sessions": {
     "cookieName": "sessionid",
-    "expiration": 1209600
+    "expiration": 1209600,
+    "sessionExpiration": 600
   },
 
   "oauth": {

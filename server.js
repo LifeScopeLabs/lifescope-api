@@ -78,6 +78,7 @@ loadValidator(config.validationSchemas)
 
 		server.use(
 			crudAPI.uri,
+			meta,
 			bodyParser.json({
 				limit: '15MB'
 			}),
@@ -138,10 +139,6 @@ loadValidator(config.validationSchemas)
 					let cookies = {};
 					let cookie = _.get(context, 'request.headers.cookie');
 
-					if (cookie == null) {
-						throw new Error('No cookie header detected.');
-					}
-
 					let split = cookie.split('; ');
 
 					_.each(split, function(item) {
@@ -150,9 +147,6 @@ loadValidator(config.validationSchemas)
 						cookies[split[0]] = split[1];
 					});
 
-					if (cookies.sessionid == null) {
-						throw new Error('No user cookie detected.')
-					}
 
 					let user = await wsCookieAuthorization(cookies.sessionid);
 
