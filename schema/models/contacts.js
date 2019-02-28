@@ -327,13 +327,16 @@ ContactTC.addResolver({
 	kind: 'query',
 	type: ContactTC.getResolver('findMany').getType(),
 	args: {
-		q: 'String'
+		q: 'String',
+		limit: 'Int',
+		offset: 'Int'
 	},
 	resolve: async function({ source, args, context, info}) {
-		let results = await mongoose.connection.db.collection('contacts').find({
-			$text: {
-				$search: args.q || ''
-			},
+		if (args.limit > config.objectMaxLimit) {
+			args.limit = config.objectMaxLimit;
+		}
+
+		let searchParams = {
 			$or: [
 				{
 					people_id: {
@@ -345,7 +348,23 @@ ContactTC.addResolver({
 				}
 			],
 			user_id: context.req.user._id
-		}).toArray();
+		};
+
+		if (args.q && args.q.length > 0) {
+			searchParams.$text = {
+				$search: args.q
+			}
+		}
+
+		let results = await mongoose.connection.db.collection('contacts')
+			.find(searchParams)
+			.limit(args.limit)
+			.skip(args.offset)
+			.sort({
+				name: 1,
+				handle: 1
+			})
+			.toArray();
 
 		_.each(results, function(contact) {
 			contact.id = contact._id.toString('hex');
