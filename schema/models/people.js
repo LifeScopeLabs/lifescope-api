@@ -454,7 +454,9 @@ PeopleTC.addResolver({
 				})
 					.then(function(contact) {
 						if (contact == null) {
-							return Promise.reject(httpErrors(400, 'Invalid Contact ID'));
+							_.remove(removed, contact_id_string);
+
+							return Promise.resolve(null);
 						}
 						else {
 							_.remove(removed, contact.id);
@@ -475,21 +477,23 @@ PeopleTC.addResolver({
 			let contactIDs = [];
 
 			_.each(contacts, function(contact) {
-				contactIDs.push(contact._id);
+				if (contact != null) {
+					contactIDs.push(contact._id);
 
-				_.pull(removed, contact.id);
+					_.pull(removed, contact.id);
 
-				promises.push(ContactTC.getResolver('updateOne').resolve({
-					args: {
-						filter: {
-							id: contact.id,
-							user_id_string: userIDString
-						},
-						record: {
-							people_id: uuid(args.id)
+					promises.push(ContactTC.getResolver('updateOne').resolve({
+						args: {
+							filter: {
+								id: contact.id,
+								user_id_string: userIDString
+							},
+							record: {
+								people_id: uuid(args.id)
+							}
 						}
-					}
-				}))
+					}));
+				}
 			});
 
 			_.each(removed, function(contactIdString) {
