@@ -67,6 +67,10 @@ export const SessionSchema = new mongoose.Schema(
 			type: String
 		},
 
+		logout: {
+			type: Date
+		},
+
 		meta: {
 			agent: {
 				type: String
