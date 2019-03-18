@@ -44,7 +44,11 @@
   "sessions": {
     "cookieName": "sessionid",
     "expiration": 1209600,
-    "sessionExpiration": 600
+    "sessionExpiration": 600,
+    "csrf": {
+      "saltLength": 64,
+      "secretLength": 32
+    }
   },
 
   "oauth": {

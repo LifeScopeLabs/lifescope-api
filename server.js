@@ -16,6 +16,7 @@ import { execute, subscribe } from 'graphql';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import mongoose from 'mongoose';
 
+import csrf from './lib/middleware/csrf';
 import views from './lib/views';
 import cookieAuthorization from './lib/middleware/cookie-authorization';
 import keyAuthorization from './lib/middleware/key-authorization';
@@ -86,6 +87,8 @@ loadValidator(config.validationSchemas)
 			tokenAuthorization,
 			keyAuthorization,
 			cookieAuthorization,
+			csrf.validate,
+
 			graphqlExpress((req, res) => ({
 				schema: crudAPI.schema,
 				tracing: true,
