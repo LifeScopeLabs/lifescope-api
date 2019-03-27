@@ -1103,3 +1103,17 @@ PeopleTC.setResolver('findOne', PeopleTC.getResolver('findOne')
 		}
 	})
 );
+PeopleTC.setResolver('count', PeopleTC.getResolver('count')
+	.addFilterArg({
+		name: 'self',
+		type: 'Boolean',
+		description: 'Filter by self being true or false',
+		query: function(query, value, resolveParams) {
+			if (value != null) {
+				query.self = value === true ? true : {
+					$ne: true
+				}
+			}
+		}
+	})
+);
