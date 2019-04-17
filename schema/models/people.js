@@ -85,6 +85,11 @@ export const PeopleSchema = new mongoose.Schema(
 			index: false
 		},
 
+		external_avatar_url: {
+			type: String,
+			index: false
+		},
+
 		hidden: {
 			type: Boolean,
 			index: false
@@ -260,6 +265,10 @@ PeopleTC.addResolver({
 			person.avatar_url = args.avatar_url;
 		}
 
+		if (args.external_avatar_url != null) {
+			person.external_avatar_url = args.external_avatar_url;
+		}
+
 		let promise;
 
 		if (args.contact_id_strings) {
@@ -390,7 +399,8 @@ PeopleTC.addResolver({
 		middle_name: 'String',
 		last_name: 'String',
 		contact_id_strings: ['String'],
-		avatar_url: 'String'
+		avatar_url: 'String',
+		external_avatar_url: 'String'
 	},
 	resolve: async function({ source, args, context, info }) {
 		let promise;
@@ -427,6 +437,10 @@ PeopleTC.addResolver({
 
 		if (args.avatar_url != null) {
 			update.avatar_url = args.avatar_url;
+		}
+
+		if (args.external_avatar_url != null) {
+			update.external_avatar_url = args.external_avatar_url;
 		}
 
 		if (args.contact_id_strings) {
@@ -1043,7 +1057,7 @@ PeopleTC.addResolver({
 				throw new httpErrors(404);
 			}
 
-			let returned = _.pick(personResult, ['first_name', 'middle_name', 'last_name', 'avatar_url']);
+			let returned = _.pick(personResult, ['first_name', 'middle_name', 'last_name', 'avatar_url', 'external_avatar_url']);
 
 			return Promise.resolve(returned);
 		}
