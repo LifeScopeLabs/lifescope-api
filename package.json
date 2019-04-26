@@ -1,6 +1,6 @@
 {
   "name": "lifescope-api",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "lifescope.io",
   "author": "(https://lifescope.io)",
   "repository": {
@@ -85,6 +85,7 @@
     "cors": "^2.8.4",
     "csrf": "^3.0.6",
     "deep-equal": "^1.0.1",
+    "esm": "^3.2.22",
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
     "fs": "0.0.1-security",

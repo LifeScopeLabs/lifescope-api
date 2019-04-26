@@ -86,6 +86,10 @@ const config = require('config');
 			}),
 
 			db.db('live').collection('connections').createIndex({
+				last_successful_run: 1
+			}),
+
+			db.db('live').collection('connections').createIndex({
 				provider_id: 1
 			}),
 

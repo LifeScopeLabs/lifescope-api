@@ -139,8 +139,11 @@ export const ConnectionsSchema = new mongoose.Schema(
 		},
 
 		last_run: {
-			type: Date,
-			index: false
+			type: Date
+		},
+
+		last_successful_run: {
+			type: Date
 		},
 
 		name: {
@@ -577,6 +580,7 @@ ConnectionTC.addResolver({
 
 				explorerConnection.auth.redirectUrl = response.redirectUrl;
 				explorerConnection.last_run = null;
+				explorerConnection.last_successful_run = null;
 
 				if (args.forceUnauthorized) {
 					explorerConnection.endpoint_data = {};
