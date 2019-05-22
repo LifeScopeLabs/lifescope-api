@@ -1,6 +1,6 @@
 {
   "name": "lifescope-api",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "description": "lifescope.io",
   "author": "(https://lifescope.io)",
   "repository": {
@@ -9,7 +9,7 @@
   },
   "main": "/server.js",
   "engines": {
-    "node": "^10.0.0",
+    "node": "^10.*",
     "yarn": "^1.5.1"
   },
   "files": [

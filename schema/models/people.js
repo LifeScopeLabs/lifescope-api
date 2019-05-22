@@ -235,7 +235,8 @@ PeopleTC.addResolver({
 		middle_name: 'String',
 		last_name: 'String',
 		contact_id_strings: ['String'],
-		avatar_url: 'String'
+		avatar_url: 'String',
+		external_avatar_url: 'String'
 	},
 	resolve: async function({ source, args, context, info}) {
 		let userIDString = context.req.user._id.toString('hex');
