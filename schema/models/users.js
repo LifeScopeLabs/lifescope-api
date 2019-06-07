@@ -3,44 +3,23 @@
 import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
-import {graphql} from 'graphql-compose';
+import { graphql } from 'graphql-compose';
 
 import deleteConnection from '../../lib/util/delete-connection';
 import uuid from '../../lib/util/uuid';
 import { ContactTC } from './contacts';
 import { ConnectionTC } from "./connections";
-import { ContentTC} from "./content";
+import { ContentTC } from "./content";
 import { EventTC } from "./events";
 import { LocationTC } from './locations';
 import { SearchTC } from "./searches";
 import { SessionTC } from "./sessions";
 import { TagTC } from "./tags";
-import {OAuthAppTC} from "./oauth-apps";
-import {OAuthTokenTC} from "./oauth-tokens";
-import {OAuthTokenSessionTC} from "./oauth-token-sessions";
-import {PeopleTC} from "./people";
-import {LocationFileTC} from "./location-files";
-
-// const AccountTypeSchema = new mongoose.Schema(
-// 	{
-// 		language: String,
-// 		skill: {
-// 			type: String,
-// 			enum: ['free', 'plus', 'pro'],
-// 		},
-// 	},
-// 	{
-// 		_id: false,
-// 	}
-// );
-
-// const AddressSchema = new mongoose.Schema({
-// 	street: String,
-// 	geo: {
-// 		type: [Number], // [<longitude>, <latitude>]
-// 		index: '2dsphere', // create the geospatial index
-// 	},
-// });
+import { OAuthAppTC } from "./oauth-apps";
+import { OAuthTokenTC } from "./oauth-tokens";
+import { OAuthTokenSessionTC } from "./oauth-token-sessions";
+import { PeopleTC } from "./people";
+import { LocationFileTC } from "./location-files";
 
 let basicType = new graphql.GraphQLObjectType({
 	name: 'userBasic',
@@ -244,7 +223,7 @@ UserTC.addResolver({
 			}
 		}
 	}),
-	resolve: async ({source, args, context, info}) => {
+	resolve: async ({context}) => {
 		let req = context.req;
 
 		let connections = await ConnectionTC.getResolver('findMany').resolve({
@@ -373,7 +352,7 @@ UserTC.addResolver({
 	name: 'updateApiKey',
 	kind: 'mutation',
 	type: UserTC.getResolver('findOne').getType(),
-	resolve: async ({source, args, context, info}) => {
+	resolve: async ({context}) => {
 		let req = context.req;
 
 		let updated = await UserTC.getResolver('updateOne').resolve({
@@ -399,7 +378,7 @@ UserTC.addResolver({
 		location_tracking_enabled: 'Boolean!'
 	},
 	type: UserTC.getResolver('findOne').getType(),
-	resolve: async ({source, args, context, info}) => {
+	resolve: async ({args, context}) => {
 		let req = context.req;
 
 		let updated = await UserTC.getResolver('updateOne').resolve({
@@ -425,7 +404,7 @@ UserTC.addResolver({
 		theme: 'String!'
 	},
 	type: UserTC.getResolver('findOne').getType(),
-	resolve: async ({source, args, context, info}) => {
+	resolve: async ({args, context}) => {
 		let req = context.req;
 
 		let updated = await UserTC.getResolver('updateOne').resolve({
@@ -448,7 +427,7 @@ UserTC.addResolver({
 	name: 'userBasic',
 	kind: 'query',
 	type: basicType,
-	resolve: async ({source, args, context, info}) => {
+	resolve: async ({context}) => {
 		let result = await UserTC.getResolver('findOne').resolve({
 			args: {
 				filter: {

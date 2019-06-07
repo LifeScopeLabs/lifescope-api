@@ -1,27 +1,25 @@
-/* @flow */
+/* global env */
 
-import {SchemaComposer} from 'graphql-compose';
-import {withFilter} from 'graphql-subscriptions';
-import uuid from 'uuid/v4';
+import { SchemaComposer } from 'graphql-compose';
+import { withFilter } from 'graphql-subscriptions';
 
 import restrictByScope from '../lib/middleware/restrict-by-scope'
 import restrictToUser from '../lib/middleware/restrict-to-user';
-import {ConnectionTC} from './models/connections';
-import {ContactTC} from './models/contacts';
-import {ContentTC} from './models/content';
-import {EventTC} from './models/events';
-import {LocationTC} from './models/locations';
-import {LocationFileTC} from './models/location-files';
-import {OAuthAppTC} from './models/oauth-apps'
-import {OAuthTokenTC} from './models/oauth-tokens';
-import {PeopleTC} from './models/people';
-import {ProviderTC} from './models/providers';
-import {SearchTC} from './models/searches';
-import {SessionTC} from './models/sessions';
-import {TagTC} from './models/tags';
+import { ConnectionTC } from './models/connections';
+import { ContactTC } from './models/contacts';
+import { ContentTC } from './models/content';
+import { EventTC } from './models/events';
+import { LocationTC } from './models/locations';
+import { LocationFileTC } from './models/location-files';
+import { OAuthAppTC } from './models/oauth-apps'
+import { OAuthTokenTC } from './models/oauth-tokens';
+import { PeopleTC } from './models/people';
+import { ProviderTC } from './models/providers';
+import { SearchTC } from './models/searches';
+import { TagTC } from './models/tags';
 // import { ThingTC } from './models/things';
 
-import {UserTC} from './models/users';
+import { UserTC } from './models/users';
 
 const GQC = new SchemaComposer();
 
@@ -242,8 +240,8 @@ GQC.rootSubscription().addFields({
 		resolve: (payload) => payload,
 		subscribe: (_, args, context, info) =>
 			filtered(env.pubSub.asyncIterator('connectionUpdated'),
-				function(payload, variables) {
-					if(context.user == null) {
+				function(payload) {
+					if (context.user == null) {
 						return false;
 					}
 
@@ -257,8 +255,8 @@ GQC.rootSubscription().addFields({
 		resolve: (payload) => payload,
 		subscribe: (_, args, context, info) =>
 			filtered(env.pubSub.asyncIterator('connectionDeleted'),
-				function(payload, variables) {
-					if(context.user == null) {
+				function(payload) {
+					if (context.user == null) {
 						return false;
 					}
 

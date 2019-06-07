@@ -249,26 +249,6 @@
   {
     "filters": [
       {
-<<<<<<< HEAD
-        "name": "From Steve",
-        "type": "who",
-        "data": {
-          "interaction": "from",
-          "text": "Steve",
-          "type": "text"
-        }
-      }
-    ],
-    "icon_color": "#b6bbbf",
-    "name": "Stuff from guys named Steve",
-    "icon": "fas fa-users",
-    "favorited": true
-  },
-  {
-    "filters": [
-      {
-=======
->>>>>>> Small updates to licensee. Fix initial searches.
         "name": "One year ago",
         "type": "when",
         "data": {

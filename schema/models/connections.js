@@ -1,8 +1,7 @@
-/* @flow */
+/* global env */
 
 import _ from 'lodash';
-import { withFilter } from 'graphql-subscriptions';
-import {graphql} from 'graphql-compose';
+import { graphql } from 'graphql-compose';
 import GraphQLJSON from 'graphql-type-json';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import config from 'config';
@@ -12,8 +11,8 @@ import mongoose from 'mongoose';
 import type from 'type-detect';
 
 import deleteConnection from '../../lib/util/delete-connection';
-import {AssociationSessionTC} from './association-sessions';
-import {ProviderTC} from './providers';
+import { AssociationSessionTC } from './association-sessions';
+import { ProviderTC } from './providers';
 import { Create as CreateSession } from '../../lib/sessions';
 
 import uuid from '../../lib/util/uuid';
@@ -156,7 +155,8 @@ export const ConnectionsSchema = new mongoose.Schema(
 						let bitscoopConnection = await bitscoop.getConnection(this.remote_connection_id.toString('hex'));
 
 						return bitscoopConnection.name;
-					} catch(err) {
+					}
+					catch (err) {
 						console.log('Could not get connection for ' + this._id.toString('hex'));
 
 						return 'Bad Connection';
@@ -283,12 +283,12 @@ ConnectionTC.addResolver({
 		permissions: 'JSON',
 		app_session: 'Boolean',
 	},
-	resolve: async ({source, args, context, info}) => {
+	resolve: async function({args, context}) {
 		let appSession;
 		let bitscoop = env.bitscoop;
 
 		await env.validate('#/types/uuid4', args.provider_id_string)
-			.catch(function(err) {
+			.catch(function() {
 				throw new Error('provider_id_string must be a 32-character UUID4 without dashes')
 			});
 
@@ -404,7 +404,7 @@ ConnectionTC.addResolver({
 		name: 'String',
 		forceUnauthorized: 'Boolean',
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let bitscoopConnection;
 		let bitscoop = env.bitscoop;
 		let req = context.req;
@@ -412,7 +412,7 @@ ConnectionTC.addResolver({
 		let validate = env.validate;
 
 		if (permissions) {
-			_.each(permissions, function(enabled, source) {
+			_.each(permissions, function(enabled) {
 				if (type(enabled) !== 'boolean') {
 					throw httpErrors(400, 'Enabled must be a boolean');
 				}
@@ -421,7 +421,8 @@ ConnectionTC.addResolver({
 
 		try {
 			await validate('#/types/uuid4', args.id)
-		} catch(err) {
+		}
+		catch (err) {
 			throw httpErrors(404);
 		}
 
@@ -441,7 +442,7 @@ ConnectionTC.addResolver({
 		if (connection.remote_connection_id) {
 			bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
 
-			if(!bitscoopConnection) {
+			if (!bitscoopConnection) {
 				throw httpErrors(404);
 			}
 		}
@@ -567,14 +568,15 @@ ConnectionTC.addResolver({
 
 			try {
 				response = await bitscoopConnection.save();
-			} catch(err) {
+			}
+			catch (err) {
 				console.log(err);
 
 				throw err;
 			}
 
-			if(response.redirectUrl) {
-				if(!explorerConnection.auth) {
+			if (response.redirectUrl) {
+				if (!explorerConnection.auth) {
 					explorerConnection.auth = {};
 				}
 
@@ -615,12 +617,12 @@ ConnectionTC.addResolver({
 	args: {
 		id: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let bitscoop = env.bitscoop;
 		let req = context.req;
 
 		await env.validate('#/types/uuid4', args.id)
-			.catch(function(err) {
+			.catch(function() {
 				throw new Error('id must be a 32-character UUID4 without dashes')
 			});
 
@@ -663,15 +665,16 @@ ConnectionTC.addResolver({
 
 		if (connection.remote_connection_id) {
 			try {
-				let bitscoopConnection = await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
-			} catch(err) {
+				await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
+			}
+			catch (err) {
 				throw err;
 			}
 		}
 
-		let result = await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
+		await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
 
-		env.pubSub.publish('connectionDeleted', { id: connection._id.toString('hex'), user_id: req.user._id });
+		env.pubSub.publish('connectionDeleted', {id: connection._id.toString('hex'), user_id: req.user._id});
 
 		context.res.status = 204;
 	}
@@ -684,7 +687,7 @@ ConnectionTC.addResolver({
 	args: {
 		browser: 'String!'
 	},
-	resolve: async function({ source, args, context, info }) {
+	resolve: async function({args, context}) {
 		let provider = await ProviderTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
@@ -718,7 +721,7 @@ ConnectionTC.addResolver({
 	args: {
 		browser: 'String!'
 	},
-	resolve: async function({ source, args, context, info }) {
+	resolve: async function({args, context}) {
 		let provider = await ProviderTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
@@ -732,30 +735,30 @@ ConnectionTC.addResolver({
 		}
 
 		await mongoose.connection.db.collection('connections').updateOne({
-			browser: args.browser,
-			provider_id: provider._id,
-			user_id: context.req.user._id
-		},
-		{
-			$setOnInsert: {
-				_id: uuid(uuid()),
-				auth: {
-					status: {
-						authorized: true,
-						complete: true
-					}
-				},
 				browser: args.browser,
-				frequency: 1,
-				enabled: true,
-				provider_name: args.browser + ' Extensions',
 				provider_id: provider._id,
 				user_id: context.req.user._id
-			}
-		},
-		{
-			upsert: true
-		});
+			},
+			{
+				$setOnInsert: {
+					_id: uuid(uuid()),
+					auth: {
+						status: {
+							authorized: true,
+							complete: true
+						}
+					},
+					browser: args.browser,
+					frequency: 1,
+					enabled: true,
+					provider_name: args.browser + ' Extensions',
+					provider_id: provider._id,
+					user_id: context.req.user._id
+				}
+			},
+			{
+				upsert: true
+			});
 
 		let result = await ConnectionTC.getResolver('findOne').resolve({
 			args: {

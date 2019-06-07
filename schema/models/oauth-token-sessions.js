@@ -1,29 +1,11 @@
 /* @flow */
 
-import crypto from 'crypto';
 
 import _ from 'lodash';
-import { withFilter } from 'graphql-subscriptions';
-import {graphql} from 'graphql-compose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
-import config from 'config';
-import httpErrors from 'http-errors';
-import moment from 'moment';
 import mongoose from 'mongoose';
 
 import uuid from '../../lib/util/uuid';
-import {OAuthAppTC} from "./oauth-apps";
-
-
-let urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
-
-let validScopes = [
-	'basic',
-	'events',
-	'contacts',
-	'content',
-	'locations'
-];
 
 
 export const OAuthTokenSessionSchema = new mongoose.Schema(

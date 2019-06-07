@@ -1,4 +1,4 @@
-/* @flow */
+/* global env */
 
 import _ from 'lodash';
 import config from 'config';
@@ -8,10 +8,10 @@ import moment from 'moment';
 import mongoose from 'mongoose';
 
 import uuid from "../../lib/util/uuid";
-import {add as addTags, remove as removeTags} from './templates/tag';
-import {Contacts, ContactTC} from "./contacts";
-import {TagTC} from "./tags";
-import {UserTC} from "./users";
+import { add as addTags, remove as removeTags } from './templates/tag';
+import { ContactTC } from "./contacts";
+import { TagTC } from "./tags";
+import { UserTC } from "./users";
 
 export const PeopleSchema = new mongoose.Schema(
 	{
@@ -188,7 +188,7 @@ PeopleTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await PeopleTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -210,7 +210,7 @@ PeopleTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await PeopleTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -238,7 +238,7 @@ PeopleTC.addResolver({
 		avatar_url: 'String',
 		external_avatar_url: 'String'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let userIDString = context.req.user._id.toString('hex');
 
 		let person = {
@@ -296,7 +296,8 @@ PeopleTC.addResolver({
 
 			try {
 				contacts = await Promise.all(promises);
-			} catch(err) {
+			}
+			catch (err) {
 				throw err;
 			}
 
@@ -348,7 +349,7 @@ PeopleTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		try {
 			let person = await PeopleTC.getResolver('findOne').resolve({
 				args: {
@@ -383,7 +384,8 @@ PeopleTC.addResolver({
 					}
 				}
 			});
-		} catch(err) {
+		}
+		catch (err) {
 			throw new Error(err);
 		}
 	}
@@ -403,7 +405,7 @@ PeopleTC.addResolver({
 		avatar_url: 'String',
 		external_avatar_url: 'String'
 	},
-	resolve: async function({ source, args, context, info }) {
+	resolve: async function({args, context}) {
 		let promise;
 		let userIDString = context.req.user._id.toString('hex');
 
@@ -483,7 +485,8 @@ PeopleTC.addResolver({
 
 			try {
 				contacts = await Promise.all(promises);
-			} catch(err) {
+			}
+			catch (err) {
 				throw err;
 			}
 
@@ -555,7 +558,7 @@ PeopleTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await addTags(context.req, args, PeopleTC);
 	}
 });
@@ -568,7 +571,7 @@ PeopleTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await removeTags(context.req, args, PeopleTC);
 	}
 });
@@ -586,12 +589,11 @@ PeopleTC.addResolver({
 		sortOrder: 'String',
 		filters: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
-		let count, documents;
+	resolve: async function({args, context}) {
+		let /*count,*/ documents;
 		let validate = env.validate;
 
 		let filters = args.filters ? JSON.parse(args.filters) : {};
-		let suppliedFilters = filters;
 
 		let query = {
 			filters: filters,
@@ -602,12 +604,10 @@ PeopleTC.addResolver({
 			sortOrder: args.sortOrder
 		};
 
-		let suppliedSortField = query.sortField;
-		let suppliedSortOrder = query.sortOrder;
-
 		try {
 			await validate('#/requests/search', query);
-		} catch(err) {
+		}
+		catch (err) {
 			throw new httpErrors(400, 'Query was invalid')
 		}
 
@@ -616,8 +616,6 @@ PeopleTC.addResolver({
 		}
 
 		let sort;
-
-		let validationVal = query;
 
 		let specialSort = false;
 
@@ -780,7 +778,7 @@ PeopleTC.addResolver({
 							peopleFilters.push(filter);
 						}
 						else {
-							peopleFilters.push({ _id: uuid(whoFilter.person_id_string.person_id_string) });
+							peopleFilters.push({_id: uuid(whoFilter.person_id_string.person_id_string)});
 						}
 					}
 				});
@@ -836,15 +834,15 @@ PeopleTC.addResolver({
 				}
 			});
 
-			let peopleMatchCount = await PeopleTC.getResolver('count').resolve({
-				args: {
-					filter: filter,
-					sort: sort
-				}
-			});
+			// let peopleMatchCount = await PeopleTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: filter,
+			// 		sort: sort
+			// 	}
+			// });
 
 			documents = peopleMatches;
-			count = peopleMatchCount;
+			// count = peopleMatchCount;
 
 		}
 		else {
@@ -879,15 +877,15 @@ PeopleTC.addResolver({
 				}
 			});
 
-			let peopleMatchCount = await PeopleTC.getResolver('count').resolve({
-				args: {
-					filter: filter,
-					sort: sort
-				},
-			});
+			// let peopleMatchCount = await PeopleTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: filter,
+			// 		sort: sort
+			// 	},
+			// });
 
 			documents = peopleMatches;
-			count = peopleMatchCount;
+			// count = peopleMatchCount;
 		}
 
 		// let q = validationVal.q;
@@ -962,7 +960,7 @@ PeopleTC.addResolver({
 		sortField: 'String',
 		sortOrder: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let userResult;
 
 		if (args.id == null || args.passcode == null) {
@@ -1027,7 +1025,7 @@ PeopleTC.addResolver({
 		id: 'String!',
 		passcode: 'String!'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args}) {
 		let personResult;
 
 		if (args.id == null || args.passcode == null) {
@@ -1073,7 +1071,7 @@ PeopleTC.setResolver('findMany', PeopleTC.getResolver('findMany')
 		name: 'self',
 		type: 'Boolean',
 		description: 'Filter by self being true or false',
-		query: function(query, value, resolveParams) {
+		query: function(query, value) {
 			if (value != null) {
 				query.self = value === true ? true : {
 					$ne: true
@@ -1109,7 +1107,7 @@ PeopleTC.setResolver('findOne', PeopleTC.getResolver('findOne')
 		name: 'self',
 		type: 'Boolean',
 		description: 'Filter by self being true or false',
-		query: function(query, value, resolveParams) {
+		query: function(query, value) {
 			if (value != null) {
 				query.self = value === true ? true : {
 					$ne: true
@@ -1123,7 +1121,7 @@ PeopleTC.setResolver('count', PeopleTC.getResolver('count')
 		name: 'self',
 		type: 'Boolean',
 		description: 'Filter by self being true or false',
-		query: function(query, value, resolveParams) {
+		query: function(query, value) {
 			if (value != null) {
 				query.self = value === true ? true : {
 					$ne: true

@@ -1,3 +1,4 @@
+/* global env */
 'use strict';
 
 import _ from 'lodash';
@@ -5,7 +6,7 @@ import httpErrors from 'http-errors';
 import moment from 'moment';
 
 import uuid from '../../../lib/util/uuid';
-import {TagTC} from "../tags";
+import { TagTC } from "../tags";
 
 
 export const add = async function(req, args, TypeTC) {
@@ -14,7 +15,8 @@ export const add = async function(req, args, TypeTC) {
 
 	try {
 		await validate('#/types/uuid4', hexId)
-	} catch(err) {
+	}
+	catch (err) {
 		throw httpErrors(404);
 	}
 
@@ -112,7 +114,8 @@ export const remove = async function(req, args, TypeTC) {
 
 	try {
 		await validate('#/types/uuid4', hexId)
-	} catch(err) {
+	}
+	catch (err) {
 		throw httpErrors(404);
 	}
 

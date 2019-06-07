@@ -23,8 +23,8 @@ import keyAuthorization from './lib/middleware/key-authorization';
 import tokenAuthorization from './lib/middleware/token-authorization';
 import wsCookieAuthorization from './lib/middleware/ws-cookie-authorization';
 import meta from './lib/middleware/meta';
-import {crudAPI} from './schema';
-import {loadValidator} from './lib/validator';
+import { crudAPI } from './schema';
+import { loadValidator } from './lib/validator';
 
 const BITSCOOP_API_KEY = config.bitscoop.api_key;
 const MONGODB_URI = config.mongodb.address;
@@ -46,10 +46,12 @@ const opts = {
 
 const bitscoop = new BitScoop(BITSCOOP_API_KEY, config.bitscoop.arguments);
 
-server.use(cors({
-	origin: config.cors.address,
-	credentials: config.cors.credentials
-}));
+server.use(
+	cors({
+		origin: config.cors.address,
+		credentials: config.cors.credentials,
+	})
+);
 
 mongoose.connect(MONGODB_URI, opts);
 

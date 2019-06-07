@@ -1,4 +1,4 @@
-/* @flow */
+/* global env */
 
 import _ from 'lodash';
 import config from 'config';
@@ -7,9 +7,9 @@ import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
 
 import uuid from "../../lib/util/uuid";
-import {add as addTags, remove as removeTags} from './templates/tag';
-import {TagTC} from "./tags";
-import {UserTC} from "./users";
+import { add as addTags, remove as removeTags } from './templates/tag';
+import { TagTC } from "./tags";
+import { UserTC } from "./users";
 
 export const ContentSchema = new mongoose.Schema(
 	{
@@ -213,7 +213,6 @@ export const Content = mongoose.model('Content', ContentSchema);
 export const ContentTC = composeWithMongoose(Content);
 
 
-
 ContentTC.addResolver({
 	name: 'addTags',
 	kind: 'mutation',
@@ -222,7 +221,7 @@ ContentTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await addTags(context.req, args, ContentTC);
 	}
 });
@@ -235,7 +234,7 @@ ContentTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await removeTags(context.req, args, ContentTC);
 	}
 });
@@ -247,7 +246,7 @@ ContentTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await ContentTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -269,7 +268,7 @@ ContentTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await ContentTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -291,7 +290,7 @@ ContentTC.addResolver({
 	args: {
 		identifier: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await ContentTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
@@ -316,12 +315,12 @@ ContentTC.addResolver({
 		sortOrder: 'String',
 		filters: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
-		let count, documents;
+	resolve: async function({args, context}) {
+		let /*count,*/ documents;
 		let validate = env.validate;
 
 		let filters = args.filters ? JSON.parse(args.filters) : {};
-		let suppliedFilters = filters;
+		// let suppliedFilters = filters;
 
 		let query = {
 			filters: filters,
@@ -332,12 +331,13 @@ ContentTC.addResolver({
 			sortOrder: args.sortOrder
 		};
 
-		let suppliedSortField = query.sortField;
-		let suppliedSortOrder = query.sortOrder;
+		// let suppliedSortField = query.sortField;
+		// let suppliedSortOrder = query.sortOrder;
 
 		try {
 			await validate('#/requests/search', query);
-		} catch(err) {
+		}
+		catch (err) {
 			throw new httpErrors(400, 'Query was invalid')
 		}
 
@@ -347,7 +347,7 @@ ContentTC.addResolver({
 
 		let sort;
 
-		let validationVal = query;
+		// let validationVal = query;
 
 		let specialSort = false;
 
@@ -510,15 +510,15 @@ ContentTC.addResolver({
 				}
 			});
 
-			let contentMatchCount = await ContentTC.getResolver('count').resolve({
-				args: {
-					filter: filter,
-					sort: sort
-				}
-			});
+			// let contentMatchCount = await ContentTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: filter,
+			// 		sort: sort
+			// 	}
+			// });
 
 			documents = contentMatches;
-			count = contentMatchCount;
+			// count = contentMatchCount;
 
 		}
 		else {
@@ -557,19 +557,19 @@ ContentTC.addResolver({
 				}
 			});
 
-			let contentMatchCount = await ContentTC.getResolver('count').resolve({
-				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex')
-					},
-					sort: sort,
-					limit: query.limit,
-					skip: query.offset
-				},
-			});
+			// let contentMatchCount = await ContentTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: {
+			// 			user_id_string: context.req.user._id.toString('hex')
+			// 		},
+			// 		sort: sort,
+			// 		limit: query.limit,
+			// 		skip: query.offset
+			// 	},
+			// });
 
 			documents = contentMatches;
-			count = contentMatchCount;
+			// count = contentMatchCount;
 		}
 
 		// let q = validationVal.q;
@@ -644,7 +644,7 @@ ContentTC.addResolver({
 		sortField: 'String',
 		sortOrder: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let userResult;
 
 		if (args.id == null || args.passcode == null) {

@@ -3,18 +3,16 @@
 import crypto from 'crypto';
 
 import _ from 'lodash';
-import { withFilter } from 'graphql-subscriptions';
-import {TypeComposer, graphql} from 'graphql-compose';
+import { TypeComposer, graphql } from 'graphql-compose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
-import config from 'config';
 import httpErrors from 'http-errors';
 import mongoose from 'mongoose';
 
-import {OAuthTokenTC} from "./oauth-tokens";
+import { OAuthTokenTC } from "./oauth-tokens";
 import uuid from '../../lib/util/uuid';
 
 
-let urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
+let urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/;
 
 
 let authorizationLimitedType = new graphql.GraphQLObjectType({
@@ -169,7 +167,7 @@ OAuthAppTC.addResolver({
 		privacy_policy_url: 'String!',
 		homepage_url: 'String!'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		if (urlRegex.test(args.privacy_policy_url !== true)) {
 			return httpErrors(400, 'Invalid privacy policy URL');
 		}
@@ -214,7 +212,7 @@ OAuthAppTC.addResolver({
 		homepage_url: 'String',
 		redirect_uris: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		if (urlRegex.test(args.privacy_policy_url !== true)) {
 			return httpErrors(400, 'Invalid privacy policy URL');
 		}
@@ -281,7 +279,7 @@ OAuthAppTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let update = {
 			client_secret: crypto.randomBytes(32).toString('hex')
 		};
@@ -308,7 +306,7 @@ OAuthAppTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		try {
 			await OAuthTokenTC.getResolver('removeMany').resolve({
 				args: {
@@ -326,7 +324,8 @@ OAuthAppTC.addResolver({
 					}
 				}
 			});
-		} catch(err) {
+		}
+		catch (err) {
 			throw new Error(err);
 		}
 	}
@@ -340,7 +339,7 @@ OAuthAppTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args}) {
 		try {
 			await OAuthTokenTC.getResolver('removeMany').resolve({
 				args: {
@@ -349,7 +348,8 @@ OAuthAppTC.addResolver({
 					}
 				}
 			});
-		} catch(err) {
+		}
+		catch (err) {
 			throw new Error(err);
 		}
 	}
@@ -363,7 +363,7 @@ OAuthAppTC.addResolver({
 	args: {
 		client_id: 'String!'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args}) {
 		let result = await OAuthAppTC.getResolver('findOne').resolve({
 			args: {
 				filter: {
@@ -386,7 +386,7 @@ OAuthAppTC.addResolver({
 	name: 'authorizedApps',
 	kind: 'query',
 	type: [authorizedAppType],
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({context}) {
 		let tokens = await OAuthTokenTC.getResolver('findMany').resolve({
 			args: {
 				filter: {
@@ -440,7 +440,7 @@ OAuthAppTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		await OAuthTokenTC.getResolver('removeMany').resolve({
 			args: {
 				filter: {

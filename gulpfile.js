@@ -120,39 +120,6 @@ gulp.task('copy:assets', function() {
 });
 
 
-gulp.task('devel', function(done) {
-	sequence('clean', ['copy:assets', 'less', 'nunjucks', 'schema', 'uglify:devel'], done);
-});
-
-
-gulp.task('less', function() {
-	const LessAutoPrefix = require('less-plugin-autoprefix');
-	const cleanCSS = require('gulp-clean-css');
-	const header = require('gulp-header');
-	const less = require('gulp-less');
-	const rename = require('gulp-rename');
-
-	return gulp.src([
-		'static/less/site.less'
-	])
-		.pipe(less({
-			plugins: [
-				new LessAutoPrefix({
-					browsers: ['last 3 versions', 'ie 11', 'ie 10']
-				})
-			]
-		}))
-		.pipe(cleanCSS())
-		.pipe(rename({
-			extname: '.min.css'
-		}))
-		.pipe(header(banner, {
-			pkg: pkg
-		}))
-		.pipe(gulp.dest('artifacts/css'));
-});
-
-
 gulp.task('lint', ['lint:js', 'lint:json']);
 
 
@@ -163,14 +130,11 @@ gulp.task('lint:js', function() {
 		'*.js',
 		'lib/**/*.js',
 		'migrations/**/*.js',
+		'schema/**/*.js',
 		'scripts/**/*.js',
-		'static/**/*.js',
-		'test/**/*.js',
-		'!static/lib/**/*.js'
+		'test/**/*.js'
 	])
-		.pipe(eslint({
-			configFile: 'eslint.json'
-		}))
+		.pipe(eslint())
 		.pipe(eslint.formatEach());
 });
 
@@ -181,84 +145,12 @@ gulp.task('lint:json', function() {
 	return gulp.src([
 		'*.json',
 		'config/*.json',
-		'lambda/**/*.json',
 		'fixtures/**/*.json',
 		'schemas/**/*.json'
 	])
 		.pipe(jsonlint())
 		.pipe(jsonlint.failOnError())
 		.pipe(jsonlint.reporter());
-});
-
-
-gulp.task('lint:less', function() {
-	const lesshint = require('gulp-lesshint');
-
-	return gulp.src([
-		'static/**/*.less'
-	])
-		.pipe(lesshint())
-		.pipe(lesshint.failOnError())
-		.pipe(lesshint.reporter());
-});
-
-
-gulp.task('nunjucks', function() {
-	const path = require('path');
-
-	const concat = require('gulp-concat');
-	const gutil = require('gulp-util');
-	const header = require('gulp-header');
-	const nunjucks = require('gulp-nunjucks');
-	const rename = require('gulp-rename');
-	const uglify = require('gulp-uglify');
-
-	return gulp.src([
-		'nunjucks/**/*.html'
-	])
-		.pipe(nunjucks.precompile({
-			env: (function(nunjucks) {
-				var environment;
-
-				environment = new nunjucks.Environment();
-
-				environment.addFilter('get', function() {});
-				environment.addFilter('date', function() {});
-				environment.addFilter('fileSize', function() {});
-
-				return environment;
-			})(require('nunjucks')),
-
-			name: (function() {
-				let delimiter, names;
-
-				delimiter = 'nunjucks' + path.sep;
-				names = {};
-
-				return function(file) {
-					let filename = file.path;
-					let i = filename.indexOf(delimiter);
-					let template = ~i ? filename.slice(i + delimiter.length) : template.replace(new RegExp(path.sep, 'g'), '/');
-
-					if (names.hasOwnProperty(template)) {
-						gutil.log('Name collison on nunjucks template "' + template + '":\n\tOld: ' + names[template] + '\n\tNew: ' + filename);
-					}
-
-					names[template] = filename;
-
-					return template;
-				};
-			})()
-		}))
-		.pipe(concat('templates.js'))
-		.pipe(uglify())
-		.pipe(header(banner, {
-			pkg: pkg
-		}))
-		.pipe(rename({
-			extname: '.min.js'
-		}))
-		.pipe(gulp.dest('artifacts/js'));
 });
 
 

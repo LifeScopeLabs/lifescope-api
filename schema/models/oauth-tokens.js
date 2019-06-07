@@ -3,17 +3,15 @@
 import crypto from 'crypto';
 
 import _ from 'lodash';
-import { withFilter } from 'graphql-subscriptions';
-import {graphql} from 'graphql-compose';
+import { graphql } from 'graphql-compose';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
-import config from 'config';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
 import uuid from '../../lib/util/uuid';
-import {OAuthAppTC} from "./oauth-apps";
-import {OAuthTokenSessionTC} from "./oauth-token-sessions";
+import { OAuthAppTC } from "./oauth-apps";
+import { OAuthTokenSessionTC } from "./oauth-token-sessions";
 
 
 let validScopes = [
@@ -174,7 +172,7 @@ OAuthTokenTC.addResolver({
 		scope: 'String',
 		state: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let scopes;
 		let errors = [];
 
@@ -273,7 +271,7 @@ OAuthTokenTC.addResolver({
 		client_secret: 'String!',
 		refresh_token: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args}) {
 		let errors = [];
 
 		if (args.grant_type !== 'authorization_code' && args.grant_type !== 'refresh_token') {

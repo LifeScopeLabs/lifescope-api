@@ -1,13 +1,12 @@
-/* @flow */
-
+/* global env */
 
 import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
-import {TypeComposer, graphql} from 'graphql-compose';
+import { TypeComposer } from 'graphql-compose';
 
 import uuid from '../../lib/util/uuid';
-import {ConnectionTC} from "./connections";
+import { ConnectionTC } from "./connections";
 
 
 let hydratedProviderType = TypeComposer.create(`
@@ -135,7 +134,7 @@ ProviderTC.addResolver({
 	name: 'providerHydratedMany',
 	kind: 'query',
 	type: [hydratedProviderType],
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({context}) {
 		let bitscoop = env.bitscoop;
 
 		let providers = await ProviderTC.getResolver('findMany').resolve({});
@@ -172,7 +171,7 @@ ProviderTC.addResolver({
 	name: 'providerWithMapMany',
 	kind: 'query',
 	type: [providerWithMapType],
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args}) {
 		let bitscoop = env.bitscoop;
 
 		let providers = await ProviderTC.getResolver('findMany').resolve({
@@ -200,7 +199,7 @@ ProviderTC.addResolver({
 	args: {
 		id: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args}) {
 		let bitscoop = env.bitscoop;
 
 		let provider = await ProviderTC.getResolver('findOne').resolve({

@@ -1,6 +1,4 @@
-/* @flow */
-
-import url from 'url';
+/* global env */
 
 import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
@@ -8,18 +6,16 @@ import config from 'config';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
-import {graphql} from 'graphql-compose';
 
 import uuid from "../../lib/util/uuid";
 
-import {Contacts, ContactTC} from './contacts';
-import {Content, ContentTC} from './content';
-import {add as addTags, remove as removeTags} from './templates/tag';
-import {ConnectionTC} from "./connections";
-import {LocationTC} from "./locations";
-import {People, PeopleTC} from "./people";
-import {TagTC} from "./tags";
-import {UserTC} from "./users";
+import { Contacts, ContactTC } from './contacts';
+import { Content, ContentTC } from './content';
+import { add as addTags, remove as removeTags } from './templates/tag';
+import { LocationTC } from "./locations";
+import { People, PeopleTC } from "./people";
+import { TagTC } from "./tags";
+import { UserTC } from "./users";
 
 
 // let searchType = new graphql.GraphQLObjectType({
@@ -272,7 +268,6 @@ export const Events = mongoose.model('Events', EventsSchema);
 export const EventTC = composeWithMongoose(Events);
 
 
-
 EventTC.addRelation('hydratedContacts', {
 	resolver: () => ContactTC.getResolver('findMany'),
 	prepareArgs: {
@@ -293,7 +288,6 @@ EventTC.addRelation('hydratedContacts', {
 		},
 	}
 });
-
 
 
 EventTC.addRelation('hydratedPeople', {
@@ -389,7 +383,7 @@ EventTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await addTags(context.req, args, EventTC);
 	}
 });
@@ -402,7 +396,7 @@ EventTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await removeTags(context.req, args, EventTC);
 	}
 });
@@ -414,7 +408,7 @@ EventTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await EventTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -436,7 +430,7 @@ EventTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await EventTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -463,12 +457,12 @@ EventTC.addResolver({
 		sortOrder: 'String',
 		filters: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
-		let count, documents;
+	resolve: async function({args, context}) {
+		let /*count,*/ documents;
 		let validate = env.validate;
 
 		let filters = args.filters ? JSON.parse(args.filters) : {};
-		let suppliedFilters = filters;
+		// let suppliedFilters = filters;
 
 		let query = {
 			filters: filters,
@@ -479,12 +473,13 @@ EventTC.addResolver({
 			sortOrder: args.sortOrder
 		};
 
-		let suppliedSortField = query.sortField;
-		let suppliedSortOrder = query.sortOrder;
+		// let suppliedSortField = query.sortField;
+		// let suppliedSortOrder = query.sortOrder;
 
 		try {
 			await validate('#/requests/search', query);
-		} catch(err) {
+		}
+		catch (err) {
 			throw new httpErrors(400, 'Query was invalid')
 		}
 
@@ -494,7 +489,7 @@ EventTC.addResolver({
 
 		let sort, contentSort, contactSort;
 
-		let validationVal = query;
+		// let validationVal = query;
 
 		let specialSort = false;
 
@@ -745,7 +740,7 @@ EventTC.addResolver({
 							peopleFilters.push(filter);
 						}
 						else {
-							peopleFilters.push({ _id: uuid(whoFilter.person_id_string.person_id_string) });
+							peopleFilters.push({_id: uuid(whoFilter.person_id_string.person_id_string)});
 						}
 					}
 				});
@@ -1435,7 +1430,7 @@ EventTC.addResolver({
 			}
 
 			let aggregatedContacts = contactsSearched === true ? await contactAggregation.exec() : [];
-			let aggregatedContent = contentSearched === true ? await contentAggregation.exec(): [];
+			let aggregatedContent = contentSearched === true ? await contentAggregation.exec() : [];
 			let aggregatedEvents = eventsSearched === true ? await eventAggregation.exec() : [];
 			let aggregatedPeople = peopleSearched === true ? await peopleAggregation.exec() : [];
 
@@ -1479,15 +1474,15 @@ EventTC.addResolver({
 				}
 			});
 
-			let eventMatchCount = await EventTC.getResolver('count').resolve({
-				args: {
-					filter: filter,
-					sort: sort
-				}
-			});
+			// let eventMatchCount = await EventTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: filter,
+			// 		sort: sort
+			// 	}
+			// });
 
 			documents = eventMatches;
-			count = eventMatchCount;
+			// count = eventMatchCount;
 
 		}
 		else {
@@ -1502,17 +1497,17 @@ EventTC.addResolver({
 				}
 			});
 
-			let eventMatchCount = await EventTC.getResolver('count').resolve({
-				args: {
-					filter: {
-						user_id_string: context.req.user._id.toString('hex')
-					},
-					sort: sort
-				},
-			});
+			// let eventMatchCount = await EventTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: {
+			// 			user_id_string: context.req.user._id.toString('hex')
+			// 		},
+			// 		sort: sort
+			// 	},
+			// });
 
 			documents = eventMatches;
-			count = eventMatchCount;
+			// count = eventMatchCount;
 		}
 
 		// let q = validationVal.q;
@@ -1631,7 +1626,7 @@ EventTC.addResolver({
 	args: {
 		events: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let eventMap = {};
 		let contactMap = {};
 		let contentMap = {};
@@ -1653,7 +1648,7 @@ EventTC.addResolver({
 
 			_.each(contacts, function(contact) {
 				if (contact.identifier) {
-					if(contactMap[contact.identifier] == null) {
+					if (contactMap[contact.identifier] == null) {
 						contactMap[contact.identifier] = contact;
 
 						_.each(contact.tagMasks.source, function(tag) {
@@ -1924,7 +1919,7 @@ EventTC.addResolver({
 		sortField: 'String',
 		sortOrder: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let userResult;
 
 		if (args.id == null || args.passcode == null) {

@@ -1,9 +1,10 @@
-/* @flow */
+/* global env */
 
 import crypto from 'crypto';
 
 import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import httpErrors from 'http-errors';
 import mongoose from 'mongoose';
 
 import uuid from "../../lib/util/uuid";
@@ -110,12 +111,13 @@ TagTC.addResolver({
 		share: 'String'
 	},
 	type: TagTC.getResolver('findOne').getType(),
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let validate = env.validate;
 
 		try {
 			await validate('#/mutations/tag-sharing', args.share)
-		} catch(err) {
+		}
+		catch (err) {
 			throw httpErrors(400);
 		}
 
@@ -150,7 +152,7 @@ TagTC.setResolver('findMany', TagTC.getResolver('findMany')
 		name: 'type',
 		type: 'String',
 		description: 'How to filter and sort the results',
-		query: function(query, value, resolveParams) {
+		query: function(query, value) {
 			if (value === 'shared') {
 				query.shared = true;
 			}

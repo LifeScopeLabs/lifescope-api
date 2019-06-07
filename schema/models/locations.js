@@ -174,9 +174,7 @@ LocationTC.addResolver({
 	args: {
 		ids: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
-		let startTime = moment();
-
+	resolve: async function({args}) {
 		let ids = _.map(args.ids, function(id) {
 			return uuid(id);
 		});
@@ -205,7 +203,7 @@ LocationTC.addResolver({
 		latitude: 'Float',
 		longitude: 'Float'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		if (args.geo_format !== 'lat_lng') {
 			throw new httpErrors(400, 'Accepted geo_format types are: \'lat_lng\'');
 		}
@@ -240,7 +238,7 @@ LocationTC.addResolver({
 	name: 'deleteTrackedLocations',
 	kind: 'mutation',
 	type: LocationTC.getResolver('findOne').getType(),
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({context}) {
 		let terms = {
 			user_id_string: context.req.user._id.toString('hex'),
 			tracked: true
@@ -258,7 +256,7 @@ LocationTC.addResolver({
 	name: 'deleteUploadedLocations',
 	kind: 'mutation',
 	type: LocationTC.getResolver('findOne').getType(),
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({context}) {
 		let terms = {
 			user_id_string: context.req.user._id.toString('hex'),
 			uploaded: true

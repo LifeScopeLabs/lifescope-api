@@ -1,12 +1,12 @@
 /* @flow */
 
-import _ from 'lodash';;
+import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose'
 
 import uuid from '../../lib/util/uuid';
 
-import {UserTC} from './users';
+import { UserTC } from './users';
 
 export const SessionSchema = new mongoose.Schema(
 	{

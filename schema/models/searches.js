@@ -152,7 +152,7 @@ SearchTC.addResolver({
 		icon_color: 'String',
 		name: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let filters = args.filters;
 		let req = context.req;
 
@@ -162,7 +162,7 @@ SearchTC.addResolver({
 
 		filters = JSON.parse(filters);
 
-		let unnamedFilters = _.map(filters, function(filter, i) {
+		let unnamedFilters = _.map(filters, function(filter) {
 			return _.pick(filter, ['data', 'type']);
 		});
 
@@ -190,15 +190,6 @@ SearchTC.addResolver({
 		let result;
 
 		if (current) {
-			let found = await SearchTC.getResolver('findOne').resolve({
-				args: {
-					filter: {
-						hash: hash,
-						user_id_string: req.user._id.toString('hex')
-					}
-				}
-			});
-
 			result = await SearchTC.getResolver('updateOne').resolve({
 				args: {
 					filter: {
@@ -249,7 +240,7 @@ SearchTC.addResolver({
 		icon_color: 'String',
 		name: 'String'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let record = {};
 
 		if (args.favorited != null) {
@@ -290,7 +281,7 @@ SearchTC.addResolver({
 	args: {
 		id: 'String!',
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		await SearchTC.getResolver('removeOne').resolve({
 			args: {
 				filter: {
@@ -314,7 +305,7 @@ SearchTC.addResolver({
 		icon_color: 'String',
 		name: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let filters = args.filters;
 		let req = context.req;
 
@@ -324,7 +315,7 @@ SearchTC.addResolver({
 
 		filters = JSON.parse(filters);
 
-		let unnamedFilters = _.map(filters, function(filter, i) {
+		let unnamedFilters = _.map(filters, function(filter) {
 			return _.pick(filter, ['data', 'type']);
 		});
 
@@ -349,7 +340,7 @@ SearchTC.addResolver({
 			}
 		});
 
-		return result ? result: null;
+		return result ? result : null;
 	}
 });
 
@@ -358,7 +349,7 @@ SearchTC.setResolver('findMany', SearchTC.getResolver('findMany')
 		name: 'type',
 		type: 'String',
 		description: 'How to filter and sort the results',
-		query: function(query, value, resolveParams) {
+		query: function(query, value) {
 			if (value === 'favorites') {
 				query.favorited = true;
 			}

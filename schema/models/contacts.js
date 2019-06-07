@@ -1,4 +1,4 @@
-/* @flow */
+/* global env */
 
 import _ from 'lodash';
 import config from 'config';
@@ -7,11 +7,11 @@ import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import mongoose from 'mongoose';
 
 import uuid from "../../lib/util/uuid";
-import {add as addTags, remove as removeTags} from './templates/tag';
-import {ConnectionTC} from "./connections";
-import {TagTC} from "./tags";
-import {UserTC} from "./users";
-import {PeopleTC} from "./people";
+import { add as addTags, remove as removeTags } from './templates/tag';
+import { ConnectionTC } from "./connections";
+import { TagTC } from "./tags";
+import { UserTC } from "./users";
+import { PeopleTC } from "./people";
 
 export const ContactsSchema = new mongoose.Schema(
 	{
@@ -251,7 +251,6 @@ ContactTC.addRelation('hydratedConnection', {
 });
 
 
-
 ContactTC.addResolver({
 	name: 'addTags',
 	kind: 'mutation',
@@ -260,7 +259,7 @@ ContactTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await addTags(context.req, args, ContactTC);
 	}
 });
@@ -273,7 +272,7 @@ ContactTC.addResolver({
 		id: 'String',
 		tags: ['String']
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await removeTags(context.req, args, ContactTC);
 	}
 });
@@ -285,7 +284,7 @@ ContactTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await ContactTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -307,7 +306,7 @@ ContactTC.addResolver({
 	args: {
 		id: 'String!'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		return await ContactTC.getResolver('updateOne').resolve({
 			args: {
 				filter: {
@@ -331,7 +330,7 @@ ContactTC.addResolver({
 		limit: 'Int',
 		offset: 'Int'
 	},
-	resolve: async function({ source, args, context, info}) {
+	resolve: async function({args, context}) {
 		if (args.limit > config.objectMaxLimit) {
 			args.limit = config.objectMaxLimit;
 		}
@@ -394,12 +393,12 @@ ContactTC.addResolver({
 		sortOrder: 'String',
 		filters: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
-		let count, documents;
+	resolve: async function({args, context}) {
+		let /*count,*/ documents;
 		let validate = env.validate;
 
 		let filters = args.filters ? JSON.parse(args.filters) : {};
-		let suppliedFilters = filters;
+		// let suppliedFilters = filters;
 
 		let query = {
 			filters: filters,
@@ -410,12 +409,13 @@ ContactTC.addResolver({
 			sortOrder: args.sortOrder
 		};
 
-		let suppliedSortField = query.sortField;
-		let suppliedSortOrder = query.sortOrder;
+		// let suppliedSortField = query.sortField;
+		// let suppliedSortOrder = query.sortOrder;
 
 		try {
 			await validate('#/requests/search', query);
-		} catch(err) {
+		}
+		catch (err) {
 			throw new httpErrors(400, 'Query was invalid')
 		}
 
@@ -425,7 +425,7 @@ ContactTC.addResolver({
 
 		let sort;
 
-		let validationVal = query;
+		// let validationVal = query;
 
 		let specialSort = false;
 
@@ -576,7 +576,7 @@ ContactTC.addResolver({
 							contactFilters.push(filter);
 						}
 						else {
-							contactFilters.push({ 'person._id': uuid(whoFilter.person_id_string.person_id_string) });
+							contactFilters.push({'person._id': uuid(whoFilter.person_id_string.person_id_string)});
 						}
 					}
 				});
@@ -665,15 +665,15 @@ ContactTC.addResolver({
 				}
 			});
 
-			let contactMatchCount = await ContactTC.getResolver('count').resolve({
-				args: {
-					filter: filter,
-					sort: sort
-				}
-			});
+			// let contactMatchCount = await ContactTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: filter,
+			// 		sort: sort
+			// 	}
+			// });
 
 			documents = contactMatches;
-			count = contactMatchCount;
+			// count = contactMatchCount;
 
 		}
 		else {
@@ -713,15 +713,15 @@ ContactTC.addResolver({
 				}
 			});
 
-			let contactMatchCount = await ContactTC.getResolver('count').resolve({
-				args: {
-					filter: filter,
-					sort: sort
-				},
-			});
+			// let contactMatchCount = await ContactTC.getResolver('count').resolve({
+			// 	args: {
+			// 		filter: filter,
+			// 		sort: sort
+			// 	},
+			// });
 
 			documents = contactMatches;
-			count = contactMatchCount;
+			// count = contactMatchCount;
 		}
 
 		// let q = validationVal.q;
@@ -796,7 +796,7 @@ ContactTC.addResolver({
 		sortField: 'String',
 		sortOrder: 'String'
 	},
-	resolve: async function({source, args, context, info}) {
+	resolve: async function({args, context}) {
 		let userResult;
 
 		if (args.id == null || args.passcode == null) {
