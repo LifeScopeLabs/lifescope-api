@@ -16,7 +16,7 @@
     "lib"
   ],
   "scripts": {
-    "build": "sh build.sh",
+    "build": "gulp lint && sh build.sh",
     "debug": "babel-node server.js --inspect-brk=localhost:3333",
     "start": "nodemon server.js --exec babel-node --presets env,stage-2",
     "start-dev": "nodemon server.js --exec babel-node --presets env,stage-2 --inspect-brk=localhost:3333",
