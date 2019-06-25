@@ -12,7 +12,7 @@
 	}
   },
 
-  "enabled": true,
+  "enabled": false,
 
   "remote_map_id": "8a8dec2a95154d07926d451d2ba0a169"
 }

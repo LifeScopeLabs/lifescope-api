@@ -104,6 +104,7 @@ GQC.rootQuery().addFields({
 		}),
 
 		...restrictByScope(Resolver, 'basic', {
+			userCounts: UserTC.getResolver('allCounts'),
 			userBasic: UserTC.getResolver('userBasic')
 		}),
 	}),

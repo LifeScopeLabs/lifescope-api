@@ -136,7 +136,7 @@ export const PeopleSchema = new mongoose.Schema(
 		user_id_string: {
 			type: String,
 			get: function() {
-				return this.user_id.toString('hex')
+				return this.user_id.toString('hex');
 			},
 			set: function(val) {
 				if (val && this._conditions && this._conditions.user_id_string) {

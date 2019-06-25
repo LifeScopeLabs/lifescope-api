@@ -11,7 +11,7 @@ import { ContactTC } from './contacts';
 import { ConnectionTC } from "./connections";
 import { ContentTC } from "./content";
 import { EventTC } from "./events";
-import { LocationTC } from './locations';
+import { Locations, LocationTC } from './locations';
 import { SearchTC } from "./searches";
 import { SessionTC } from "./sessions";
 import { TagTC } from "./tags";
@@ -27,6 +27,51 @@ let basicType = new graphql.GraphQLObjectType({
 		id: {
 			type: graphql.GraphQLString
 		}
+	}
+});
+
+let allCountType = new graphql.GraphQLObjectType({
+	name: 'allCounts',
+	fields: {
+		connectionCount: {
+			type: graphql.GraphQLInt
+		},
+
+		contactCount: {
+			type: graphql.GraphQLInt
+		},
+
+		contentCount: {
+			type: graphql.GraphQLInt
+		},
+
+		eventCount: {
+			type: graphql.GraphQLInt
+		},
+
+		locationCount: {
+			type: graphql.GraphQLInt
+		},
+
+		peopleCount: {
+			type: graphql.GraphQLInt
+		},
+
+		searchCount: {
+			type: graphql.GraphQLInt
+		},
+
+		favoriteSearchCount: {
+			type: graphql.GraphQLInt
+		},
+
+		tagCount: {
+			type: graphql.GraphQLInt
+		},
+
+		sharedTagCount: {
+			type: graphql.GraphQLInt
+		},
 	}
 });
 
@@ -238,7 +283,8 @@ UserTC.addResolver({
 			await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
 		});
 
-		//All Events, Contacts, and Content should be gone after deleteConnection, but try anyway in case there were bugs
+		//All Events, Contacts, and Content should be gone after deleteConnection, but try anyway in case there were bugs.
+		//Also delete everything else related to that user.
 		await EventTC.getResolver('removeMany').resolve({
 			args: {
 				filter: {
@@ -439,5 +485,120 @@ UserTC.addResolver({
 		return {
 			id: result._id.toString('hex')
 		};
+	}
+});
+
+
+UserTC.addResolver({
+	name: 'allCounts',
+	kind: 'query',
+	type: allCountType,
+	resolve: async ({context}) => {
+		//For some reason, counting Locations through graphql-compose-mongoose's resolver is rather slow.
+		//Doing the count directly through Mongoose is a lot faster, so I'm using that.
+		//If it's due to collection size and something else starts getting very slow, I'll try to implement
+		//a more general fix.
+		let locationCountPromise = Locations.count({
+			user_id: context.req.user._id
+		});
+
+		let connectionCountPromise = ConnectionTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let contactCountPromise = ContactTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let contentCountPromise = ContentTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let eventCountPromise = EventTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let peopleCountPromise = PeopleTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					self: false,
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let searchCountPromise = SearchTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let favoriteSearchCountPromise = SearchTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					favorited: true,
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let tagCountPromise = TagTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let sharedTagCountPromise = TagTC.getResolver('count').resolve({
+			args: {
+				filter: {
+					share: 'public',
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let connectionCount = await connectionCountPromise;
+		let contactCount = await contactCountPromise;
+		let contentCount = await contentCountPromise;
+		let eventCount = await eventCountPromise;
+		let locationCount = await locationCountPromise;
+		let peopleCount = await peopleCountPromise;
+		let searchCount = await searchCountPromise;
+		let favoriteSearchCount = await favoriteSearchCountPromise;
+		let tagCount = await tagCountPromise;
+		let sharedTagCount = await sharedTagCountPromise;
+
+		return {
+			connectionCount: connectionCount,
+			contactCount: contactCount,
+			contentCount: contentCount,
+			eventCount: eventCount,
+			locationCount: locationCount,
+			peopleCount: peopleCount,
+			searchCount: searchCount,
+			favoriteSearchCount: favoriteSearchCount,
+			tagCount: tagCount,
+			sharedTagCount: sharedTagCount
+		}
 	}
 });

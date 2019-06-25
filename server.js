@@ -42,6 +42,7 @@ const opts = {
 	autoReconnect: true,
 	reconnectTries: Number.MAX_VALUE,
 	reconnectInterval: 1000,
+	autoIndex: false
 };
 
 const bitscoop = new BitScoop(BITSCOOP_API_KEY, config.bitscoop.arguments);

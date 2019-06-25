@@ -31,6 +31,12 @@ let authorizationType = new graphql.GraphQLObjectType({
 		},
 		state: {
 			type: graphql.GraphQLString
+		},
+		access_token: {
+			type: graphql.GraphQLString,
+		},
+		expires_in: {
+			type: graphql.GraphQLString
 		}
 	}
 });
@@ -332,7 +338,7 @@ OAuthTokenTC.addResolver({
 					expires: expires.toDate(),
 					refresh_token: crypto.randomBytes(32).toString('hex'),
 					scopes: session.scopes,
-					user_id_string: app.user_id.toString('hex'),
+					user_id_string: session.user_id.toString('hex'),
 					valid: true,
 				};
 
