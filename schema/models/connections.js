@@ -646,8 +646,8 @@ ConnectionTC.addResolver({
 			return connection.provider.login === true;
 		});
 
-		if (loginConnections.length === 1 && loginConnections[0]._id.toString('hex') === args.id) {
-			throw new httpErrors(400, 'You cannot delete your last remaining connection.');
+		if ((req.user.email == null || req.user.email.length === 0) && loginConnections.length === 1 && loginConnections[0]._id.toString('hex') === args.id) {
+			throw new httpErrors(400, 'You cannot delete your last remaining connection without having an email associated with your account.');
 		}
 
 		let connection = await ConnectionTC.getResolver('findOne').resolve({
@@ -783,9 +783,6 @@ async function insertAssociationSessions(context, authObj, appSession) {
 		let id = uuid();
 		let token = uuid();
 		let expiration = moment.utc().add(600, 'seconds').toDate();
-		// We don't need to have a different cookie for each provider.
-		// Review if we do need to have a different cookie for each provider.
-		let cookieName = 'login_assoc';
 
 		let record = {
 			id: id,
@@ -805,7 +802,7 @@ async function insertAssociationSessions(context, authObj, appSession) {
 		});
 
 		// Create cookie so user can login/signup after Oauth validation.
-		context.res.cookie(cookieName, token.toString('hex'), {
+		context.res.cookie(config.login.cookieName, token.toString('hex'), {
 			domain: config.domain,
 			secure: true,
 			httpOnly: true,

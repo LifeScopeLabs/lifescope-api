@@ -1,89 +1,96 @@
 {
-  "domain": "lifescope.io",
+	"domain": "lifescope.io",
 
-  "logging": {
-    "severity": "trace",
-    "targets": [
-      {
-        "type": "console",
-        "formatter": "human"
-      }
-    ]
-  },
+	"logging": {
+		"severity": "trace",
+		"targets": [
+			{
+				"type": "console",
+				"formatter": "human"
+			}
+		]
+	},
 
-  "cors":
-  {
-    "address": "https://app.lifescope.io",
-    "credentials": true
-  },
-  
-  "objectMaxLimit": 100,
+	"cors": {
+		"address": "https://app.lifescope.io",
+		"credentials": true
+	},
 
-  "aws": {
-    "credentials": {
-      "AWSAccessKeyId": null,
-      "AWSSecretKey": null
-    },
+	"objectMaxLimit": 100,
 
-    "s3": {
-      "locations": {
-        "bucket_name": null
-      }
-    }
-  },
+	"aws": {
+		"credentials": {
+			"AWSAccessKeyId": null,
+			"AWSSecretKey": null
+		},
 
-  "mongodb": {
-    "address": "mongodb://127.0.0.1",
-    "options": {
-      "poolSize": 5
-    }
-  },
+		"s3": {
+			"locations": {
+				"bucket_name": null
+			}
+		}
+	},
 
-  "cookieConsent": "cookieconsent",
+	"mongodb": {
+		"address": "mongodb://127.0.0.1",
+		"options": {
+			"poolSize": 5
+		}
+	},
 
-  "sessions": {
-    "cookieName": "sessionid",
-    "expiration": 1209600,
-    "sessionExpiration": 600,
-    "csrf": {
-      "saltLength": 64,
-      "secretLength": 32
-    }
-  },
+	"cookieConsent": "cookieconsent",
 
-  "oauth": {
-    "tempCookieName": "auth_parameters"
-  },
+	"login": {
+		"cookieName": "login_assoc"
+	},
 
-  "csrf": {
-    "saltLength": 64,
-    "secretLength": 32
-  },
+	"sessions": {
+		"cookieName": "sessionid",
+		"expiration": 1209600,
+		"sessionExpiration": 600,
+		"csrf": {
+			"saltLength": 64,
+			"secretLength": 32
+		}
+	},
 
-  "staticfiles": {
-    "directories": [
-      "artifacts",
-      "static"
-    ],
-    "path": "/static"
-  },
+	"oauth": {
+		"tempCookieName": "auth_parameters"
+	},
 
-  "templates": {
-    "directory": "templates"
-  },
+	"csrf": {
+		"saltLength": 64,
+		"secretLength": 32
+	},
 
-  "api": {
-    "key": "***INSERT BITSCOOP API KEY HERE***",
-    "address": {
-      "protocol": "http",
-      "hostname": "localhost",
-      "port": "8081",
-      "host_header": {
-        "main": "api.bitscoop.com",
-        "subdomain": "provider.api.bitscoop.com"
-      }
-    }
-  },
+	"staticfiles": {
+		"directories": [
+			"artifacts",
+			"static"
+		],
+		"path": "/static"
+	},
 
-  "validationSchemas": "schemas/**/*.json"
+	"templates": {
+		"directory": "templates"
+	},
+
+	"api": {
+		"key": "***INSERT BITSCOOP API KEY HERE***",
+		"address": {
+			"protocol": "http",
+			"hostname": "localhost",
+			"port": "8081",
+			"host_header": {
+				"main": "api.bitscoop.com",
+				"subdomain": "provider.api.bitscoop.com"
+			}
+		}
+	},
+
+	"mandrill": {
+		"key": "***INSERT MANDRILL KEY HERE"
+	},
+
+	"validationSchemas": "schemas/**/*.json"
 }

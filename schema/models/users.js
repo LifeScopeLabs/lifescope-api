@@ -2,24 +2,30 @@
 
 import _ from 'lodash';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import httpErrors from 'http-errors';
+import moment from 'moment';
 import mongoose from 'mongoose';
 import { graphql } from 'graphql-compose';
 
 import deleteConnection from '../../lib/util/delete-connection';
 import uuid from '../../lib/util/uuid';
 import { ContactTC } from './contacts';
-import { ConnectionTC } from "./connections";
-import { ContentTC } from "./content";
-import { EventTC } from "./events";
+import { ConnectionTC } from './connections';
+import { ContentTC } from './content';
+import { EmailUpdateRequestTC } from './email-update-request';
+import { EventTC } from './events';
 import { Locations, LocationTC } from './locations';
-import { SearchTC } from "./searches";
-import { SessionTC } from "./sessions";
-import { TagTC } from "./tags";
-import { OAuthAppTC } from "./oauth-apps";
-import { OAuthTokenTC } from "./oauth-tokens";
-import { OAuthTokenSessionTC } from "./oauth-token-sessions";
-import { PeopleTC } from "./people";
-import { LocationFileTC } from "./location-files";
+import { SearchTC } from './searches';
+import { SessionTC } from './sessions';
+import { TagTC } from './tags';
+import { OAuthAppTC } from './oauth-apps';
+import { OAuthTokenTC } from './oauth-tokens';
+import { OAuthTokenSessionTC } from './oauth-token-sessions';
+import { PeopleTC } from './people';
+import { LocationFileTC } from './location-files';
+import EmailClient from '../../lib/extensions/mandrill/email-client';
+
+let emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
 let basicType = new graphql.GraphQLObjectType({
 	name: 'userBasic',
@@ -164,6 +170,10 @@ export const UserSchema = new mongoose.Schema(
 			}
 		},
 
+		email: {
+			type: String
+		},
+
 		name: {
 			type: String,
 			index: true,
@@ -187,6 +197,10 @@ export const UserSchema = new mongoose.Schema(
 		location_tracking_enabled: {
 			type: Boolean,
 			index: false
+		},
+
+		newsletter: {
+			type: Boolean
 		},
 
 		settings: {
@@ -413,6 +427,141 @@ UserTC.addResolver({
 		});
 
 		return updated.record;
+	}
+});
+
+UserTC.addResolver({
+	name: 'updateEmail',
+	kind: 'mutation',
+	args: {
+		new_email: 'String!'
+	},
+	type: UserTC.getResolver('findOne').getType(),
+	resolve: async ({args, context}) => {
+		let existingUser;
+		let req = context.req;
+		let user = req.user;
+
+		let errors = [];
+		let emailTest = emailRegex.test(args.new_email);
+
+		if (emailTest !== true) {
+			errors.push('invalid_email');
+		}
+		else {
+			if (args.new_email === user.email) {
+				errors.push('email_unchanged');
+			}
+			else {
+				existingUser = await UserTC.getResolver('findOne').resolve({
+					args: {
+						filter: {
+							email: args.new_email
+						}
+					}
+				});
+
+				if (existingUser != null) {
+					errors.push('email_in_use');
+				}
+			}
+		}
+
+		if (errors.length === 0) {
+			try {
+				let emailClient = new EmailClient();
+
+				await EmailUpdateRequestTC.getResolver('removeMany').resolve({
+					args: {
+						filter: {
+							user_id_string: user._id.toString('hex')
+						}
+					}
+				});
+
+				if (user.email && user.email.length > 0) {
+					let id = uuid();
+					let token = uuid();
+					let expiration = moment.utc().add(1800, 'seconds').toDate();
+
+					let record = {
+						id: id,
+						token_string: token,
+						ttl: expiration,
+						new_email: args.new_email,
+						user_id_string: req.user._id.toString('hex')
+					};
+
+					await EmailUpdateRequestTC.getResolver('createOne').resolve({
+						args: {
+							record: record
+						}
+					});
+
+					await emailClient.send(user.email, {
+						template: 'lifescope-email-change',
+						context: {
+							token: token,
+							new_email: args.new_email
+						}
+					});
+
+					return user;
+				}
+				else {
+					await UserTC.getResolver('updateOne').resolve({
+						args: {
+							filter: {
+								id: user._id.toString('hex')
+							},
+							record: {
+								email: args.new_email
+							}
+						}
+					});
+
+					await emailClient.send(args.new_email, {
+						template: 'lifescope-email-confirm-new',
+						context: {
+							old_email: null
+						}
+					});
+
+					user.email = args.new_email;
+
+					return user;
+				}
+			}
+			catch (err) {
+				throw err;
+			}
+		}
+		else {
+			throw new httpErrors(400, errors.join(','));
+		}
+	}
+});
+
+UserTC.addResolver({
+	name: 'updateNewsletter',
+	kind: 'mutation',
+	args: {
+		newsletter: 'Boolean!'
+	},
+	type: UserTC.getResolver('findOne').getType(),
+	resolve: async ({args, context}) => {
+		let user = await UserTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: context.req.user._id.toString('hex')
+				},
+				record: {
+					newsletter: args.newsletter === true
+				}
+			}
+		});
+
+		return user.record;
 	}
 });
 

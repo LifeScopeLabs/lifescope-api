@@ -213,7 +213,9 @@ GQC.rootMutation().addFields({
 
 		...restrictByScope(Resolver, 'user:write', {
 			userApiKeyUpdate: UserTC.getResolver('updateApiKey'),
+			userEmailUpdate: UserTC.getResolver('updateEmail'),
 			userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking'),
+			userNewsletterUpdate: UserTC.getResolver('updateNewsletter'),
 			userThemeUpdate: UserTC.getResolver('updateTheme')
 		}),
 	}),

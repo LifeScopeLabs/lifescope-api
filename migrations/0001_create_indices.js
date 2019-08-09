@@ -23,7 +23,7 @@ const config = require('config');
 	})
 		.then(function() {
 			return Promise.all([
-				// `associations` Collection
+				// `association_sessions` Collection
 				db.db('live').collection('association_sessions').createIndex({
 					token: 1
 				}, {
@@ -34,6 +34,12 @@ const config = require('config');
 					connection_id: 1
 				}, {
 					unique: true
+				}),
+
+				db.db('live').collection('association_sessions').createIndex({
+					ttl: 1
+				}, {
+					expireAfterSeconds: 0
 				}),
 
 				// `connections` collection
@@ -135,6 +141,23 @@ const config = require('config');
 					user_id: 1
 				}),
 
+				// `email_update_requests` Collection
+				db.db('live').collection('email_update_requests').createIndex({
+					token: 1
+				}, {
+					unique: true
+				}),
+
+				db.db('live').collection('email_update_requests').createIndex({
+					ttl: 1
+				}, {
+					expireAfterSeconds: 0
+				}),
+
+				db.db('live').collection('email_update_requests').createIndex({
+					user_id: 1
+				}),
+
 				// `events` collection
 				db.db('live').collection('events').createIndex({
 					type: 'text',
@@ -207,6 +230,26 @@ const config = require('config');
 				}),
 
 				db.db('live').collection('locations').createIndex({
+					user_id: 1
+				}),
+				// `login_sessions` Collection
+				db.db('live').collection('login_sessions').createIndex({
+					token: 1
+				}, {
+					unique: true
+				}),
+
+				db.db('live').collection('login_sessions').createIndex({
+					ttl: 1
+				}, {
+					expireAfterSeconds: 0
+				}),
+
+				db.db('live').collection('login_sessions').createIndex({
+					type: 1
+				}),
+
+				db.db('live').collection('login_sessions').createIndex({
 					user_id: 1
 				}),
 
