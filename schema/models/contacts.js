@@ -256,7 +256,7 @@ ContactTC.addResolver({
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {
@@ -269,7 +269,7 @@ ContactTC.addResolver({
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {

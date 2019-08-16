@@ -23,6 +23,10 @@ If you ever suspect that the secret may have leaked, you can refresh it.
 Any tokens generated with the old secret will still be valid, but new tokens will only be able to be generated with the new secret.
 The page for your app also lets you invalidate all of the existing keys for your app at any time.
 
+Between these two fields is the ```provider_id``` for your app.
+When you create an OAuth app, a LifeScope Provider is created internally so that data you write to LifeScope on behalf of your app is consistent with all other LifeScope data.
+Users will also have Connections to your Provider created when they authorize your app, which is detailed further below.
+
 ### Authorizing apps
 
 #### General workflow
@@ -30,7 +34,7 @@ The page for your app also lets you invalidate all of the existing keys for your
 1) Your app generates a LifeScope URL for the user to follow in a browser; this URL contains information specific to your OAuth app and the scope of information you are requesting.  
 2) The user is redirected to that URL and chooses to accept or deny your app's request for access.  
 3) If accepted, a short-term code is generated, and the user is redirected back to your site via an approved Redirect URI that you registered in your OAuth app.  
-4) Your servers exchange this code for an access token, and you should save this token in some database.  
+4) Your servers exchange this code for an access token and the user's ```connection_id``, and you should save this token and Connection ID in some database.  
 5) Your application uses the access token to make requests for the user's information.  
 6) (Optional) Your application refreshes the access_token once it's expired.   
 
@@ -110,7 +114,7 @@ ALL of them are required.
 | **redirect_uri** | string | The redirect_uri that was used to obtain the code. It must exactly match the redirect_uri used to obtain the code. |
 | **code** | string | The code you received back from the authorization step. |
 
-The response will have three fields
+The response will have four fields
 
 **Returned Fields**
 
@@ -119,6 +123,7 @@ The response will have three fields
 | access_token | string | The scoped token that you can use to access the user's information. |
 | refresh_token | string | A token used to generate a new access_token when the current one expires. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
+| connection_id_string | string | The ID of the Connection that the user has to the Provider associated with your app. |
 
 Here's an example of the request:
 
@@ -127,12 +132,13 @@ mutation oauthTokenAccessToken($grant_type: String!, $code: String, $redirect_ur
   oauthTokenAccessToken(grant_type: $grant_type, code: $code, redirect_uri: $redirect_uri, client_id: $client_id, client_secret: $client_secret) {
     access_token,
     refresh_token,
-    expires_in
+    expires_in,
+    connection_id_string
   }
 }
 ```
 
-Save the ```access_token``` and ```refresh_token``` somewhere for later use.
+Save the ```access_token```, ```refresh_token```, and ```connection_id_string``` somewhere for later use.
 
 ##### REST
 
@@ -165,6 +171,7 @@ The response will be in JSON format and will have the following fields:
 | access_token | string | The scoped token that you can use to access the user's information. |
 | refresh_token | string | A token used to generate a new access_token when the current one expires. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
+| connection_id_string | string | The ID of the Connection that the user has to the Provider associated with your app. |
 
 Here's an example request:
 
@@ -172,7 +179,7 @@ Here's an example request:
 POST https://api.lifescope.io/auth/access_token?grant_type=authorization_code&client_id=abc123&client_secret=abcdefghijklmnop1234567890&redirect_uri=https%3A%2F%2Fexample.com%2Fauth&code=1234abcd
 ```
 
-Save the ```access_token``` and ```refresh_token``` somewhere for later use.
+Save the ```access_token```, ```refresh_token```, and ```connection_id_string``` somewhere for later use.
 
 #### Making requests with the access_token (step 5 above)
 
@@ -216,6 +223,7 @@ The response will have two fields
 | :--- | :--- | :--- |
 | access_token | string | The new scoped token that you can use to access the user's information. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
+| connection_id_string | string | The ID of the Connection that the user has to the Provider associated with your app. |
 
 Note that there's no new refresh_token.
 The refresh token will never expire unless the user or you purge the token it's associated with.
@@ -226,12 +234,14 @@ Here's an example of the request:
 mutation oauthTokenAccessToken($grant_type: String!, $refresh_token: String, $client_id: String!, $client_secret: String!) {
   oauthTokenAccessToken(grant_type: $grant_type, refresh_token: $refresh_token, client_id: $client_id, client_secret: $client_secret) {
     access_token,
-    expires_in
+    expires_inm
+    connection_id_string
   }
 }
 ```
 
 Overwrite the old ```access_token``` with the new one.
+```connection_id_string``` doesn't change, but is returned for consistency.
 
 ##### REST
 
@@ -262,6 +272,7 @@ The response will be in JSON format and will have the following fields:
 | :--- | :--- | :--- |
 | access_token | string | The new scoped token that you can use to access the user's information. |
 | expires_in | string | The number of seconds until the access_token becomes invalid. This is generally one month from the exchange. |
+| connection_id_string | string | The ID of the Connection that the user has to the Provider associated with your app. |
 
 Here's an example request:
 
@@ -270,6 +281,7 @@ POST https://api.lifescope.io/auth/access_token?grant_type=refresh_token_token&c
 ```
 
 Overwrite the old ```access_token``` with the new one.
+```connection_id_string``` doesn't change, but is returned for consistency.
 
 
 ## OAuth2 Endpoints
@@ -277,7 +289,7 @@ Overwrite the old ```access_token``` with the new one.
 Many of the GraphQL endpoints used by the LifeScope app are available via OAuth with appropriate scopes.
 As of this writing, due to the close links between Events and Contacts/Content/Locations, any endpoint covered by one of the latter scopes is also accessible using the Events scope.
 The LifeScope GraphQL URL is ```https://api.lifescope.io/gql```.
-For futher documentation on the LifeScope Schema, see [here](https://lifescope.io/schema).
+For further documentation on the LifeScope Schema, see [here](https://lifescope.io/schema).
 
 ### contactCount (query)
 
@@ -285,7 +297,7 @@ Returns a count of the Contacts matching the filter.
 
 **Scopes**
 
-``` contacts:read ``` OR ``` events:read ```
+``` contacts:read ``` OR ``` events:read ``` OR ``` contacts:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -312,7 +324,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 
 **Scopes**
 
-``` contacts:read ``` OR ``` events:read ```
+``` contacts:read ``` OR ``` events:read ``` OR ``` contacts:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -332,6 +344,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
 | created | Date | When the the Contact was first created in LifeScope. |
 | handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| hidden | Boolean | Whether the Contact should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
 | people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
@@ -351,7 +364,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 
 **Scopes**
 
-``` contacts:read ``` OR ``` events:read ```
+``` contacts:read ``` OR ``` events:read ``` OR ``` contacts:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -372,6 +385,7 @@ If you're doing complex searches of Contacts, you should probably use the mutati
 | connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
 | created | Date | When the the Contact was first created in LifeScope. |
 | handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| hidden | Boolean | Whether the Contact should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
 | people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
@@ -391,7 +405,7 @@ If you're doing complex searches of Contacts, you should probably use this inste
 
 **Scopes**
 
-``` contacts:read ``` OR ``` events:read ```
+``` contacts:read ``` OR ``` events:read ``` OR ``` contacts:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -415,6 +429,161 @@ If you're doing complex searches of Contacts, you should probably use this inste
 | connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
 | created | Date | When the the Contact was first created in LifeScope. |
 | handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| hidden | Boolean | Whether the Contact should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+### tagContact (mutation)
+
+Tags a Contact with one or more tags
+
+**Scopes**
+
+``` contacts:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Contact to tag |
+| tags | [String] | An array of tags with which to tag this Contact |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| hidden | Boolean | Whether the Contact should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+### untagContact (mutation)
+
+Removes one or more tags from a Contact
+
+**Scopes**
+
+``` contacts:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Contact to untag |
+| tags | [String] | An array of tags to remove from this Contact |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| hidden | Boolean | Whether the Contact should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+### contactHide (mutation)
+
+Hides a Contact (sets its field 'hidden' to true)
+
+**Scopes**
+
+``` contacts:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Contact to hide |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| hidden | Boolean | Whether the Contact should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
+| people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
+| people_id_string | String | A virtual field containing a human-readable form of the Contact's ```people_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Contact. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Contact's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Contact was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Contact. See the section on tagMasks for further clarification. |
+| updated | Date | The last time the Contact was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Contact. |
+| user_id_string | String | A virtual field containing a human-readable form of the Contact's ```user_id```. |
+
+### contactUnhide (mutation)
+
+Unhides a Contact (sets its field 'hidden' to false)
+
+**Scopes**
+
+``` contacts:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Contact to unhide |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Contact's ```_id```. |
+| avatar_url | String | The URL to the Contact's avatar image. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Contact. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Contact's ```connection_id```. |
+| created | Date | When the the Contact was first created in LifeScope. |
+| handle | String | The user's unique identifier in the third-party service, e.g. their email address or Twitter handle. |
+| hidden | Boolean | Whether the Contact should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Contact. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | name | String | The user's real name as recorded in the third-party service, e.g. 'Jane Doe'.
 | people_id | Binary | A UUID4 in binary form uniquely identifying a Person that this Contact is associated with. |
@@ -434,7 +603,7 @@ Returns a count of the Content matching the filter.
 
 **Scopes**
 
-``` content:read ``` OR ``` events:read ```
+``` content:read ``` OR ``` events:read ``` OR ``` content:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -461,7 +630,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 
 **Scopes**
 
-``` content:read ``` OR ``` events:read ```
+``` content:read ``` OR ``` events:read ``` OR ``` content:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -482,6 +651,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 | embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
 | embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
 | embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
 | price | Double | The price of the Content, with no specific currency associated. |
@@ -505,7 +675,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 
 **Scopes**
 
-``` content:read ``` OR ``` events:read ```
+``` content:read ``` OR ``` events:read ``` OR ``` content:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -527,6 +697,7 @@ If you're doing complex searches of Content, you should probably use the mutatio
 | embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
 | embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
 | embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
 | price | Double | The price of the Content, with no specific currency associated. |
@@ -550,7 +721,7 @@ If you're doing complex searches of Content, you should probably use this instea
 
 **Scopes**
 
-``` content:read ``` OR ``` events:read ```
+``` content:read ``` OR ``` events:read ``` OR ``` content:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -575,6 +746,7 @@ If you're doing complex searches of Content, you should probably use this instea
 | embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
 | embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
 | embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
 | price | Double | The price of the Content, with no specific currency associated. |
@@ -599,7 +771,7 @@ This is only used by the browser extension.
 
 **Scopes**
 
-``` content:read ``` OR ``` events:read ```
+``` content:read ``` OR ``` events:read ``` OR ``` content:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -619,6 +791,177 @@ This is only used by the browser extension.
 | embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
 | embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
 | embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+### tagContent (mutation)
+
+Tags a Content with one or more tags
+
+**Scopes**
+
+``` content:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Content to tag |
+| tags | [String] | An array of tags with which to tag this Content |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+### untagContent (mutation)
+
+Removes one or more tags from a Content
+
+**Scopes**
+
+``` content:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Content to untag |
+| tags | [String] | An array of tags to remove from this Content |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+### contentHide (mutation)
+
+Hides a Content (sets its field 'hidden' to true)
+
+**Scopes**
+
+``` content:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Content to hide |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
+| mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
+| price | Double | The price of the Content, with no specific currency associated. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Content. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Content's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Content was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Content. See the section on tagMasks for further clarification. |
+| text | String | The text associated with this Content. |
+| title | String | A title associated with this Content. |
+| type | String | A classification of the Content, such as 'web-page', 'image', 'video', or 'text'. |
+| updated | Date | The last time the Content was updated in LifeScope. |
+| url | String | A URL at which the the Content can be found. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Content. |
+| user_id_string | String | A virtual field containing a human-readable form of the Content's ```user_id```. |
+
+### contentUnhide (mutation)
+
+Unhides a Content (sets its field 'hidden' to false)
+
+**Scopes**
+
+``` content:write ``` OR ``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Content to unhide |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Content's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Content. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Content's ```connection_id```. |
+| created | Date | When the the Content was first created in LifeScope. |
+| embed_content | String | A URL from which an embeddable version of the Content can be retrieved. Not always present. |
+| embed_format | String | The format of the ```embed_content```, such as 'email', 'jpeg', or 'mp4'. Not present if there is no ```embed_content```. |
+| embed_thumbnail | String | A URL from which an embeddable thumbnail of the Content can be retrieved. Not always present, but can be present even if ```embed_content``` is null. |
+| hidden | Boolean | Whether the Content should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Content. You shouldn't worry about this, as it's only really used when ingesting data into LifeScope.
 | mimetype | String | The specific format of the object, e.g. 'image/jpeg'.  |
 | price | Double | The price of the Content, with no specific currency associated. |
@@ -640,7 +983,7 @@ Returns a count of the Events matching the filter.
 
 **Scopes**
 
-``` events:read ```
+``` events:read ``` OR ``` events:write ```
 
 **Variables**
 
@@ -667,7 +1010,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 
 **Scopes**
 
-``` events:read ```
+``` events:read ``` OR ``` events:write ```
 
 **Variables**
 
@@ -692,6 +1035,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 | context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
 | created | Date | When the the Event was first created in LifeScope. |
 | datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
 | location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
 | location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
@@ -711,7 +1055,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 
 **Scopes**
 
-``` events:read ```
+``` events:read ``` OR ``` events:write ```
 
 **Variables**
 
@@ -737,6 +1081,7 @@ If you're doing complex searches of Events, you should probably use the mutation
 | context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
 | created | Date | When the the Event was first created in LifeScope. |
 | datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
 | location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
 | location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
@@ -756,7 +1101,7 @@ If you're doing complex searches of Events, you should probably use this instead
 
 **Scopes**
 
-``` events:read ```
+``` events:read ``` OR ``` events:write ```
 
 **Variables**
 
@@ -785,6 +1130,336 @@ If you're doing complex searches of Events, you should probably use this instead
 | context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
 | created | Date | When the the Event was first created in LifeScope. |
 | datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  shoculd be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+### eventCreateMany (mutation)
+
+Creates one or more Events along with associated Contacts, Content, and Locations. 
+Associated objects must be submitted as children of the Event, as demonstrated below.
+All IDs for LifeScope objects will be automatically generated for you, and ID references from
+Events to their associated Contacts, Content, and Locations will be automatically populated, so there's no need to submit them yourself. 
+
+Note you must pass a valid connection_id_string and provider_id_string as part of every object that is submitted.
+The Provider ID is found on the page for your OAuth App, between the Client ID and Client Secret.
+The Connection ID is returned alongside the OAuth Token for a user; you should make sure you store this along with their token.
+You must also create a unique identifier for each object; the form is left up to you, but a standard suggestion is
+"<connection_id>:::<some information about the object that contains at least one unique field>"
+
+**Scopes**
+
+``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| events | String! | A JSON stringified list of Event objects, with associated Contacts, Content, and Location nested within; see sample below |
+
+***Sample submission***
+```
+[
+	{
+		"connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+		"provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+		"identifier": "6302c6b2d2614efcbfd972d7d6045789:::a cool game:::played:::2019-08-12T21:10:53.643Z",
+		"contacts": [
+		    {
+				"connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+				"provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+				"identifier": "6302c6b2d2614efcbfd972d7d6045789:::n00bpwn3r",
+				"avatar_url": "https://coolgame.com/users/847610489/avatar.jpg"
+				"handle": "n00bpwn3r"
+		    }
+		],
+		"content": [
+			{
+				"connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+				"provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+				"identifier": "6302c6b2d2614efcbfd972d7d6045789:::cool game",
+				"type": "game",
+				"title": "a cool game",
+				"embed_thumbnail": "https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Big_Rigs_-_Over_the_Road_Racing_Coverart.png/220px-Big_Rigs_-_Over_the_Road_Racing_Coverart.png",
+				"tagMasks": {
+					"source": []
+				}
+			},
+			{
+				"connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+				"provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+				"identifier": "6302c6b2d2614efcbfd972d7d6045789:::a cool game:::victory",
+				"type": "victory",
+				"title": "You're Winner !",
+				"embed_content": "https://i.ytimg.com/vi/Y0qk55jUKhk/maxresdefault.jpg",
+				"embed_format": "image",
+				"embed_thumbnail": "https://i.kym-cdn.com/photos/images/original/000/883/999/bb2.png",
+				"tagMasks": {
+					"source": [
+						"victory"
+					]
+				}
+			}
+		],
+		"location": {
+            "connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+            "provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+            "identifier": "6302c6b2d2614efcbfd972d7d6045789:::2019-08-15T21:14:22.643Z",
+		    "datetime": "2019-08-15T21:10:53.643Z",
+		    "estimated": false,
+		    "geo_format": "lat_lng",
+		    "geolocation": [-12.7824389, 87.8347853]
+		},
+		"contact_interaction_type": "with",
+		"context": "Played Game",
+		"datetime": "2019-08-15T21:10:53.643Z",
+		"provider_name": "a cool game",
+		"tagMasks": {
+			"source": []
+		},
+		"type": "played"
+	},
+	{
+		"connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+		"provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+		"identifier": "6302c6b2d2614efcbfd972d7d6045789:::space_commander:::played:::2019-08-15T21:14:22.643Z",
+		"content": [
+			{
+				"connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+				"provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+				"identifier": "6302c6b2d2614efcbfd972d7d6045789:::a cool game",
+				"type": "game",
+				"title": "a cool game",
+				"embed_thumbnail": "https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Big_Rigs_-_Over_the_Road_Racing_Coverart.png/220px-Big_Rigs_-_Over_the_Road_Racing_Coverart.png",
+				"tagMasks": {
+					"source": []
+				}
+			},
+			{
+				"connection_id_string": "6302c6b2d2614efcbfd972d7d6045789",
+				"provider_id_string": "d3997b3cdf77446fb8eb5f4aae48470a",
+				"identifier": "6302c6b2d2614efcbfd972d7d6045789:::a cool game:::loss",
+				"type": "defeat",
+				"title": "You're a big fat loser",
+				"embed_content": "http://ilovemylsi.com/wp-content/uploads/loser.jpeg",
+				"embed_format": "image",
+				"embed_thumbnail": "http://ilovemylsi.com/wp-content/uploads/loser.jpeg",
+				"tagMasks": {
+					"source": []
+				}
+			}
+		],
+		"context": "Played Game",
+		"datetime": "2019-08-15T21:10:53.643Z",
+		"provider_name": "a cool game",
+		"tagMasks": {
+			"source": []
+		},
+		"type": "played"
+	}
+]
+```
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+### tagEvent (mutation)
+
+Tags an Event with one or more tags
+
+**Scopes**
+
+``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Event to tag |
+| tags | [String] | An array of tags with which to tag this Event |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+### untagEvent (mutation)
+
+Removes one or more tags from an Event
+
+**Scopes**
+
+``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Event to untag |
+| tags | [String] | An array of tags to remove from this Event |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+### eventHide (mutation)
+
+Hides an Event (sets its field 'hidden' to true)
+
+**Scopes**
+
+``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Event to hide |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  should be hidden from view in the LifeScope explorer. |
+| identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
+| location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
+| location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
+| provider_id | Binary | A UUID4 in binary form uniquely identifying the Provider associated with this Event. |
+| provider_id_string | String | A virtual field containing a human-readable form of the Event's ```provider_id```. |
+| provider_name | String | The name of the Provider from which this Event was obtained. |
+| tagMasks | Object | Tags associated or formerly associated with this Event. See the section on tagMasks for further clarification. |
+| type | String | A one-word categorization of the Event. Examples are 'messaged', 'purchased', 'created'. |
+| updated | Date | The last time the Event was updated in LifeScope. |
+| user_id | Binary | A UUID4 in binary form uniquely identifying the user that owns this Event. |
+| user_id_string | String | A virtual field containing a human-readable form of the Event's ```user_id```. |
+
+### eventUnhide (mutation)
+
+Unhides an Event (sets its field 'hidden' to false)
+
+**Scopes**
+
+``` events:write ```
+
+**Variables**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| id | String! | The ID of the Event to unhide |
+
+**Returned fields**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| _id | Binary | A UUID4 in binary form uniquely identifying this object. |
+| id | String | A virtual field containing a human-readable form of the Event's ```_id```. |
+| connection_id | Binary | A UUID4 in binary form uniquely identifying the Connection used to create this Event. |
+| connection_id_string | String | A virtual field containing a human-readable form of the Event's ```connection_id```. |
+| contact_interaction_type | String | One of ```to```, ```from```, or ```with``` (or undefined) indicating how this Event interacts with the related Contacts. For example, if the Event was a message the user received, this field would be ```from```; if the Event was editing a document that the user shares with others, this field would likely be ```with```. This field may not always be populated.|
+| contact_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Contact(s) associated with this Event.|
+| contact_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```contact_ids```. |
+| content_ids | [Binary] | A list of UUID4s in binary form uniquely identifying the Content(s) associated with this Event. |
+| content_id_strings | [String] | A virtual field containing a human-readable form of the Event's ```content_ids```. |
+| context | String | A short description of what the Event was, e.g. 'Received', 'Purchased', 'Visited Web Page'. |
+| created | Date | When the the Event was first created in LifeScope. |
+| datetime | Date | When the Event actually occurred in real life. |
+| hidden | Boolean | Whether the Event  should be hidden from view in the LifeScope explorer. |
 | identifier | String | A unique internal identifier created from mashing up various aspects of the Event. You shouldn't worry about this, as it's only really used to make sure that, for instance, multiple users' interactions with the same piece of Content aren't confused with each other.
 | location_id | Binary | A UUID4 in binary form uniquely identifying the Location associated with this Event. |
 | location_id_string | String | A virtual field containing a human-readable form of the Event's ```location_id```. |
@@ -804,7 +1479,7 @@ Returns a count of the Locations matching the filter.
 
 **Scopes**
 
-```locations:read``` OR ``` events:read ```
+```locations:read``` OR ``` events:read ``` OR ``` locations:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -830,7 +1505,7 @@ Returns the Locations whose IDs are in an array passed as a variable
 
 **Scopes**
 
-```locations:read``` OR ``` events:read ```
+```locations:read``` OR ``` events:read ``` OR ``` locations:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -866,7 +1541,7 @@ Returns a count of the Contacts matching the filter.
 
 **Scopes**
 
-``` people:read``` OR ``` events:read ```
+``` people:read``` OR ``` events:read ``` OR ``` people:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -893,7 +1568,7 @@ If you're doing complex searches of People, you should probably use the mutation
 
 **Scopes**
 
-``` people:read ``` OR ``` events:read ```
+``` people:read ``` OR ``` events:read ``` OR ``` people:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -927,7 +1602,7 @@ If you're doing complex searches of People, you should probably use the mutation
 
 **Scopes**
 
-``` people:read ``` OR ``` events:read ```
+``` people:read ``` OR ``` events:read ``` OR ``` people:write ``` OR ``` events:write ```
 
 **Variables**
 
@@ -962,7 +1637,7 @@ If you're doing complex searches of People, you should probably use this instead
 
 **Scopes**
 
-``` people:read ``` OR ``` events:read ```
+``` people:read ``` OR ``` events:read ``` OR ``` people:write ``` OR ``` events:write ```
 
 **Variables**
 

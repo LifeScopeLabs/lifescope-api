@@ -7,12 +7,16 @@ import { TypeComposer } from 'graphql-compose';
 
 import uuid from '../../lib/util/uuid';
 import { ConnectionTC } from "./connections";
+import { OAuthAppTC } from './oauth-apps';
 
 
 let hydratedProviderType = TypeComposer.create(`
 	type hydratedProviderType {
 		id: String,
 		login: Boolean,
+		oauth_app: Boolean,
+		oauth_app_id: Buffer,
+		oauth_app_id_string: String,
 		coming_soon: Boolean,
 		enabled: Boolean,
 		sources: JSON,
@@ -31,6 +35,9 @@ let providerWithMapType = TypeComposer.create(`
 		coming_soon: Boolean,
 		enabled: Boolean,
 		login: Boolean,
+		oauth_app: Boolean,
+		oauth_app_id: Buffer,
+		oauth_app_id_string: String,
 		sources: JSON,
 		remote_map_id: Buffer,
 		remote_map_id_string: String,
@@ -94,8 +101,34 @@ export const ProvidersSchema = new mongoose.Schema(
 			type: Boolean
 		},
 
-		sources: {
-			type: Object
+		name: {
+			type: String
+		},
+
+		oauth_app: {
+			type: Boolean
+		},
+
+		oauth_app_id: {
+			type: Buffer
+		},
+
+		oauth_app_id_string: {
+			type: String,
+			get: function() {
+				if (this.oauth_app_id) {
+					return this.oauth_app_id.toString('hex');
+				}
+			},
+			set: function(val) {
+				if (this._conditions && this._conditions.oauth_app_id_string) {
+					this._conditions.oauth_app_id = uuid(val);
+
+					delete this._conditions.oauth_app_id_string;
+				}
+
+				this.oauth_app_id = uuid(val);
+			}
 		},
 
 		remote_map_id: {
@@ -118,7 +151,11 @@ export const ProvidersSchema = new mongoose.Schema(
 
 				this.remote_map_id = uuid(val);
 			}
-		}
+		},
+
+		sources: {
+			type: Object
+		},
 	},
 	{
 		collection: 'providers',
@@ -137,7 +174,15 @@ ProviderTC.addResolver({
 	resolve: async function({context}) {
 		let bitscoop = env.bitscoop;
 
-		let providers = await ProviderTC.getResolver('findMany').resolve({});
+		let providers = await ProviderTC.getResolver('findMany').resolve({
+			args: {
+				filter: {
+					oauth_app: {
+						$ne: true
+					}
+				}
+			}
+		});
 
 		let connections = await ConnectionTC.getResolver('findMany').resolve({
 			args: {
@@ -174,6 +219,14 @@ ProviderTC.addResolver({
 	resolve: async function({args}) {
 		let bitscoop = env.bitscoop;
 
+		if (args.filter == null) {
+			args.filter = {};
+		}
+
+		args.filter.oauth_app = {
+			$ne: true
+		};
+
 		let providers = await ProviderTC.getResolver('findMany').resolve({
 			args: args
 		});
@@ -186,6 +239,50 @@ ProviderTC.addResolver({
 			provider.auth_type = _.get(map, 'auth.type', 'none');
 
 			return Promise.resolve();
+		}));
+
+		return providers;
+	}
+});
+
+ProviderTC.addResolver({
+	name: 'connectedOAuthProviderMany',
+	kind: 'query',
+	type: [hydratedProviderType],
+	resolve: async function({context}) {
+		let connections = await ConnectionTC.getResolver('findMany').resolve({
+			args: {
+				filter: {
+					oauth_app_name: {
+						$exists: true
+					},
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
+		let providerPromises = _.map(connections, async function(connection) {
+			return ProviderTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						id: connection.provider_id.toString('hex')
+					}
+				}
+			});
+		});
+
+		let providers = await Promise.all(providerPromises);
+
+		await Promise.all(_.map(providers, async function(provider) {
+			let oauthApp = await OAuthAppTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						id: provider.oauth_app_id.toString('hex')
+					}
+				}
+			});
+
+			provider.name = oauthApp.name;
 		}));
 
 		return providers;
@@ -206,12 +303,41 @@ ProviderTC.addResolver({
 			args: args
 		});
 
-		let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
+		if (provider.remote_map_id) {
+			try {
+				let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
 
-		provider.name = map.name;
-		provider.tags = map.tags;
-		provider.auth_type = _.get(map, 'auth.type', 'none');
+				provider.name = map.name;
+				provider.tags = map.tags;
+				provider.auth_type = _.get(map, 'auth.type', 'none');
 
-		return provider;
+				return provider;
+			}
+			catch (err) {
+				console.log(err); //eslint-disable-line no-console
+
+				return err;
+			}
+		}
+		else if (provider.oauth_app_id) {
+			try {
+				let oauthApp = await OAuthAppTC.getResolver('findOne').resolve({
+					args: {
+						filter: {
+							id: provider.oauth_app_id.toString('hex')
+						}
+					}
+				});
+
+				provider.name = oauthApp.name;
+
+				return provider;
+			}
+			catch(err) {
+				console.log(err); //eslint-disable-line no-console
+
+				return err;
+			}
+		}
 	}
 });

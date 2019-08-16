@@ -157,7 +157,7 @@ export const ConnectionsSchema = new mongoose.Schema(
 						return bitscoopConnection.name;
 					}
 					catch (err) {
-						console.log('Could not get connection for ' + this._id.toString('hex'));
+						console.log('Could not get connection for ' + this._id.toString('hex')); //eslint-disable-line no-console
 
 						return 'Bad Connection';
 					}
@@ -169,7 +169,14 @@ export const ConnectionsSchema = new mongoose.Schema(
 				else if (this.provider_id.toString('hex') === financialProviderId) {
 					return 'Financial Files';
 				}
+				else if (this.oauth_app_name != null) {
+					return this.oauth_app_name;
+				}
 			}
+		},
+
+		oauth_app_name: {
+			type: String
 		},
 
 		permissions: {
@@ -570,7 +577,7 @@ ConnectionTC.addResolver({
 				response = await bitscoopConnection.save();
 			}
 			catch (err) {
-				console.log(err);
+				console.log(err); //eslint-disable-line no-console
 
 				throw err;
 			}

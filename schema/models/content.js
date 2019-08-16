@@ -218,7 +218,7 @@ ContentTC.addResolver({
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {
@@ -231,7 +231,7 @@ ContentTC.addResolver({
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {

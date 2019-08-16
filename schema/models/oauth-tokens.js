@@ -10,6 +10,7 @@ import moment from 'moment';
 import mongoose from 'mongoose';
 
 import uuid from '../../lib/util/uuid';
+import { ConnectionTC } from './connections';
 import { OAuthAppTC } from "./oauth-apps";
 import { OAuthTokenSessionTC } from "./oauth-token-sessions";
 
@@ -17,10 +18,15 @@ import { OAuthTokenSessionTC } from "./oauth-token-sessions";
 let validScopes = [
 	'basic',
 	'events:read',
+	'events:write',
 	'contacts:read',
+	'contacts:write',
 	'content:read',
+	'content:write',
 	'locations:read',
-	'people:read'
+	'locations:write',
+	'people:read',
+	'people:write',
 ];
 
 let authorizationType = new graphql.GraphQLObjectType({
@@ -51,6 +57,9 @@ let tokenType = new graphql.GraphQLObjectType({
 			type: graphql.GraphQLString
 		},
 		expires_in: {
+			type: graphql.GraphQLString
+		},
+		connection_id_string: {
 			type: graphql.GraphQLString
 		}
 	}
@@ -121,6 +130,29 @@ export const OAuthTokenSchema = new mongoose.Schema(
 				}
 
 				this.app_id = uuid(val);
+			}
+		},
+
+		connection_id: {
+			type: Buffer,
+			index: false
+		},
+
+		connection_id_string: {
+			type: String,
+			get: function() {
+				if (this.connection_id) {
+					return this.connection_id.toString('hex');
+				}
+			},
+			set: function(val) {
+				if (this._conditions && this._conditions.connection_id_string) {
+					this._conditions.connection_id = uuid(val);
+
+					delete this._conditions.connection_id_string;
+				}
+
+				this.connection_id = uuid(val);
 			}
 		},
 
@@ -342,6 +374,43 @@ OAuthTokenTC.addResolver({
 					valid: true,
 				};
 
+				let connection = await ConnectionTC.getResolver('findOne').resolve({
+					args: {
+						filter: {
+							provider_id_string: app.provider_id.toString('hex'),
+							user_id_string: session.user_id.toString('hex')
+						}
+					}
+				});
+
+				if (connection == null) {
+					let newConnection = {
+						id: uuid(),
+						enabled: true,
+						auth: {
+							status: {
+								complete: true,
+								authorized: true
+							}
+						},
+						oauth_app_name: app.name,
+						provider_name: app.name,
+						provider_id_string: app.provider_id.toString('hex'),
+						runnable: false,
+						user_id_string: session.user_id.toString('hex')
+					};
+
+					let connectionResult = await ConnectionTC.getResolver('createOne').resolve({
+						args: {
+							record: newConnection
+						}
+					});
+
+					connection = connectionResult.record;
+				}
+
+				newToken.connection_id_string = connection._id.toString('hex');
+
 				await OAuthTokenTC.getResolver('createOne').resolve({
 					args: {
 						record: newToken
@@ -351,7 +420,8 @@ OAuthTokenTC.addResolver({
 				return {
 					access_token: newToken.access_token,
 					refresh_token: newToken.refresh_token,
-					expires_in: expires.diff(dateNow, 'seconds')
+					expires_in: expires.diff(dateNow, 'seconds'),
+					connection_id_string: connection._id.toString('hex')
 				};
 			}
 		}
@@ -364,6 +434,39 @@ OAuthTokenTC.addResolver({
 					}
 				}
 			});
+
+			let connection = await ConnectionTC.getResolver('findOne').resolve({
+				args: {
+					filter: {
+						provider_id_string: app.client_id.toString('hex'),
+						user_id_string: token.user_id.toString('hex')
+					}
+				}
+			});
+
+			if (connection == null) {
+				let newConnection = {
+					id: uuid(),
+					enabled: true,
+					auth: {
+						status: {
+							complete: true,
+							authorized: true
+						}
+					},
+					oauth_app_name: app.name,
+					provider_name: app.name,
+					provider_id_string: app.client_id.toString('hex'),
+					runnable: false,
+					user_id_string: token.user_id.toString('hex')
+				};
+
+				connection = await ConnectionTC.getResolver('createOne').resolve({
+					args: {
+						record: newConnection
+					}
+				});
+			}
 
 			if (token == null) {
 				return httpErrors(400, 'Invalid refresh token and/or client_id.')
@@ -387,7 +490,8 @@ OAuthTokenTC.addResolver({
 
 				return {
 					access_token: newToken,
-					expires_in: expires.diff(dateNow, 'seconds')
+					expires_in: expires.diff(dateNow, 'seconds'),
+					connection_id_string: connection._id.toString('hex')
 				}
 			}
 		}

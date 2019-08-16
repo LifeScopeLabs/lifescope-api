@@ -380,7 +380,7 @@ EventTC.addResolver({
 	kind: 'mutation',
 	type: EventTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {
@@ -393,7 +393,7 @@ EventTC.addResolver({
 	kind: 'mutation',
 	type: EventTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {
@@ -1630,11 +1630,13 @@ EventTC.addResolver({
 		let eventMap = {};
 		let contactMap = {};
 		let contentMap = {};
+		let locationMap = {};
 		let tagList = [];
 
 		let bulkContacts = mongoose.connection.db.collection('contacts').initializeUnorderedBulkOp();
 		let bulkContent = mongoose.connection.db.collection('content').initializeUnorderedBulkOp();
 		let bulkEvents = mongoose.connection.db.collection('events').initializeUnorderedBulkOp();
+		let bulkLocations = mongoose.connection.db.collection('locations').initializeUnorderedBulkOp();
 		let bulkTags = mongoose.connection.db.collection('tags').initializeUnorderedBulkOp();
 
 		let events = JSON.parse(args.events);
@@ -1642,6 +1644,7 @@ EventTC.addResolver({
 		let contactIdentifiers = [];
 		let contentIdentifiers = [];
 		let eventIdentifiers = [];
+		let locationIdentifiers = [];
 
 		_.each(events, function(event) {
 			let contacts = event.contacts;
@@ -1649,6 +1652,14 @@ EventTC.addResolver({
 			_.each(contacts, function(contact) {
 				if (contact.identifier) {
 					if (contactMap[contact.identifier] == null) {
+						if (contact.tagMasks == null) {
+							contact.tagMasks = {};
+						}
+
+						if (contact.tagMasks.source == null) {
+							contact.tagMasks.source = [];
+						}
+
 						contactMap[contact.identifier] = contact;
 
 						_.each(contact.tagMasks.source, function(tag) {
@@ -1712,6 +1723,14 @@ EventTC.addResolver({
 			_.each(content, function(content) {
 				if (content.identifier) {
 					if (contentMap[content.identifier] == null) {
+						if (content.tagMasks == null) {
+							content.tagMasks = {};
+						}
+
+						if (content.tagMasks.source == null) {
+							content.tagMasks.source = [];
+						}
+
 						contentMap[content.identifier] = content;
 
 						_.each(content.tagMasks.source, function(tag) {
@@ -1769,6 +1788,35 @@ EventTC.addResolver({
 					}
 				}
 			});
+
+			if (event.location && event.location.identifier) {
+				let location = event.location;
+
+				locationMap[location.identifier] = location;
+
+				location.connection_id = uuid(content.connection_id_string);
+				location.provider_id = uuid(content.provider_id_string);
+				location.user_id = context.req.user._id;
+				location.updated = moment().utc().toDate();
+
+				delete location.connection_id_string;
+				delete location.provider_id_string;
+
+				locationIdentifiers.push(location.identifier);
+
+				bulkLocations.find({
+					identifier: location.identifier,
+					user_id: context.req.user._id
+				})
+					.upsert()
+					.updateOne({
+						$set: location,
+						$setOnInsert: {
+							_id: uuid(uuid()),
+							created: location.updated
+						}
+					});
+			}
 		});
 
 		if (contactIdentifiers.length > 0) {
@@ -1813,6 +1861,24 @@ EventTC.addResolver({
 			});
 		}
 
+		if (locationIdentifiers.length > 0) {
+			await bulkLocations.execute();
+
+			let hydratedLocations = await LocationTC.getResolver('findMany').resolve({
+				args: {
+					filter: {
+						identifier: {
+							$in: locationIdentifiers
+						}
+					}
+				}
+			});
+
+			_.each(hydratedLocations, function(location) {
+				locationMap[location.identifier]._id = uuid(location.id);
+			});
+		}
+
 		_.each(events, function(rawEvent) {
 			_.each(rawEvent.contacts, function(contact) {
 				let cache = contactMap[contact.identifier];
@@ -1828,10 +1894,24 @@ EventTC.addResolver({
 				content.tagMasks = cache.tagMasks;
 			});
 
+			if (rawEvent.location) {
+				let cache = locationMap[rawEvent.location.identifier];
+
+				rawEvent.location._id = cache._id;
+			}
+
 			let event = new MongoEvent(rawEvent);
 
 			if (event.identifier) {
 				if (eventMap[event.identifier] == null) {
+					if (event.tagMasks == null) {
+						event.tagMasks = {};
+					}
+
+					if (event.tagMasks.source == null) {
+						event.tagMasks.source = [];
+					}
+
 					eventMap[event.identifier] = event;
 
 					_.each(event.tagMasks.source, function(tag) {

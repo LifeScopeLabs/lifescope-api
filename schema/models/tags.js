@@ -107,7 +107,7 @@ TagTC.addResolver({
 	name: 'updateSharing',
 	kind: 'mutation',
 	args: {
-		id: 'String',
+		id: 'String!',
 		share: 'String'
 	},
 	type: TagTC.getResolver('findOne').getType(),

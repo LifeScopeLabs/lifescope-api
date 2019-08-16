@@ -44,29 +44,30 @@ GQC.rootQuery().addFields({
 			connectionOne: ConnectionTC.getResolver('findOne'),
 
 			providerHydratedMany: ProviderTC.getResolver('providerHydratedMany'),
+			connectedOAuthProviderMany: ProviderTC.getResolver('connectedOAuthProviderMany'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'contacts:read'], {
+		...restrictByScope(Resolver, ['events:read', 'contacts:read', 'events:write', 'contacts:write'], {
 			contactCount: ContactTC.getResolver('count'),
 			contactOne: ContactTC.getResolver('findOne'),
 			contactMany: ContactTC.getResolver('findMany'),
 			contactUnpersoned: ContactTC.getResolver('unpersonedContacts'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'content:read'], {
+		...restrictByScope(Resolver, ['events:read', 'content:read', 'events:write', 'content:write'], {
 			contentCount: ContentTC.getResolver('count'),
 			contentFindByIdentifier: ContentTC.getResolver('findByIdentifier'),
 			contentOne: ContentTC.getResolver('findOne'),
 			contentMany: ContentTC.getResolver('findMany')
 		}),
 
-		...restrictByScope(Resolver, 'events:read', {
+		...restrictByScope(Resolver, ['events:read', 'events:write'], {
 			eventCount: EventTC.getResolver('count'),
 			eventOne: EventTC.getResolver('findOne'),
 			eventMany: EventTC.getResolver('findMany')
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'locations:read'], {
+		...restrictByScope(Resolver, ['events:read', 'locations:read', 'events:write', 'locations:write'], {
 			locationCount: LocationTC.getResolver('count'),
 			locationFindManyById: LocationTC.getResolver('findManyById'),
 		}),
@@ -82,7 +83,7 @@ GQC.rootQuery().addFields({
 			oauthAppAuthorizedMany: OAuthAppTC.getResolver('authorizedApps'),
 		}),
 
-		...restrictByScope(Resolver, 'people:read', {
+		...restrictByScope(Resolver, ['people:read', 'people:write'], {
 			personCount: PeopleTC.getResolver('count'),
 			personMany: PeopleTC.getResolver('findMany'),
 			personOne: PeopleTC.getResolver('findOne')
@@ -122,11 +123,11 @@ GQC.rootMutation().addFields({
 			connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'contacts:read'], {
+		...restrictByScope(Resolver, ['events:read', 'contacts:read', 'events:write', 'contacts:write'], {
 			contactSearch: ContactTC.getResolver('searchContacts'),
 		}),
 
-		...restrictByScope(Resolver, 'contacts:write', {
+		...restrictByScope(Resolver, ['contacts:write', 'events:write'], {
 			tagContact: ContactTC.getResolver('addTags'),
 			untagContact: ContactTC.getResolver('removeTags'),
 
@@ -134,7 +135,7 @@ GQC.rootMutation().addFields({
 			contactUnhide: ContactTC.getResolver('unhide'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'content:read'], {
+		...restrictByScope(Resolver, ['events:read', 'content:read', 'events:write', 'content:write'], {
 			contentSearch: ContentTC.getResolver('searchContent'),
 		}),
 
@@ -146,7 +147,7 @@ GQC.rootMutation().addFields({
 			contentUnhide: ContentTC.getResolver('unhide'),
 		}),
 
-		...restrictByScope(Resolver, 'events:read', {
+		...restrictByScope(Resolver, ['events:read', 'events:write'], {
 			eventSearch: EventTC.getResolver('searchEvents'),
 		}),
 
@@ -163,13 +164,16 @@ GQC.rootMutation().addFields({
 			deleteAccount: UserTC.getResolver('deleteAccount'),
 		}),
 
-		...restrictByScope(Resolver, 'locations:write', {
+		...restrictByScope(Resolver, ['locations:write', 'events:write'], {
 			locationRecordOne: LocationTC.getResolver('recordOne'),
+		}),
+
+		...restrictByScope(Resolver, 'locations:admin', {
 			trackedLocationsRemoveMany: LocationTC.getResolver('deleteTrackedLocations'),
 			uploadedLocationsRemoveMany: LocationTC.getResolver('deleteUploadedLocations'),
 		}),
 
-		...restrictByScope(Resolver, 'oauthApps:write', {
+		...restrictByScope(Resolver, 'oauthApps:admin', {
 			oauthAppDelete: OAuthAppTC.getResolver('deleteOne'),
 			oauthAppInitialize: OAuthAppTC.getResolver('initializeOne'),
 			oauthAppPatch: OAuthAppTC.getResolver('patchOne'),
@@ -181,7 +185,7 @@ GQC.rootMutation().addFields({
 			oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
 		}),
 
-		...restrictByScope(Resolver, 'people:read', {
+		...restrictByScope(Resolver, ['people:read', 'people:write'], {
 			personSearch: PeopleTC.getResolver('searchPeople')
 		}),
 

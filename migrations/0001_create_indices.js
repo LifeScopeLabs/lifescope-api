@@ -254,6 +254,10 @@ const config = require('config');
 				}),
 
 				db.db('live').collection('oauth_apps').createIndex({
+					provider_id: 1
+				}),
+
+				db.db('live').collection('oauth_apps').createIndex({
 					user_id: 1
 				}),
 
@@ -263,6 +267,10 @@ const config = require('config');
 
 				db.db('live').collection('oauth_token_sessions').createIndex({
 					user_id: 1
+				}),
+
+				db.db('live').collection('oauth_tokens').createIndex({
+					connection_id: 1
 				}),
 
 				db.db('live').collection('oauth_tokens').createIndex({
@@ -283,6 +291,16 @@ const config = require('config');
 				// `providers` collection
 				db.db('live').collection('providers').createIndex({
 					enabled: 1
+				}),
+
+				// `providers` collection
+				db.db('live').collection('providers').createIndex({
+					oauth_app: 1
+				}),
+
+				// `providers` collection
+				db.db('live').collection('providers').createIndex({
+					oauth_app_id: 1
 				}),
 
 				db.db('live').collection('providers').createIndex({

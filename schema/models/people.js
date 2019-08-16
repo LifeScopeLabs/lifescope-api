@@ -555,7 +555,7 @@ PeopleTC.addResolver({
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {
@@ -568,7 +568,7 @@ PeopleTC.addResolver({
 	kind: 'mutation',
 	type: TagTC.getResolver('findOne').getType(),
 	args: {
-		id: 'String',
+		id: 'String!',
 		tags: ['String']
 	},
 	resolve: async function({args, context}) {

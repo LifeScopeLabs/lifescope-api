@@ -62,14 +62,15 @@ const pubSub = new PubSub();
 
 mongooseConnect.on('error', e => {
 	if (e.message.code === 'ETIMEDOUT') {
-		console.log(e);
+		console.log(e); //eslint-disable-line no-console
 		mongoose.connect(MONGODB_URI, opts);
 	}
-	console.log(e);
+
+	console.log(e); //eslint-disable-line no-console
 });
 
 mongooseConnect.once('open', () => {
-	console.log(`MongoDB successfully connected to ${MONGODB_URI}`);
+	console.log(`MongoDB successfully connected to ${MONGODB_URI}`); //eslint-disable-line no-console
 });
 
 loadValidator(config.validationSchemas)
@@ -133,10 +134,11 @@ loadValidator(config.validationSchemas)
 
 		server.listen(httpListenPort);
 
-		console.log('Lifescope API listening on: ' + httpListenPort + ' at ' + new Date());
+		console.log('Lifescope API listening on: ' + httpListenPort + ' at ' + new Date()); //eslint-disable-line no-console
 
 		wsServer.listen(wsListenPort, function() {
-			console.log('WS Server running on ' + wsListenPort);
+			console.log('WS Server running on ' + wsListenPort); //eslint-disable-line no-console
+
 			SubscriptionServer.create({
 				schema: crudAPI.schema,
 				execute: execute,

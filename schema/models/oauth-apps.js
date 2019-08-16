@@ -9,6 +9,7 @@ import httpErrors from 'http-errors';
 import mongoose from 'mongoose';
 
 import { OAuthTokenTC } from "./oauth-tokens";
+import { ProviderTC } from './providers';
 import uuid from '../../lib/util/uuid';
 
 
@@ -120,6 +121,27 @@ export const OAuthAppSchema = new mongoose.Schema(
 			index: false
 		},
 
+		provider_id: {
+			type: Buffer,
+			index: false
+		},
+
+		provider_id_string: {
+			type: String,
+			get: function() {
+				return this.provider_id.toString('hex')
+			},
+			set: function(val) {
+				if (val && this._conditions && this._conditions.provider_id_string) {
+					this._conditions.provider_id = uuid(val);
+
+					delete this._conditions.provider_id_string;
+				}
+
+				this.provider_id = uuid(val);
+			}
+		},
+
 		redirect_uris: {
 			type: [String],
 			index: false,
@@ -176,6 +198,8 @@ OAuthAppTC.addResolver({
 			return httpErrors(400, 'Invalid homepage URL');
 		}
 
+		let providerId = uuid();
+
 		let newApp = {
 			id: uuid(),
 			client_id: crypto.randomBytes(8).toString('hex'),
@@ -185,13 +209,27 @@ OAuthAppTC.addResolver({
 			description: args.description,
 			privacy_policy_url: args.privacy_policy_url,
 			homepage_url: args.homepage_url,
+			provider_id_string: providerId.toString('hex'),
 			user_id_string: context.req.user._id.toString('hex')
 		};
-
 
 		let result = await OAuthAppTC.getResolver('createOne').resolve({
 			args: {
 				record: newApp
+			}
+		});
+
+		let newProvider = {
+			id: providerId.toString('hex'),
+			login: false,
+			oauth_app: true,
+			oauth_app_id_string: result.record._id.toString('hex'),
+			enabled: true
+		};
+
+		await ProviderTC.getResolver('createOne').resolve({
+			args: {
+				record: newProvider
 			}
 		});
 
@@ -307,6 +345,15 @@ OAuthAppTC.addResolver({
 		id: 'String!'
 	},
 	resolve: async function({args, context}) {
+		let appResult = await OAuthAppTC.getResolver('findOne').resolve({
+			args: {
+				filter: {
+					id: args.id,
+					user_id_string: context.req.user._id.toString('hex')
+				}
+			}
+		});
+
 		try {
 			await OAuthTokenTC.getResolver('removeMany').resolve({
 				args: {
@@ -324,6 +371,14 @@ OAuthAppTC.addResolver({
 					}
 				}
 			});
+
+			await ProviderTC.getResolver('removeOne').resolve({
+				args: {
+					filter: {
+						id: appResult.provider_id.toString('hex')
+					}
+				}
+			})
 		}
 		catch (err) {
 			throw new Error(err);
