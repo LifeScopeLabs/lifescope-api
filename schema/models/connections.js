@@ -412,7 +412,7 @@ ConnectionTC.addResolver({
 		forceUnauthorized: 'Boolean',
 	},
 	resolve: async function({args, context}) {
-		let bitscoopConnection;
+		let bitscoopConnection, map;
 		let bitscoop = env.bitscoop;
 		let req = context.req;
 		let permissions = args.permissions;
@@ -466,10 +466,12 @@ ConnectionTC.addResolver({
 			throw httpErrors(404);
 		}
 
-		let map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
+		if (provider.remote_map_id != null) {
+			map = await bitscoop.getMap(provider.remote_map_id.toString('hex'));
 
-		if (!map) {
-			throw httpErrors(404);
+			if (!map) {
+				throw httpErrors(404);
+			}
 		}
 
 		if (!connection.permissions) {
@@ -507,7 +509,7 @@ ConnectionTC.addResolver({
 			}
 		});
 
-		if (permissionsUpdated && map.auth.type === 'oauth2') {
+		if (permissionsUpdated && map && map.auth.type === 'oauth2') {
 			explorerConnection['auth.status.authorized'] = false;
 		}
 

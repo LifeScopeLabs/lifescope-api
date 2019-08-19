@@ -8,6 +8,7 @@ import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import httpErrors from 'http-errors';
 import mongoose from 'mongoose';
 
+import { ConnectionTC } from './connections';
 import { OAuthTokenTC } from "./oauth-tokens";
 import { ProviderTC } from './providers';
 import uuid from '../../lib/util/uuid';
@@ -221,6 +222,7 @@ OAuthAppTC.addResolver({
 
 		let newProvider = {
 			id: providerId.toString('hex'),
+			name: args.name,
 			login: false,
 			oauth_app: true,
 			oauth_app_id_string: result.record._id.toString('hex'),
@@ -292,6 +294,41 @@ OAuthAppTC.addResolver({
 				}
 			});
 
+			if (update.name) {
+				let provider = await ProviderTC.getResolver('findOne').resolve({
+					args: {
+						filter: {
+							oauth_app_id_string: args.id,
+							user_id_string: context.req.user._id.toString('hex')
+						}
+					}
+				});
+
+				await ProviderTC.getResolver('updateOne').resolve({
+					args: {
+						filter: {
+							oauth_app_id_string: args.id,
+							user_id_string: context.req.user._id.toString('hex')
+						},
+						record: {
+							name: update.name
+						}
+					}
+				});
+
+				await ConnectionTC.getResolver('updateMany').resolve({
+					args: {
+						filter: {
+							provider_id_string: provider._id.toString('hex')
+						},
+						record: {
+							oauth_app_name: update.name,
+							provider_name: update.name
+						}
+					}
+				})
+			}
+
 			return result.record;
 		}
 		else {
@@ -345,15 +382,6 @@ OAuthAppTC.addResolver({
 		id: 'String!'
 	},
 	resolve: async function({args, context}) {
-		let appResult = await OAuthAppTC.getResolver('findOne').resolve({
-			args: {
-				filter: {
-					id: args.id,
-					user_id_string: context.req.user._id.toString('hex')
-				}
-			}
-		});
-
 		try {
 			await OAuthTokenTC.getResolver('removeMany').resolve({
 				args: {
@@ -371,14 +399,6 @@ OAuthAppTC.addResolver({
 					}
 				}
 			});
-
-			await ProviderTC.getResolver('removeOne').resolve({
-				args: {
-					filter: {
-						id: appResult.provider_id.toString('hex')
-					}
-				}
-			})
 		}
 		catch (err) {
 			throw new Error(err);

@@ -7,7 +7,6 @@ import { TypeComposer } from 'graphql-compose';
 
 import uuid from '../../lib/util/uuid';
 import { ConnectionTC } from "./connections";
-import { OAuthAppTC } from './oauth-apps';
 
 
 let hydratedProviderType = TypeComposer.create(`
@@ -22,6 +21,7 @@ let hydratedProviderType = TypeComposer.create(`
 		sources: JSON,
 		remote_map_id: Buffer,
 		remote_map_id_string: String,
+		runnable: Boolean,
 		assoc_count: Int,
 		name: String,
 		tags: [String]
@@ -41,6 +41,7 @@ let providerWithMapType = TypeComposer.create(`
 		sources: JSON,
 		remote_map_id: Buffer,
 		remote_map_id_string: String,
+		runnable: Boolean,
 		name: String,
 		tags: [String]
 	}
@@ -271,21 +272,7 @@ ProviderTC.addResolver({
 			});
 		});
 
-		let providers = await Promise.all(providerPromises);
-
-		await Promise.all(_.map(providers, async function(provider) {
-			let oauthApp = await OAuthAppTC.getResolver('findOne').resolve({
-				args: {
-					filter: {
-						id: provider.oauth_app_id.toString('hex')
-					}
-				}
-			});
-
-			provider.name = oauthApp.name;
-		}));
-
-		return providers;
+		return Promise.all(providerPromises);
 	}
 });
 
@@ -311,7 +298,6 @@ ProviderTC.addResolver({
 				provider.tags = map.tags;
 				provider.auth_type = _.get(map, 'auth.type', 'none');
 
-				return provider;
 			}
 			catch (err) {
 				console.log(err); //eslint-disable-line no-console
@@ -319,25 +305,7 @@ ProviderTC.addResolver({
 				return err;
 			}
 		}
-		else if (provider.oauth_app_id) {
-			try {
-				let oauthApp = await OAuthAppTC.getResolver('findOne').resolve({
-					args: {
-						filter: {
-							id: provider.oauth_app_id.toString('hex')
-						}
-					}
-				});
 
-				provider.name = oauthApp.name;
-
-				return provider;
-			}
-			catch(err) {
-				console.log(err); //eslint-disable-line no-console
-
-				return err;
-			}
-		}
+		return provider;
 	}
 });
