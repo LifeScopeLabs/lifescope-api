@@ -212,6 +212,51 @@ export const Contacts = mongoose.model('Contacts', ContactsSchema);
 export const ContactTC = composeWithMongoose(Contacts);
 
 
+let specialSorts = {
+	emptyQueryRelevance: {
+		values: {
+			handle: -1
+		}
+	}
+};
+
+let stopwords = [
+	'a',
+	'an',
+	'and',
+	'are',
+	'as',
+	'at',
+	'be',
+	'but',
+	'by',
+	'for',
+	'if',
+	'in',
+	'into',
+	'is',
+	'it',
+	'no',
+	'not',
+	'of',
+	'on',
+	'or',
+	'such',
+	'that',
+	'the',
+	'their',
+	'then',
+	'there',
+	'these',
+	'they',
+	'this',
+	'to',
+	'was',
+	'will',
+	'with'
+];
+
+
 ContactTC.addRelation('hydratedPerson', {
 	resolver: () => PeopleTC.getResolver('findOne'),
 	prepareArgs: {
@@ -429,22 +474,22 @@ ContactTC.addResolver({
 
 		let specialSort = false;
 
-		// for (let key in specialSorts) {
-		// 	if (!specialSorts.hasOwnProperty(key)) {
-		// 		break;
-		// 	}
-		//
-		// 	let field = specialSorts[key];
-		//
-		// 	if ((key === 'emptyQueryRelevance' && query.sortField === '_score' && query.q == null) || query.sortField === field.condition) {
-		// 		specialSort = true;
-		// 		sort = field.values;
-		//
-		// 		_.each(sort, function(val, name) {
-		// 			sort[name] = query.sortOrder === 'asc' ? 1 : -1;
-		// 		});
-		// 	}
-		// }
+		for (let key in specialSorts) {
+			if (!specialSorts.hasOwnProperty(key)) {
+				break;
+			}
+
+			let field = specialSorts[key];
+
+			if ((key === 'emptyQueryRelevance' && query.sortField === 'score' && (query.q == null || query.q.length === 0)) || query.sortField === field.condition) {
+				specialSort = true;
+				sort = field.values;
+
+				_.each(sort, function(val, name) {
+					sort[name] = query.sortOrder === 'asc' ? 1 : -1;
+				});
+			}
+		}
 
 		if (specialSort === false) {
 			sort = {
@@ -452,8 +497,16 @@ ContactTC.addResolver({
 			}
 		}
 
+		if (query.q != null && query.q.length > 0) {
+			_.each(stopwords, function(stopword) {
+				let regexp = new RegExp('^' + stopword + ' | ' + stopword + ' | ' + stopword + '$', 'g');
+
+				query.q = query.q.replace(regexp, '');
+			});
+		}
+
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
-			let contactAggregation = Contacts.aggregate();
+			// let contactAggregation = Contacts.aggregate();
 
 			let contactPreLookupMatch = {
 				user_id: context.req.user._id
@@ -467,10 +520,30 @@ ContactTC.addResolver({
 			};
 
 			let contactPostLookupMatch = {};
+			let contactSearchBeta = {};
 
 			if (query.q != null && query.q.length > 0) {
-				contactPreLookupMatch.$text = {
-					$search: query.q
+				/*
+					NOTE ON MONGO FULL TEXT SEARCH
+
+					The code commented below is the old text search using Mongo's $text indexing.
+					It's been replaced by the full text search that's included in Mongo Atlas as of 4.2.
+					If this code is being run on a version of Mongo that doesn't support full text search, uncomment
+					the following section and uncomment some more code below that's also headed by the all-caps line above.
+				 */
+				// contactPreLookupMatch.$text = {
+				// 	$search: query.q
+				// };
+
+				contactSearchBeta = {
+					index: 'fulltext',
+					search: {
+						query: query.q,
+						path: [
+							'handle',
+							'name'
+						]
+					}
 				};
 			}
 
@@ -615,28 +688,75 @@ ContactTC.addResolver({
 				});
 			}
 
-			contactAggregation
-				.match(contactPreLookupMatch)
-				.lookup($contactPersonLookup)
-				.unwind({
-					path: '$people',
-					preserveNullAndEmptyArrays: true
-				})
-				.match(contactPostLookupMatch)
-				.sort(sort)
-				.skip(query.offset)
-				.limit(query.limit)
-				.project({
-					_id: true
+			let contactAggregation;
+
+			// contactAggregation
+			// 	.match(contactPreLookupMatch)
+			// 	.lookup($contactPersonLookup)
+			// 	.unwind({
+			// 		path: '$people',
+			// 		preserveNullAndEmptyArrays: true
+			// 	})
+			// 	.match(contactPostLookupMatch)
+			// 	.sort(sort)
+			// 	.skip(query.offset)
+			// 	.limit(query.limit)
+			// 	.project({
+			// 		_id: true
+			// 	});
+
+			let pipeline = [];
+
+			if (Object.keys(contactSearchBeta).length > 0) {
+				pipeline.push({
+					$searchBeta: contactSearchBeta,
+				});
+			}
+
+			pipeline.push({
+					$match: contactPreLookupMatch
+				},
+				{
+					$lookup: $contactPersonLookup
+				},
+				{
+					$unwind: {
+						path: '$people',
+						preserveNullAndEmptyArrays: true
+					}
+				},
+				{
+					$match: contactPostLookupMatch
+				},
+				{
+					$sort: sort
+				},
+				{
+					$skip: query.offset
+				},
+				{
+					$limit: query.limit
+				},
+				{
+					$project: {
+						_id: true,
+						score: {
+							$meta: 'searchScore'
+						}
+					}
 				});
 
-			let aggregatedContacts = await contactAggregation.exec();
+			contactAggregation = Contacts.collection.aggregate(pipeline);
+
+			let aggregatedContacts = await contactAggregation.toArray();
 
 			let contactIds = [];
+			let contactIdStrings = [];
 
 			if (aggregatedContacts.length > 0) {
 				_.each(aggregatedContacts, function(contact) {
 					contactIds.push(contact._id);
+					contactIdStrings.push(contact._id.toString('hex'));
 				});
 			}
 
@@ -663,6 +783,10 @@ ContactTC.addResolver({
 					name: true,
 					tagMasks: true
 				}
+			});
+
+			contactMatches.sort(function(a, b) {
+				return contactIdStrings.indexOf(a._id.toString('hex')) - contactIdStrings.indexOf(b._id.toString('hex'));
 			});
 
 			// let contactMatchCount = await ContactTC.getResolver('count').resolve({

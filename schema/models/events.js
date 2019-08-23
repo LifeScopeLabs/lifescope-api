@@ -7,15 +7,15 @@ import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import uuid from "../../lib/util/uuid";
+import uuid from '../../lib/util/uuid';
 
 import { Contacts, ContactTC } from './contacts';
 import { Content, ContentTC } from './content';
 import { add as addTags, remove as removeTags } from './templates/tag';
-import { LocationTC } from "./locations";
-import { People, PeopleTC } from "./people";
-import { TagTC } from "./tags";
-import { UserTC } from "./users";
+import { LocationTC } from './locations';
+import { People, PeopleTC } from './people';
+import { TagTC } from './tags';
+import { UserTC } from './users';
 
 
 // let searchType = new graphql.GraphQLObjectType({
@@ -375,6 +375,42 @@ let specialSorts = {
 	}
 };
 
+let stopwords = [
+	'a', 
+	'an', 
+	'and', 
+	'are', 
+	'as', 
+	'at', 
+	'be', 
+	'but', 
+	'by',
+	'for', 
+	'if', 
+	'in', 
+	'into', 
+	'is', 
+	'it',
+	'no', 
+	'not', 
+	'of', 
+	'on', 
+	'or', 
+	'such',
+	'that', 
+	'the', 
+	'their', 
+	'then', 
+	'there', 
+	'these',
+	'they', 
+	'this', 
+	'to', 
+	'was', 
+	'will', 
+	'with'
+];
+
 EventTC.addResolver({
 	name: 'addTags',
 	kind: 'mutation',
@@ -500,12 +536,12 @@ EventTC.addResolver({
 
 			let field = specialSorts[key];
 
-			if ((key === 'emptyQueryRelevance' && query.sortField === '_score' && query.q == null) || query.sortField === field.condition) {
+			if ((key === 'emptyQueryRelevance' && query.sortField === 'score' && (query.q == null || query.q.length === 0)) || query.sortField === field.condition) {
 				specialSort = true;
 				sort = field.values;
 
 				_.each(sort, function(val, name) {
-					sort[name] = query.sortOrder === 'asc' ? 1 : -1;
+					sort[name] = query.sortOrder === 'asc' ? -1 : 1;
 				});
 			}
 		}
@@ -523,17 +559,29 @@ EventTC.addResolver({
 				['event.' + query.sortField]: query.sortOrder === 'asc' ? 1 : -1
 			};
 		}
+		else {
+			contactSort = {};
+			contentSort = {};
+
+			_.each(sort, function(val, key) {
+				contactSort['event.' + key] = val;
+				contentSort['event.' + key] = val;
+			});
+		}
+
+		if (query.q != null && query.q.length > 0) {
+			_.each(stopwords, function(stopword) {
+				let regexp = new RegExp('^' + stopword + ' | ' + stopword + ' | ' + stopword + '$', 'g');
+
+				query.q = query.q.replace(regexp, '');
+			});
+		}
 
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
 			let contactsSearched = false;
 			let contentSearched = false;
 			let eventsSearched = false;
 			let peopleSearched = false;
-
-			let contactAggregation = Contacts.aggregate();
-			let contentAggregation = Content.aggregate();
-			let eventAggregation = Events.aggregate();
-			let peopleAggregation = People.aggregate();
 
 			let contactPreLookupMatch = {
 				user_id: context.req.user._id
@@ -567,6 +615,11 @@ EventTC.addResolver({
 			let contentPostLookupMatch = {};
 			let eventPostLookupMatch = {};
 			let peoplePostLookupMatch = {};
+
+			let contactSearchBeta = {};
+			let contentSearchBeta = {};
+			let eventSearchBeta = {};
+			let peopleSearchBeta = {};
 
 			let $contactEventLookup = {
 				from: 'events',
@@ -639,19 +692,76 @@ EventTC.addResolver({
 			};
 
 			if (query.q != null && query.q.length > 0) {
-				contactPreLookupMatch.$text = {
-					$search: query.q
+				/*
+					NOTE ON MONGO FULL TEXT SEARCH
+
+					The code commented below is the old text search using Mongo's $text indexing.
+					It's been replaced by the full text search that's included in Mongo Atlas as of 4.2.
+					If this code is being run on a version of Mongo that doesn't support full text search, uncomment
+					the following section and uncomment some more code below that's also headed by the all-caps line above.
+				 */
+				// contactPreLookupMatch.$text = {
+				// 	$search: query.q
+				// };
+				//
+				// contentPreLookupMatch.$text = {
+				// 	$search: query.q
+				// };
+				//
+				// eventMatch.$text = {
+				// 	$search: query.q
+				// };
+
+				contactSearchBeta = {
+					index: 'fulltext',
+					search: {
+						query: query.q,
+						path: [
+							'handle',
+							'name'
+						]
+					}
 				};
 
-				contentPreLookupMatch.$text = {
-					$search: query.q
+				contentSearchBeta = {
+					index: 'fulltext',
+					search: {
+						query: query.q,
+						path: [
+							'file_extension',
+							'owner',
+							'text',
+							'title',
+							'type',
+							'url',
+						]
+					}
 				};
 
-				eventMatch.$text = {
-					$search: query.q
+				eventSearchBeta = {
+					index: 'fulltext',
+					search: {
+						query: query.q,
+						path: [
+							'provider_name',
+							'type'
+						]
+					}
 				};
 
-				contactsSearched = contentSearched = eventsSearched = true;
+				peopleSearchBeta = {
+					index: 'fulltext',
+					search: {
+						query: query.q,
+						path: [
+							'first_name',
+							'middle_name',
+							'last_name'
+						]
+					}
+				};
+
+				contactsSearched = contentSearched = eventsSearched = peopleSearched = true;
 			}
 
 			if (_.has(query, 'filters.whoFilters') && query.filters.whoFilters.length > 0) {
@@ -1334,156 +1444,472 @@ EventTC.addResolver({
 				});
 			}
 
+			let contactAggregation;
+			let contentAggregation;
+			let eventAggregation;
+			let peopleAggregation;
+
 			if (contactsSearched === true) {
-				contactAggregation
-					.match(contactPreLookupMatch)
-					.lookup($contactEventLookup)
-					.unwind('$event')
-					.lookup($contactContentLookup)
-					.unwind({
+				/*
+					NOTE ON MONGO FULL TEXT SEARCH
+
+					The code commented below was what was used prior to the implementation of Mongo's full text search.
+					It's basically just the graphql-compose-mongoose syntax, but had to be left out because
+					graphql-compose-mongoose hadn't been updated to support the $searchBeta pipeline stage.
+					Instead, we now use Mongo directly.
+					If this code is ever being run where full text search isn't available, you could uncomment this
+					stuff and comment out everything else.
+					Or, just get comment out the code pushing the $searchBeta stage onto the pipeline.
+				 */
+				// contactAggregation
+				// 	.searchBeta(contactSearchBeta)
+				// 	.match(contactPreLookupMatch)
+				// 	.lookup($contactEventLookup)
+				// 	.unwind('$event')
+				// 	.lookup($contactContentLookup)
+				// 	.unwind({
+				// 		path: '$content',
+				// 		preserveNullAndEmptyArrays: true
+				// 	})
+				// 	.lookup($contactLocationLookup)
+				// 	.unwind({
+				// 		path: '$hydratedLocation',
+				// 		preserveNullAndEmptyArrays: true
+				// 	})
+				// 	.match(contactPostLookupMatch)
+				// 	.sort(contactSort)
+				// 	.skip(query.offset)
+				// 	.limit(query.limit)
+				// 	.project({
+				// 		_id: true,
+				// 		'event._id': true
+				// 	});
+
+				let pipeline = [];
+
+				if (Object.keys(contactSearchBeta).length > 0) {
+					pipeline.push({
+						$searchBeta: contactSearchBeta,
+					});
+				}
+
+				pipeline.push({
+					$match: contactPreLookupMatch
+				},
+				{
+					$lookup: $contactEventLookup
+				},
+				{
+					$unwind: '$event'
+				},
+				{
+					$lookup: $contactContentLookup
+				},
+				{
+					$unwind: {
 						path: '$content',
 						preserveNullAndEmptyArrays: true
-					})
-					.lookup($contactLocationLookup)
-					.unwind({
+					}
+				},
+				{
+					$lookup: $contactLocationLookup
+				},
+				{
+					$unwind: {
 						path: '$hydratedLocation',
 						preserveNullAndEmptyArrays: true
-					})
-					.match(contactPostLookupMatch)
-					.sort(contactSort)
-					.skip(query.offset)
-					.limit(query.limit)
-					.project({
+					}
+				},
+				{
+					$match: contactPostLookupMatch
+				},
+				{
+					$sort: contactSort
+				},
+				{
+					$skip: query.offset
+				},
+				{
+					$limit: query.limit
+				},
+				{
+					$project: {
 						_id: true,
 						'event._id': true
-					});
+					}
+				});
+
+				contactAggregation = Contacts.collection.aggregate(pipeline);
 			}
 
 			if (peopleSearched === true) {
-				peopleAggregation
-					.match(peoplePreLookupMatch)
-					.unwind('$contact_ids')
-					.lookup($peopleEventLookup)
-					.unwind('$event')
-					.lookup($peopleContentLookup)
-					.unwind({
+				/*
+					NOTE ON MONGO FULL TEXT SEARCH
+
+					The code commented below was what was used prior to the implementation of Mongo's full text search.
+					It's basically just the graphql-compose-mongoose syntax, but had to be left out because
+					graphql-compose-mongoose hadn't been updated to support the $searchBeta pipeline stage.
+					Instead, we now use Mongo directly.
+					If this code is ever being run where full text search isn't available, you could uncomment this
+					stuff and comment out everything else.
+					Or, just get comment out the code pushing the $searchBeta stage onto the pipeline.
+				 */
+				// peopleAggregation
+				// 	.searchBeta(peopleSearchBeta)
+				// 	.match(peoplePreLookupMatch)
+				// 	.unwind('$contact_ids')
+				// 	.lookup($peopleEventLookup)
+				// 	.unwind('$event')
+				// 	.lookup($peopleContentLookup)
+				// 	.unwind({
+				// 		path: '$content',
+				// 		preserveNullAndEmptyArrays: true
+				// 	})
+				// 	.lookup($peopleLocationLookup)
+				// 	.unwind({
+				// 		path: '$hydratedLocation',
+				// 		preserveNullAndEmptyArrays: true
+				// 	})
+				// 	.match(peoplePostLookupMatch)
+				// 	.sort(contactSort)
+				// 	.skip(query.offset)
+				// 	.limit(query.limit)
+				// 	.project({
+				// 		_id: true,
+				// 		'event._id': true
+				// 	});
+
+				let pipeline = [];
+
+				if (Object.keys(peopleSearchBeta).length > 0) {
+					pipeline.push({
+						$searchBeta: peopleSearchBeta,
+					});
+				}
+
+				pipeline.push({
+					$match: peoplePreLookupMatch
+				},
+				{
+					$unwind: '$contact_ids'
+				},
+				{
+					$lookup: $peopleEventLookup
+				},
+				{
+					$unwind: '$event'
+				},
+				{
+					$lookup: $peopleContentLookup
+				},
+				{
+					$unwind: {
 						path: '$content',
 						preserveNullAndEmptyArrays: true
-					})
-					.lookup($peopleLocationLookup)
-					.unwind({
-						path: '$hydratedLocation',
+					}
+				},
+				{
+					$lookup: $peopleLocationLookup
+				},
+				{
+					$unwind: {
+						path: '$hydratedLoation',
 						preserveNullAndEmptyArrays: true
-					})
-					.match(peoplePostLookupMatch)
-					.sort(contactSort)
-					.skip(query.offset)
-					.limit(query.limit)
-					.project({
+					}
+				},
+				{
+					$match: peoplePostLookupMatch
+				},
+				{
+					$sort: contactSort
+				},
+				{
+					$skip: query.offset
+				},
+				{
+					$limit: query.limit
+				},
+				{
+					$project: {
 						_id: true,
-						'event._id': true
-					});
+						'event._id': true,
+						score: {
+							$meta: 'searchScore'
+						}
+					}
+				});
+
+				peopleAggregation = People.collection.aggregate(pipeline);
 			}
 
 			if (contentSearched === true) {
-				contentAggregation
-					.match(contentPreLookupMatch)
-					.lookup($contentEventLookup)
-					.unwind('$event')
-					.lookup($contentContactLookup)
-					.unwind({
+				/*
+					NOTE ON MONGO FULL TEXT SEARCH
+
+					The code commented below was what was used prior to the implementation of Mongo's full text search.
+					It's basically just the graphql-compose-mongoose syntax, but had to be left out because
+					graphql-compose-mongoose hadn't been updated to support the $searchBeta pipeline stage.
+					Instead, we now use Mongo directly.
+					If this code is ever being run where full text search isn't available, you could uncomment this
+					stuff and comment out everything else.
+					Or, just get comment out the code pushing the $searchBeta stage onto the pipeline.
+				 */
+				// contentAggregation
+				// 	.searchBeta(contentSearchBeta)
+				// 	.match(contentPreLookupMatch)
+				// 	.lookup($contentEventLookup)
+				// 	.unwind('$event')
+				// 	.lookup($contentContactLookup)
+				// 	.unwind({
+				// 		path: '$contact',
+				// 		preserveNullAndEmptyArrays: true
+				// 	})
+				// 	.lookup($contentLocationLookup)
+				// 	.unwind({
+				// 		path: '$hydratedLocation',
+				// 		preserveNullAndEmptyArrays: true
+				// 	})
+				// 	.match(contentPostLookupMatch)
+				// 	.sort(contentSort)
+				// 	.skip(query.offset)
+				// 	.limit(query.limit)
+				// 	.project({
+				// 		_id: true,
+				// 		'event._id': true
+				// 	});
+
+				let pipeline = [];
+
+				if (Object.keys(contentSearchBeta).length > 0) {
+					pipeline.push({
+						$searchBeta: contentSearchBeta,
+					});
+				}
+
+				pipeline.push({
+					$match: contentPreLookupMatch
+				},
+				{
+					$lookup: $contentEventLookup
+				},
+				{
+					$unwind: '$event'
+				},
+				{
+					$lookup: $contentContactLookup
+				},
+				{
+					$unwind: {
 						path: '$contact',
 						preserveNullAndEmptyArrays: true
-					})
-					.lookup($contentLocationLookup)
-					.unwind({
+					}
+				},
+				{
+					$lookup: $contentLocationLookup
+				},
+				{
+					$unwind: {
 						path: '$hydratedLocation',
 						preserveNullAndEmptyArrays: true
-					})
-					.match(contentPostLookupMatch)
-					.sort(contentSort)
-					.skip(query.offset)
-					.limit(query.limit)
-					.project({
+					}
+				},
+				{
+					$match: contentPostLookupMatch
+				},
+				{
+					$sort: contentSort
+				},
+				{
+					$skip: query.offset
+				},
+				{
+					$limit: query.limit
+				},
+				{
+					$project: {
 						_id: true,
-						'event._id': true
-					});
+						'event._id': true,
+						score: {
+							$meta: 'searchScore'
+						}
+					}
+				});
+
+				contentAggregation = Content.collection.aggregate(pipeline);
 			}
 
 			eventsSearched = (Object.keys(query.filters).length === 1 && Object.keys(query.filters)[0] === 'tagFilters') || (contactsSearched === false && contentSearched === false && peopleSearched === false) || (Object.keys(contactPreLookupMatch).length === 0 && Object.keys(peoplePreLookupMatch).length === 0 && Object.keys(contentPreLookupMatch).length === 0 && Object.keys(contactPostLookupMatch).length === 0 && Object.keys(peoplePostLookupMatch).length === 0 && Object.keys(contentPostLookupMatch).length === 0);
 
 			if (eventsSearched === true) {
-				eventAggregation
-					.match(eventMatch)
-					.lookup($eventLocationLookup)
-					.unwind({
+				/*
+					NOTE ON MONGO FULL TEXT SEARCH
+
+					The code commented below was what was used prior to the implementation of Mongo's full text search.
+					It's basically just the graphql-compose-mongoose syntax, but had to be left out because
+					graphql-compose-mongoose hadn't been updated to support the $searchBeta pipeline stage.
+					Instead, we now use Mongo directly.
+					If this code is ever being run where full text search isn't available, you could uncomment this
+					stuff and comment out everything else.
+					Or, just get comment out the code pushing the $searchBeta stage onto the pipeline.
+				 */
+				// eventAggregation
+				// 	.searchBeta(eventSearchBeta)
+				// 	.match(eventMatch)
+				// 	.lookup($eventLocationLookup)
+				// 	.unwind({
+				// 		path: '$hydratedLocation',
+				// 		preserveNullAndEmptyArrays: true
+				// 	})
+				// 	.match(eventPostLookupMatch)
+				// 	.sort(sort)
+				// 	.skip(query.offset)
+				// 	.limit(query.limit)
+				// 	.project({
+				// 		_id: true
+				// 	});
+
+				let pipeline = [];
+
+				if (Object.keys(eventSearchBeta).length > 0) {
+					pipeline.push({
+						$searchBeta: eventSearchBeta,
+					});
+				}
+
+				pipeline.push({
+					$match: eventMatch
+				},
+				{
+					$lookup: $eventLocationLookup
+				},
+				{
+					$unwind: {
 						path: '$hydratedLocation',
 						preserveNullAndEmptyArrays: true
-					})
-					.match(eventPostLookupMatch)
-					.sort(sort)
-					.skip(query.offset)
-					.limit(query.limit)
-					.project({
-						_id: true
-					});
+					}
+				},
+				{
+					$match: eventPostLookupMatch
+				},
+				{
+					$sort: sort
+				},
+				{
+					$skip: query.offset
+				},
+				{
+					$limit: query.limit
+				},
+				{
+					$project: {
+						_id: true,
+						score: {
+							$meta: 'searchScore'
+						}
+					}
+				});
+
+				eventAggregation = Events.collection.aggregate(pipeline);
 			}
 
-			let aggregatedContacts = contactsSearched === true ? await contactAggregation.exec() : [];
-			let aggregatedContent = contentSearched === true ? await contentAggregation.exec() : [];
-			let aggregatedEvents = eventsSearched === true ? await eventAggregation.exec() : [];
-			let aggregatedPeople = peopleSearched === true ? await peopleAggregation.exec() : [];
+			let aggregatedContacts = contactsSearched === true ? await contactAggregation.toArray() : [];
+			let aggregatedContent = contentSearched === true ? await contentAggregation.toArray() : [];
+			let aggregatedEvents = eventsSearched === true ? await eventAggregation.toArray() : [];
+			let aggregatedPeople = peopleSearched === true ? await peopleAggregation.toArray() : [];
 
 			let eventIds = [];
+			let eventIdStrings = [];
 
-			if (aggregatedContacts.length > 0) {
-				_.each(aggregatedContacts, function(contact) {
-					eventIds.push(contact.event._id);
+			if (query.q != null && query.q.length > 0) {
+				let resultBlob = aggregatedContacts.concat(aggregatedContent).concat(aggregatedEvents).concat(aggregatedPeople);
+
+				let sorted = _.sortBy(resultBlob, function(result) {
+					return result.score
 				});
-			}
 
-			if (aggregatedContent.length > 0) {
-				_.each(aggregatedContent, function(content) {
-					eventIds.push(content.event._id);
-				});
-			}
-
-			if (aggregatedEvents.length > 0) {
-				_.each(aggregatedEvents, function(event) {
-					eventIds.push(event._id);
-				});
-			}
-
-			if (aggregatedPeople.length > 0) {
-				_.each(aggregatedPeople, function(person) {
-					eventIds.push(person.event._id);
-				});
-			}
-
-			let filter = {
-				user_id_string: context.req.user._id.toString('hex'),
-				_id: {
-					$in: eventIds
+				if (query.sortOrder === 'desc') {
+					sorted = _.reverse(sorted);
 				}
-			};
 
-			let eventMatches = await EventTC.getResolver('findMany').resolve({
-				args: {
-					filter: filter,
-					sort: sort
+				_.forEachRight(sorted, function(item) {
+					if (item.event) {
+						eventIds.push(item.event._id);
+						eventIdStrings.push(item.event._id.toString('hex'));
+					}
+					else {
+						eventIds.push(item._id);
+						eventIdStrings.push(item._id.toString('hex'));
+					}
+				});
+
+				let filter = {
+					user_id_string: context.req.user._id.toString('hex'),
+					_id: {
+						$in: eventIds
+					}
+				};
+
+				let eventMatches = await EventTC.getResolver('findMany').resolve({
+					args: {
+						filter: filter
+					}
+				});
+
+				eventMatches.sort(function(a, b) {
+					return eventIdStrings.indexOf(a._id.toString('hex')) - eventIdStrings.indexOf(b._id.toString('hex'));
+				});
+
+				documents = eventMatches;
+			}
+			else {
+				if (aggregatedContacts.length > 0) {
+					_.each(aggregatedContacts, function(contact) {
+						eventIds.push(contact.event._id);
+					});
 				}
-			});
 
-			// let eventMatchCount = await EventTC.getResolver('count').resolve({
-			// 	args: {
-			// 		filter: filter,
-			// 		sort: sort
-			// 	}
-			// });
+				if (aggregatedContent.length > 0) {
+					_.each(aggregatedContent, function(content) {
+						eventIds.push(content.event._id);
+					});
+				}
 
-			documents = eventMatches;
-			// count = eventMatchCount;
+				if (aggregatedEvents.length > 0) {
+					_.each(aggregatedEvents, function(event) {
+						eventIds.push(event._id);
+					});
+				}
 
+				if (aggregatedPeople.length > 0) {
+					_.each(aggregatedPeople, function(person) {
+						eventIds.push(person.event._id);
+					});
+				}
+
+				let filter = {
+					user_id_string: context.req.user._id.toString('hex'),
+					_id: {
+						$in: eventIds
+					}
+				};
+
+				let eventMatches = await EventTC.getResolver('findMany').resolve({
+					args: {
+						filter: filter,
+						sort: sort
+					}
+				});
+
+				// let eventMatchCount = await EventTC.getResolver('count').resolve({
+				// 	args: {
+				// 		filter: filter,
+				// 		sort: sort
+				// 	}
+				// });
+
+				documents = eventMatches;
+				// count = eventMatchCount;
+			}
 		}
 		else {
 			let eventMatches = await EventTC.getResolver('findMany').resolve({

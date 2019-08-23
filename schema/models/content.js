@@ -213,6 +213,51 @@ export const Content = mongoose.model('Content', ContentSchema);
 export const ContentTC = composeWithMongoose(Content);
 
 
+let specialSorts = {
+	emptyQueryRelevance: {
+		values: {
+			title: -1
+		}
+	}
+};
+
+let stopwords = [
+	'a',
+	'an',
+	'and',
+	'are',
+	'as',
+	'at',
+	'be',
+	'but',
+	'by',
+	'for',
+	'if',
+	'in',
+	'into',
+	'is',
+	'it',
+	'no',
+	'not',
+	'of',
+	'on',
+	'or',
+	'such',
+	'that',
+	'the',
+	'their',
+	'then',
+	'there',
+	'these',
+	'they',
+	'this',
+	'to',
+	'was',
+	'will',
+	'with'
+];
+
+
 ContentTC.addResolver({
 	name: 'addTags',
 	kind: 'mutation',
@@ -351,22 +396,22 @@ ContentTC.addResolver({
 
 		let specialSort = false;
 
-		// for (let key in specialSorts) {
-		// 	if (!specialSorts.hasOwnProperty(key)) {
-		// 		break;
-		// 	}
-		//
-		// 	let field = specialSorts[key];
-		//
-		// 	if ((key === 'emptyQueryRelevance' && query.sortField === '_score' && query.q == null) || query.sortField === field.condition) {
-		// 		specialSort = true;
-		// 		sort = field.values;
-		//
-		// 		_.each(sort, function(val, name) {
-		// 			sort[name] = query.sortOrder === 'asc' ? 1 : -1;
-		// 		});
-		// 	}
-		// }
+		for (let key in specialSorts) {
+			if (!specialSorts.hasOwnProperty(key)) {
+				break;
+			}
+
+			let field = specialSorts[key];
+
+			if ((key === 'emptyQueryRelevance' && query.sortField === 'score' && (query.q == null || query.q.length === 0)) || query.sortField === field.condition) {
+				specialSort = true;
+				sort = field.values;
+
+				_.each(sort, function(val, name) {
+					sort[name] = query.sortOrder === 'asc' ? 1 : -1;
+				});
+			}
+		}
 
 		if (specialSort === false) {
 			sort = {
@@ -374,18 +419,50 @@ ContentTC.addResolver({
 			}
 		}
 
+		if (query.q != null && query.q.length > 0) {
+			_.each(stopwords, function(stopword) {
+				let regexp = new RegExp('^' + stopword + ' | ' + stopword + ' | ' + stopword + '$', 'g');
+
+				query.q = query.q.replace(regexp, '');
+			});
+		}
+
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
-			let contentAggregation = Content.aggregate();
+			// let contentAggregation = Content.aggregate();
 
 			let contentPreLookupMatch = {
 				user_id: context.req.user._id
 			};
 
 			let contentPostLookupMatch = {};
+			let contentSearchBeta = {};
 
 			if (query.q != null && query.q.length > 0) {
-				contentPreLookupMatch.$text = {
-					$search: query.q
+				/*
+					NOTE ON MONGO FULL TEXT SEARCH
+
+					The code commented below is the old text search using Mongo's $text indexing.
+					It's been replaced by the full text search that's included in Mongo Atlas as of 4.2.
+					If this code is being run on a version of Mongo that doesn't support full text search, uncomment
+					the following section and uncomment some more code below that's also headed by the all-caps line above.
+				 */
+				// contentPreLookupMatch.$text = {
+				// 	$search: query.q
+				// };
+
+				contentSearchBeta = {
+					index: 'fulltext',
+					search: {
+						query: query.q,
+						path: [
+							'file_extension',
+							'owner',
+							'text',
+							'title',
+							'type',
+							'url',
+						]
+					}
 				};
 			}
 
@@ -454,23 +531,61 @@ ContentTC.addResolver({
 				});
 			}
 
-			contentAggregation
-				.match(contentPreLookupMatch)
-				.match(contentPostLookupMatch)
-				.sort(sort)
-				.skip(query.offset)
-				.limit(query.limit)
-				.project({
-					_id: true
+			let contentAggregation;
+
+			// contentAggregation
+			// 	.match(contentPreLookupMatch)
+			// 	.match(contentPostLookupMatch)
+			// 	.sort(sort)
+			// 	.skip(query.offset)
+			// 	.limit(query.limit)
+			// 	.project({
+			// 		_id: true
+			// 	});
+
+			let pipeline = [];
+
+			if (Object.keys(contentSearchBeta).length > 0) {
+				pipeline.push({
+					$searchBeta: contentSearchBeta,
+				});
+			}
+
+			pipeline.push({
+					$match: contentPreLookupMatch
+				},
+				{
+					$match: contentPostLookupMatch
+				},
+				{
+					$sort: sort
+				},
+				{
+					$skip: query.offset
+				},
+				{
+					$limit: query.limit
+				},
+				{
+					$project: {
+						_id: true,
+						score: {
+							$meta: 'searchScore'
+						}
+					}
 				});
 
-			let aggregatedContent = await contentAggregation.exec();
+			contentAggregation = Content.collection.aggregate(pipeline);
+
+			let aggregatedContent = await contentAggregation.toArray();
 
 			let contentIds = [];
+			let contentIdStrings = [];
 
 			if (aggregatedContent.length > 0) {
 				_.each(aggregatedContent, function(content) {
 					contentIds.push(content._id);
+					contentIdStrings.push(content._id.toString('hex'));
 				});
 			}
 
@@ -508,6 +623,10 @@ ContentTC.addResolver({
 					type: true,
 					url: true
 				}
+			});
+
+			contentMatches.sort(function(a, b) {
+				return contentIdStrings.indexOf(a._id.toString('hex')) - contentIdStrings.indexOf(b._id.toString('hex'));
 			});
 
 			// let contentMatchCount = await ContentTC.getResolver('count').resolve({

@@ -1,6 +1,6 @@
 {
   "name": "lifescope-api",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "lifescope.io",
   "author": "(https://lifescope.io)",
   "repository": {
@@ -104,8 +104,8 @@
     "mandrill-api": "^1.0.45",
     "mixitup": "^3.2.2",
     "moment": "^2.21.0",
-    "mongodb": "^3.2.7",
-    "mongoose": "^5.4.11",
+    "mongodb": "^3.3.0",
+    "mongoose": "^5.6.10",
     "mongoose-uuid2": "^2.1.0",
     "multer": "^1.4.0",
     "neat-csv": "^3.0.0",
