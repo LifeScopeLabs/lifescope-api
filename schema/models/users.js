@@ -27,6 +27,12 @@ import EmailClient from '../../lib/extensions/mandrill/email-client';
 
 let emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
+let tutorials = [
+	'connections',
+	'explorer',
+	'home',
+];
+
 let basicType = new graphql.GraphQLObjectType({
 	name: 'userBasic',
 	fields: {
@@ -257,6 +263,18 @@ export const UserSchema = new mongoose.Schema(
 		last_location_estimation: {
 			type: Date,
 			index: false
+		},
+
+		tutorials: {
+			connections: {
+				type: Boolean
+			},
+			home: {
+				type: Boolean
+			},
+			explorer: {
+				type: Boolean
+			}
 		}
 
 	},
@@ -748,6 +766,32 @@ UserTC.addResolver({
 			favoriteSearchCount: favoriteSearchCount,
 			tagCount: tagCount,
 			sharedTagCount: sharedTagCount
+		}
+	}
+});
+
+UserTC.addResolver({
+	name: 'completeTutorial',
+	kind: 'mutation',
+	type: UserTC.getResolver('findOne').getType(),
+	args: {
+		tutorial: 'String!'
+	},
+	resolve: async ({args, context}) => {
+		if (tutorials.indexOf(args.tutorial) < 0) {
+			throw new httpErrors(400, 'Invalid tutorial name');
+		}
+		else {
+			return UserTC.getResolver('updateOne').resolve({
+				args: {
+					filter: {
+						id: context.req.user._id.toString('hex')
+					},
+					record: {
+						['tutorials.' + args.tutorial]: true
+					}
+				}
+			})
 		}
 	}
 });

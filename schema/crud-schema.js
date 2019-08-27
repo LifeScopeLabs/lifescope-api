@@ -220,7 +220,8 @@ GQC.rootMutation().addFields({
 			userEmailUpdate: UserTC.getResolver('updateEmail'),
 			userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking'),
 			userNewsletterUpdate: UserTC.getResolver('updateNewsletter'),
-			userThemeUpdate: UserTC.getResolver('updateTheme')
+			userThemeUpdate: UserTC.getResolver('updateTheme'),
+			userTutorialComplete: UserTC.getResolver('completeTutorial'),
 		}),
 	}),
 
