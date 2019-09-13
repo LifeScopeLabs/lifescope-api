@@ -782,7 +782,7 @@ UserTC.addResolver({
 			throw new httpErrors(400, 'Invalid tutorial name');
 		}
 		else {
-			return UserTC.getResolver('updateOne').resolve({
+			let response = await UserTC.getResolver('updateOne').resolve({
 				args: {
 					filter: {
 						id: context.req.user._id.toString('hex')
@@ -791,7 +791,33 @@ UserTC.addResolver({
 						['tutorials.' + args.tutorial]: true
 					}
 				}
-			})
+			});
+
+			return response.record;
 		}
+	}
+});
+
+UserTC.addResolver({
+	name: 'resetTutorials',
+	kind: 'mutation',
+	type: UserTC.getResolver('findOne').getType(),
+	resolve: async ({args, context}) => {
+		let record = {};
+
+		_.each(tutorials, function(tutorial) {
+			record['tutorials.' + tutorial] = false;
+		});
+
+		let response = await UserTC.getResolver('updateOne').resolve({
+			args: {
+				filter: {
+					id: context.req.user._id.toString('hex')
+				},
+				record: record
+			}
+		});
+
+		return response.record;
 	}
 });
