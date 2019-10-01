@@ -677,7 +677,7 @@ ConnectionTC.addResolver({
 				await bitscoop.getConnection(connection.remote_connection_id.toString('hex'));
 			}
 			catch (err) {
-				throw err;
+				console.log(err); //eslint-disable-line no-console
 			}
 		}
 

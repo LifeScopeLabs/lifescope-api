@@ -32,6 +32,13 @@
       "description": "Events in your Google Calendars",
       "enabled_by_default": true,
       "mapping": "CalendarList"
+    },
+
+    "fit_activities": {
+      "name": "Google Fit Activities",
+      "description": "Exercise and trips tracked by Google Fit",
+      "enabled_by_default": true,
+      "mapping": "FitDataSources"
     }
   },
 

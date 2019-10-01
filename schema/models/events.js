@@ -155,6 +155,11 @@ export const EventsSchema = new mongoose.Schema(
 			index: false
 		},
 
+		duration:{
+			type: Number,
+			index: false
+		},
+
 		hidden: {
 			type: Boolean,
 			index: false

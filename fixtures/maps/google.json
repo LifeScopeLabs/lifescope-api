@@ -623,6 +623,132 @@
           }
         }
       }
-    }
+    },
+    "FitDataSources": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "https://www.googleapis.com/auth/fitness.activity.read"
+        ],
+        "parameters": {
+          "dataTypeName": {
+            "description": "Names of data types to return",
+            "value": "{{ parameters.data_type_name }}"
+          },
+          "fields": {
+            "description": "The fields to return",
+            "value": "{{ parameters.fields }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "dataSource",
+            "path": "/fitness/vs/users/me/dataSources"
+          }
+        },
+        "model": {
+          "key": "dataStreamId",
+          "fields": {
+            "dataStreamId": "string",
+            "dataStreamName": "string"
+          }
+        }
+      }
+    },
+    "FitDataSets": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "https://www.googleapis.com/auth/fitness.activity.read"
+        ],
+        "parameters": {
+          "dataSourceId": {
+            "description": "ID of the data source from which to get the dataset",
+            "value": "{{ parameters.data_source_id }}"
+          },
+          "datasetId": {
+            "description": "Start and end times in 19-digit numbers representing nanoseconds since epoch, separated by a dash with no spacing",
+            "value": "{{ parameters.start_time }}-{{ parameters.end_time }}"
+          },
+          "limit": {
+            "description": "Maximum returned items",
+            "value": "{{ parameters.limit }}"
+          },
+          "pageToken": {
+            "description": "Token for the next page of results",
+            "value": "{{ parameters.page_token }}"
+          },
+          "fields": {
+            "description": "The fields to return",
+            "value": "{{ parameters.fields }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "point",
+            "path": "/fitness/v1/users/me/dataSources/{{ parameters.dataSourceId }}/datasets/{{ parameters.datasetId }}"
+          }
+        },
+        "model": {
+          "key": "startTimeNanos",
+          "fields": {
+            "startTimeNanos": "string",
+            "endTimeNanos": "string",
+            "value": {
+              "type": "embedded",
+              "many": true,
+              "fields": {
+                "intVal": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+	  "FitDataSetsPage": {
+		  "GET": {
+			  "method": "GET",
+			  "scopes": [
+				  "https://www.googleapis.com/auth/fitness.activity.read"
+			  ],
+			  "parameters": {
+				  "dataSourceId": {
+					  "description": "ID of the data source from which to get the dataset",
+					  "value": "{{ parameters.data_source_id }}"
+				  },
+				  "datasetId": {
+					  "description": "Start and end times in 19-digit numbers representing nanoseconds since epoch, separated by a dash with no spacing",
+					  "value": "{{ parameters.start_time }}-{{ parameters.end_time }}"
+				  },
+				  "limit": {
+					  "description": "Maximum returned items",
+					  "value": "{{ parameters.limit }}"
+				  },
+				  "pageToken": {
+					  "description": "Token for the next page of results",
+					  "value": "{{ parameters.page_token }}"
+				  },
+				  "fields": {
+					  "description": "The fields to return",
+					  "value": "{{ parameters.fields }}"
+				  }
+			  },
+			  "single": false,
+			  "collection": {
+				  "route": {
+					  "data": "",
+					  "path": "/fitness/v1/users/me/dataSources/{{ parameters.dataSourceId }}/datasets/{{ parameters.datasetId }}"
+				  }
+			  },
+			  "model": {
+				  "key": "nextPageToken",
+				  "fields": {
+					  "nextPageToken": "string"
+				  }
+			  }
+		  }
+	  }
   }
 }

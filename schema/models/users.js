@@ -802,7 +802,7 @@ UserTC.addResolver({
 	name: 'resetTutorials',
 	kind: 'mutation',
 	type: UserTC.getResolver('findOne').getType(),
-	resolve: async ({args, context}) => {
+	resolve: async ({context}) => {
 		let record = {};
 
 		_.each(tutorials, function(tutorial) {
