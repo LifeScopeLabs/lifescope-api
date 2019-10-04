@@ -44,6 +44,12 @@
 		"cookieName": "login_assoc"
 	},
 
+	"errors": {
+		"accountAlreadyConnected": {
+			"cookieName": "account_already_connected"
+		}
+	},
+
 	"sessions": {
 		"cookieName": "sessionid",
 		"expiration": 1209600,
