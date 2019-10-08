@@ -48,6 +48,20 @@ export default (ctx) => {
 			});
 		}
 
+		if (_.hasIn(ctx, 'store.state.csrf_token')) {
+			let headers = operation.getContext().headers;
+
+			if (headers == null) {
+				headers = {};
+			}
+
+			headers['X-CSRF-Token'] = ctx.store.state.csrf_token;
+
+			operation.setContext({
+				headers: headers
+			});
+		}
+
 		return forward(operation)
 	});
 
