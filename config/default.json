@@ -47,6 +47,10 @@
 	"errors": {
 		"accountAlreadyConnected": {
 			"cookieName": "account_already_connected"
+		},
+
+		"nonMatchingAccounts": {
+			"cookieName": "non_matching_accounts"
 		}
 	},
 
