@@ -6,12 +6,37 @@ import httpErrors from 'http-errors';
 import composeWithMongoose from 'graphql-compose-mongoose/node8';
 import moment from 'moment';
 import mongoose from 'mongoose';
+import { graphql } from 'graphql-compose';
 
 import uuid from "../../lib/util/uuid";
 import { add as addTags, remove as removeTags } from './templates/tag';
 import { ContactTC } from "./contacts";
 import { TagTC } from "./tags";
 import { UserTC } from "./users";
+
+const AddressType = new graphql.GraphQLInputObjectType({
+	name: 'addressType',
+	fields: {
+		street_address: {
+			type: graphql.GraphQLString
+		},
+		street_address_2: {
+			type: graphql.GraphQLString
+		},
+		city: {
+			type: graphql.GraphQLString
+		},
+		region: {
+			type: graphql.GraphQLString
+		},
+		country: {
+			type: graphql.GraphQLString
+		},
+		postal_code: {
+			type: graphql.GraphQLString
+		},
+	}
+});
 
 export const PeopleSchema = new mongoose.Schema(
 	{
@@ -53,6 +78,38 @@ export const PeopleSchema = new mongoose.Schema(
 				else {
 					this._id = uuid(val);
 				}
+			}
+		},
+
+		address: {
+			street_address: {
+				type: String,
+				index: false
+			},
+
+			street_address_2:{
+				type: String,
+				index: false
+			},
+
+			city: {
+				type: String,
+				index: false
+			},
+
+			region: {
+				type: String,
+				index: false
+			},
+
+			country: {
+				type: String,
+				index: false
+			},
+
+			postal_code: {
+				type: String,
+				index: false
 			}
 		},
 
@@ -106,6 +163,11 @@ export const PeopleSchema = new mongoose.Schema(
 		},
 
 		last_name: {
+			type: String,
+			index: false
+		},
+
+		notes: {
 			type: String,
 			index: false
 		},
@@ -281,7 +343,9 @@ PeopleTC.addResolver({
 		last_name: 'String',
 		contact_id_strings: ['String'],
 		avatar_url: 'String',
-		external_avatar_url: 'String'
+		external_avatar_url: 'String',
+		address: AddressType,
+		notes: 'String'
 	},
 	resolve: async function({args, context}) {
 		let userIDString = context.req.user._id.toString('hex');
@@ -313,6 +377,14 @@ PeopleTC.addResolver({
 
 		if (args.external_avatar_url != null) {
 			person.external_avatar_url = args.external_avatar_url;
+		}
+
+		if (args.address != null) {
+			person.address = args.address;
+		}
+
+		if (args.notes != null) {
+			person.notes = args.notes;
 		}
 
 		let promise;
@@ -448,7 +520,9 @@ PeopleTC.addResolver({
 		last_name: 'String',
 		contact_id_strings: ['String'],
 		avatar_url: 'String',
-		external_avatar_url: 'String'
+		external_avatar_url: 'String',
+		address: AddressType,
+		notes: 'String'
 	},
 	resolve: async function({args, context}) {
 		let promise;
@@ -489,6 +563,14 @@ PeopleTC.addResolver({
 
 		if (args.external_avatar_url != null) {
 			update.external_avatar_url = args.external_avatar_url;
+		}
+
+		if (args.address != null) {
+			update.address = args.address;
+		}
+
+		if (args.notes != null) {
+			update.notes = args.notes;
 		}
 
 		if (args.contact_id_strings) {
