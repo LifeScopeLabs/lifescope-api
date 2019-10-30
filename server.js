@@ -113,10 +113,39 @@ loadValidator(config.validationSchemas)
 		}));
 
 		// http://localhost:3000/gql-p/
-		server.get(`${crudAPI.uri}-p`, expressPlayground({
-			endpoint: crudAPI.uri,
-			subscriptionsEndpoint: 'wss://api.lifescope.io/subscriptions'
-		}));
+		server.get(`${crudAPI.uri}-p`, async (req, res, next) => {
+			let csrftoken, sessionid;
+
+			let cookie = req.headers.cookie;
+			let cookieSplit = cookie.split('; ');
+
+			_.each(cookieSplit, function(cookie) {
+				let keyVal = cookie.split('=');
+
+				if (keyVal[0] === 'sessionid') {
+					sessionid = keyVal[1];
+				}
+			});
+
+			if (sessionid != null) {
+				let session = await mongooseConnect.db.collection('sessions').findOne({
+					token: sessionid
+				});
+
+				csrftoken = csrf.tokens.create(session.csrf_secret);
+			}
+
+			expressPlayground({
+				endpoint: crudAPI.uri,
+				headers: {
+					'X-CSRF-Token': csrftoken
+				},
+				subscriptionsEndpoint: 'wss://api.lifescope.io/subscriptions',
+				settings: {
+					'request.credentials': 'include'
+				}
+			})(req, res, next)
+		});
 
 		server.use(
 			'/',
