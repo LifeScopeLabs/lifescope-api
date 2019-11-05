@@ -478,7 +478,7 @@ PeopleTC.addResolver({
 			});
 
 			let promises = _.map(person.contact_ids, function(contactId) {
-				return ContactTC.getResolver('updateOne').resolve({
+				return contactId != null ? ContactTC.getResolver('updateOne').resolve({
 					args: {
 						filter: {
 							id: contactId.toString('hex'),
@@ -488,7 +488,7 @@ PeopleTC.addResolver({
 							people_id: null
 						}
 					}
-				});
+				}) : Promise.resolve();
 			});
 
 			await Promise.all(promises);

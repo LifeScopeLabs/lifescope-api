@@ -39,6 +39,13 @@
       "description": "Exercise and trips tracked by Google Fit",
       "enabled_by_default": true,
       "mapping": "FitDataSources"
+    },
+
+    "contacts": {
+      "name": "Google Contacts",
+      "description": "Automatically create People from starred and \"LifeScope\"-labeled Google Contacts",
+      "enabled_by_default": true,
+      "mapping": "ContactGroupsList"
     }
   },
 
