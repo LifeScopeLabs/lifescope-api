@@ -172,6 +172,24 @@ export const PeopleSchema = new mongoose.Schema(
 			index: false
 		},
 
+		removed_contact_ids: {
+			type: [Buffer],
+			index: false
+		},
+
+		removed_contact_id_strings: {
+			type: [String],
+			get: function() {
+				if (this.removed_contact_ids) {
+					return _.map(this.removed_contact_ids, function(contactId) {
+						if (contactId != null) {
+							return contactId.toString('hex');
+						}
+					});
+				}
+			}
+		},
+
 		self: Boolean,
 
 		tagMasks: {
@@ -620,10 +638,22 @@ PeopleTC.addResolver({
 			promises = [];
 
 			let contactIDs = [];
+			let removedContactIds = person.removed_contact_ids || [];
+			let removedContactIdStrings = person.removed_contact_id_strings || [];
 
 			_.each(contacts, function(contact) {
 				if (contact != null) {
 					contactIDs.push(contact._id);
+
+					if (removedContactIdStrings.indexOf(contact.id) > -1) {
+						_.remove(removedContactIds, function(contactId) {
+							return contactId.toString('hex') === contact.id;
+						});
+
+						_.remove(removedContactIdStrings, function(contactIdString) {
+							return contactIdString === contact.id;
+						});
+					}
 
 					_.pull(removed, contact.id);
 
@@ -642,6 +672,11 @@ PeopleTC.addResolver({
 			});
 
 			_.each(removed, function(contactIdString) {
+				if (removedContactIdStrings.indexOf(contactIdString) < 0) {
+					removedContactIds.push(uuid(contactIdString));
+					removedContactIdStrings.push(contactIdString);
+				}
+
 				promises.push(ContactTC.getResolver('updateOne').resolve({
 					args: {
 						filter: {
@@ -656,6 +691,7 @@ PeopleTC.addResolver({
 			});
 
 			update.contact_ids = contactIDs;
+			update.removed_contact_ids = removedContactIds;
 
 			promise = Promise.all(promises);
 		}
