@@ -2003,13 +2003,13 @@ EventTC.addResolver({
 
 
 function MongoEvent(data) {
-	this.connection_id = uuid(data.connection_id_string);
+	this.connection_id = uuid(data.connection_id_string).buffer;
 	this.contact_interaction_type = data.contact_interaction_type;
 	this.context = data.context;
 	this.datetime = new Date(data.datetime);
 	this.identifier = data.identifier;
 	//this.places = data.places;
-	this.provider_id = uuid(data.provider_id_string);
+	this.provider_id = uuid(data.provider_id_string).buffer;
 	this.provider_name = data.provider_name.toLowerCase();
 	this.source = data.source;
 	this.tagMasks = data.tagMasks;
@@ -2120,6 +2120,7 @@ EventTC.addResolver({
 
 						contact.connection_id = uuid(contact.connection_id_string);
 						contact.provider_id = uuid(contact.provider_id_string);
+						contact.provider_name = event.provider_name.toLowerCase();
 						contact.user_id = context.req.user._id;
 						contact.updated = moment().utc().toDate();
 						contact['tagMasks.source'] = contact.tagMasks.source;
@@ -2191,6 +2192,7 @@ EventTC.addResolver({
 
 						content.connection_id = uuid(content.connection_id_string);
 						content.provider_id = uuid(content.provider_id_string);
+						content.provider_name = event.provider_name.toLowerCase();
 						content.user_id = context.req.user._id;
 						content.updated = moment().utc().toDate();
 						content['tagMasks.source'] = content.tagMasks.source;
@@ -2227,6 +2229,7 @@ EventTC.addResolver({
 
 				location.connection_id = uuid(content.connection_id_string);
 				location.provider_id = uuid(content.provider_id_string);
+				location.provider_name = event.provider_name.toLowerCase();
 				location.user_id = context.req.user._id;
 				location.updated = moment().utc().toDate();
 
