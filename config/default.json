@@ -16,7 +16,7 @@
 		"credentials": true
 	},
 
-	"objectMaxLimit": 100,
+	"objectMaxLimit": 1000,
 
 	"aws": {
 		"credentials": {
