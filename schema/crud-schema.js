@@ -8,6 +8,7 @@ import restrictToUser from '../lib/middleware/restrict-to-user';
 import { ConnectionTC } from './models/connections';
 import { ContactTC } from './models/contacts';
 import { ContentTC } from './models/content';
+import { DataRemovalConfirmationsTC } from './models/data-removal-confirmations';
 import { EventTC } from './models/events';
 import { LocationTC } from './models/locations';
 import { LocationFileTC } from './models/location-files';
@@ -112,7 +113,9 @@ GQC.rootQuery().addFields({
 
 	sharedTagSelfPerson: PeopleTC.getResolver('sharedSelfPerson'),
 
-	oauthAppOneAuthorization: OAuthAppTC.getResolver('authorizationLimited')
+	oauthAppOneAuthorization: OAuthAppTC.getResolver('authorizationLimited'),
+
+	dataRemovalConfirmationCheck: DataRemovalConfirmationsTC.getResolver('check')
 });
 
 GQC.rootMutation().addFields({

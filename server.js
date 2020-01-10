@@ -176,20 +176,27 @@ loadValidator(config.validationSchemas)
 					let cookies = {};
 					let cookie = _.get(context, 'request.headers.cookie');
 
-					let split = cookie.split('; ');
+					if (cookie != null) {
+						let split = cookie.split('; ');
 
-					_.each(split, function(item) {
-						let split = item.split('=');
+						_.each(split, function(item) {
+							let split = item.split('=');
 
-						cookies[split[0]] = split[1];
-					});
+							cookies[split[0]] = split[1];
+						});
 
 
-					let user = await wsCookieAuthorization(cookies.sessionid);
+						let user = await wsCookieAuthorization(cookies.sessionid);
 
-					return {
-						user: user
-					};
+						return {
+							user: user
+						};
+					}
+					else {
+						return {
+
+						}
+					}
 				}
 			}, {
 				server: wsServer,

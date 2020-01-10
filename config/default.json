@@ -1,6 +1,8 @@
 {
 	"domain": "lifescope.io",
 
+	"appDomain": "app.lifescope.io",
+
 	"logging": {
 		"severity": "trace",
 		"targets": [

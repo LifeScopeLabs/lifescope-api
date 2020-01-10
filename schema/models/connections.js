@@ -13,6 +13,7 @@ import type from 'type-detect';
 import deleteConnection from '../../lib/util/delete-connection';
 import { AssociationSessionTC } from './association-sessions';
 import { ProviderTC } from './providers';
+import { UserTC } from './users';
 import { Create as CreateSession } from '../../lib/sessions';
 
 import uuid from '../../lib/util/uuid';
@@ -143,6 +144,10 @@ export const ConnectionsSchema = new mongoose.Schema(
 
 		last_successful_run: {
 			type: Date
+		},
+
+		metadata: {
+			type: mongoose.Schema.Types.Mixed
 		},
 
 		name: {
@@ -624,9 +629,11 @@ ConnectionTC.addResolver({
 	kind: 'mutation',
 	type: eliminateType,
 	args: {
-		id: 'String'
+		id: 'String',
+		overrideLastLoginLonnection: 'Boolean'
 	},
 	resolve: async function({args, context}) {
+		let removeAccount = false;
 		let bitscoop = env.bitscoop;
 		let req = context.req;
 
@@ -656,7 +663,12 @@ ConnectionTC.addResolver({
 		});
 
 		if ((req.user.email == null || req.user.email.length === 0) && loginConnections.length === 1 && loginConnections[0]._id.toString('hex') === args.id) {
-			throw new httpErrors(400, 'You cannot delete your last remaining connection without having an email associated with your account.');
+			if (args.overrideLastLoginLonnection === true) {
+				removeAccount = true;
+			}
+			else {
+				throw new httpErrors(400, 'You cannot delete your last remaining connection without having an email associated with your account.');
+			}
 		}
 
 		let connection = await ConnectionTC.getResolver('findOne').resolve({
@@ -684,6 +696,21 @@ ConnectionTC.addResolver({
 		await deleteConnection(connection._id.toString('hex'), req.user._id.toString('hex'));
 
 		env.pubSub.publish('connectionDeleted', {id: connection._id.toString('hex'), user_id: req.user._id});
+
+		await new Promise(async function(resolve) {
+			if (removeAccount === true) {
+				await UserTC.getResolver('deleteAccount').resolve({
+					context: {
+						req: req
+					}
+				});
+
+				resolve();
+			}
+			else {
+				resolve();
+			}
+		});
 
 		context.res.status = 204;
 	}
