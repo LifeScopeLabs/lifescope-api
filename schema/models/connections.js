@@ -630,7 +630,7 @@ ConnectionTC.addResolver({
 	type: eliminateType,
 	args: {
 		id: 'String',
-		overrideLastLoginLonnection: 'Boolean'
+		overrideLastLoginConnection: 'Boolean'
 	},
 	resolve: async function({args, context}) {
 		let removeAccount = false;
@@ -663,7 +663,7 @@ ConnectionTC.addResolver({
 		});
 
 		if ((req.user.email == null || req.user.email.length === 0) && loginConnections.length === 1 && loginConnections[0]._id.toString('hex') === args.id) {
-			if (args.overrideLastLoginLonnection === true) {
+			if (args.overrideLastLoginConnection === true) {
 				removeAccount = true;
 			}
 			else {
@@ -701,7 +701,8 @@ ConnectionTC.addResolver({
 			if (removeAccount === true) {
 				await UserTC.getResolver('deleteAccount').resolve({
 					context: {
-						req: req
+						req: req,
+						res: context.res
 					}
 				});
 

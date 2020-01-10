@@ -15,6 +15,9 @@ let checkType = new graphql.GraphQLObjectType({
 		noRecord: {
 			type: graphql.GraphQLBoolean
 		},
+		providerName: {
+			type: graphql.GraphQLString
+		},
 		success: {
 			type: graphql.GraphQLBoolean
 		}
@@ -107,6 +110,10 @@ export const DataRemovalConfirmationsSchema = new mongoose.Schema(
 
 				this.connection_id = uuid(val);
 			}
+		},
+
+		provider_name: {
+			type: String
 		}
 	},
 	{
@@ -152,7 +159,8 @@ DataRemovalConfirmationsTC.addResolver({
 					}
 				});
 
-				returned.success = connection != null;
+				returned.success = connection == null;
+				returned.providerName = confirmation.provider_name;
 
 				resolve();
 			}
