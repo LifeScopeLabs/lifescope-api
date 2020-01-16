@@ -328,7 +328,7 @@ ConnectionTC.addResolver({
 			throw new httpErrors(400, 'This Provider is not enabled');
 		}
 
-		if (provider.login !== true) {
+		if (provider.login !== true && context.req.user == null) {
 			throw new httpErrors(400, 'You cannot log in or sign up using this Provider');
 		}
 

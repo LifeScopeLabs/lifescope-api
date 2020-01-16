@@ -5,10 +5,10 @@
 
   "sources": {
     "posts": {
-      "name": "Shares",
-      "description": "Images and videos you have shared on Instagram",
+      "name": "Media",
+      "description": "Images, videos, and albums you have shared on Instagram",
       "enabled_by_default": true,
-      "mapping": "PublishedMedia"
+      "mapping": "UserMedia"
     }
   },
 

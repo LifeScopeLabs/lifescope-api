@@ -1,8 +1,8 @@
 {
   "version": "1.0",
   "name": "Instagram",
-  "description": "Mobile photo-sharing, video-sharing and social networking service.",
-  "url": "https://api.instagram.com",
+  "description": "DEVELOPMENT ONLY",
+  "url": "https://graph.instagram.com",
   "tags": [
     "media",
     "social"
@@ -10,8 +10,8 @@
   "auth": {
     "type": "oauth2",
     "redirect_url": "https://app.lifescope.io/connections/complete",
-    "authorization_url": "https://api.instagram.com/oauth/authorize",
-    "access_token": "https://api.instagram.com/oauth/access_token",
+    "authorization_url": "https://api.instagram.com/oauth/authorize?app_id=***INSERT INSTAGRAM APP ID HERE***&scope=user_profile,user_media",
+    "access_token": "https://api.instagram.com/oauth/access_token?app_id=***INSERT INSTAGRAM APP ID HERE***&app_secret=***INSERT AUTH SECRET HERE***",
     "signature": "parameter",
     "auth_key": "***INSERT AUTH KEY HERE***",
     "auth_secret": "***INSERT AUTH SECRET HERE***"
@@ -22,8 +22,14 @@
     "endpoint": {
       "method": "GET",
       "route": {
-        "data": "data",
-        "path": "v1/users/self"
+        "data": "",
+        "path": "/me"
+      },
+      "parameters": {
+        "fields": {
+          "description": "Fields to return",
+          "value": "id,username"
+        }
       },
       "model": {
         "key": "id",
@@ -35,78 +41,182 @@
     }
   },
   "endpoints": {
-    "PublishedMedia": {
+    "UserMedia": {
       "GET": {
         "method": "GET",
-        "scopes": [
-          "basic"
-        ],
         "parameters": {
-          "count": {
-            "description": "Pagination counts",
-            "value": 20
+          "fields": {
+            "description": "Fields to return",
+            "value": "{{ parameters.fields }}"
           },
-          "min_id": {
-            "description": "Most recent item that was saved in LifeScope",
-            "value": "{{ parameters.min_id }}"
+          "after": {
+            "description": "End-of-page cursor",
+            "value": "{{ parameters.after }}"
           },
-          "max_id": {
-            "description": "Highest ID to retrieve",
-            "value": "{{ parameters.max_id }}"
+          "limit": {
+            "description": "Maximum number of results to return",
+            "value": "{{ parameters.limit }}"
           }
         },
         "single": false,
         "collection": {
           "route": {
             "data": "data",
-            "path": "v1/users/self/media/recent"
+            "path": "{{ connection.metadata.id }}/media"
           }
         },
         "model": {
           "key": "id",
           "fields": {
-            "created_time": "string",
-            "type": "string",
-            "caption": {
-              "type": "embedded",
+            "id": "string",
+            "timestamp": "string",
+            "media_type": "string",
+            "caption": "string",
+            "media_url": "string",
+            "permalink": "string",
+            "thumbnail_url": "string"
+          }
+        }
+      }
+    },
+    "UserMediaPage": {
+      "GET": {
+        "method": "GET",
+        "parameters": {
+          "fields": {
+            "description": "Fields to return",
+            "value": "{{ parameters.fields }}"
+          },
+          "after": {
+            "description": "End-of-page cursor",
+            "value": "{{ parameters.after }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return",
+            "value": "{{ parameters.limit }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "paging",
+            "path": "{{ connection.metadata.id }}/media"
+          }
+        },
+        "model": {
+          "key": "next",
+          "fields": {
+            "cursors": {
+              "type": "object",
               "fields": {
-                "text": "string"
+                "after": "string"
               }
             },
-            "images": {
-              "type": "embedded",
-              "fields": {
-                "standard_resolution": {
-                  "type": "embedded",
-                  "fields": {
-                    "url": "string"
-                  }
-                },
-                "thumbnail": {
-                  "type": "embedded",
-                  "fields": {
-                    "url": "string"
-                  }
-                }
-              }
-            },
-            "videos": {
-              "type": "embedded",
-              "fields": {
-                "standard_resolution": {
-                  "type": "embedded",
-                  "fields": {
-                    "url": "string"
-                  }
-                }
-              }
-            },
-            "tags": {
-              "type": "string",
-              "many": true
-            },
-            "link": "string",
-            "id": "string"
+            "next": "string"
+          }
+        }
+      }
+    },
+    "MediaChildren": {
+      "GET": {
+        "method": "GET",
+        "parameters": {
+          "fields": {
+            "description": "Fields to return",
+            "value": "{{ parameters.fields }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return",
+            "value": "{{ parameters.limit }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "data",
+            "path": "{{ parameters.id }}/children"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "timestamp": "string",
+            "media_type": "string",
+            "media_url": "string",
+            "permalink": "string",
+            "thumbnail_url": "string"
+          }
+        }
+      }
+    },
+    "MediaChildrenPage": {
+      "GET": {
+        "method": "GET",
+        "parameters": {
+          "fields": {
+            "description": "Fields to return",
+            "value": "{{ parameters.fields }}"
+          },
+          "limit": {
+            "description": "Maximum number of results to return",
+            "value": "{{ parameters.limit }}"
+          }
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "paging",
+            "path": "{{ parameters.id }}/children"
+          }
+        },
+        "model": {
+          "key": "next",
+          "fields": {
+            "next": "string"
+          }
+        }
+      }
+    },
+    "LongLivedTokenExchange": {
+      "GET": {
+        "method": "GET",
+        "parameters": {
+          "grant_type": "ig_exchange_token",
+          "client_secret": "{{ connection.map.auth.schema.auth_secret }}",
+          "access_token": "{{ connection.auth.data.access_token }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "path": "https://graph.instagram.com/access_token"
+          }
+        },
+        "model": {
+          "key": "access_token",
+          "fields": {
+            "access_token": "string"
+          }
+        }
+      }
+    },
+    "LongLivedTokenRefresh": {
+      "GET": {
+        "method": "GET",
+        "parameters": {
+          "grant_type": "ig_refresh_token",
+          "access_token": "{{ connection.auth.data.access_token }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "path": "https://graph.instagram.com/refresh_access_token"
+          }
+        },
+        "model": {
+          "key": "access_token",
+          "fields": {
+            "access_token": "string"
           }
         }
       }

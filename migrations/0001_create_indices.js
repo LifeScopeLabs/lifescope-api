@@ -105,6 +105,10 @@ const config = require('config');
 				}),
 
 				db.db('live').collection('contacts').createIndex({
+					identifier: 1
+				}),
+
+				db.db('live').collection('contacts').createIndex({
 					name: 1
 				}),
 
@@ -127,6 +131,10 @@ const config = require('config');
 
 				db.db('live').collection('content').createIndex({
 					connection_id: 1
+				}),
+
+				db.db('live').collection('content').createIndex({
+					identifier: 1
 				}),
 
 				db.db('live').collection('content').createIndex({
@@ -182,6 +190,10 @@ const config = require('config');
 
 				db.db('live').collection('events').createIndex({
 					datetime: 1
+				}),
+
+				db.db('live').collection('events').createIndex({
+					identifier: 1
 				}),
 
 				db.db('live').collection('events').createIndex({
