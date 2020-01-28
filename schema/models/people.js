@@ -811,6 +811,11 @@ PeopleTC.addResolver({
 
 				query.q = query.q.replace(regexp, '');
 			});
+
+			//FIXME This is a hack to prevent things with :// triggering extremely long Mongo queries.
+			//The root cause of why things like URLs take so long to search for should be researched and
+			//a better solution implemented.
+			query.q = query.q.replace(/:\/+/, ':/');
 		}
 
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
@@ -1006,6 +1011,10 @@ PeopleTC.addResolver({
 
 			let pipeline = [];
 
+			let options = {
+				maxTimeMS: 60000
+			};
+
 			if (Object.keys(peopleSearchBeta).length > 0) {
 				pipeline.push({
 					$searchBeta: peopleSearchBeta,
@@ -1048,7 +1057,7 @@ PeopleTC.addResolver({
 					}
 				});
 
-			peopleAggregation = People.collection.aggregate(pipeline);
+			peopleAggregation = People.collection.aggregate(pipeline, options);
 
 			let aggregatedPeople = await peopleAggregation.toArray();
 

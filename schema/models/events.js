@@ -580,6 +580,11 @@ EventTC.addResolver({
 
 				query.q = query.q.replace(regexp, '');
 			});
+
+			//FIXME This is a hack to prevent things with :// triggering extremely long Mongo queries.
+			//The root cause of why things like URLs take so long to search for should be researched and
+			//a better solution implemented.
+			query.q = query.q.replace(/:\/+/, ':/');
 		}
 
 		if ((query.q != null && query.q.length > 0) || (query.filters != null && Object.keys(query.filters).length > 0)) {
@@ -1492,6 +1497,10 @@ EventTC.addResolver({
 
 				let pipeline = [];
 
+				let options = {
+					maxTimeMS: 60000
+				};
+
 				if (Object.keys(contactSearchBeta).length > 0) {
 					pipeline.push({
 						$searchBeta: contactSearchBeta,
@@ -1544,7 +1553,7 @@ EventTC.addResolver({
 					}
 				});
 
-				contactAggregation = Contacts.collection.aggregate(pipeline);
+				contactAggregation = Contacts.collection.aggregate(pipeline, options);
 			}
 
 			if (peopleSearched === true) {
@@ -1585,6 +1594,10 @@ EventTC.addResolver({
 				// 	});
 
 				let pipeline = [];
+
+				let options = {
+					maxTimeMS: 60000
+				};
 
 				if (Object.keys(peopleSearchBeta).length > 0) {
 					pipeline.push({
@@ -1644,7 +1657,7 @@ EventTC.addResolver({
 					}
 				});
 
-				peopleAggregation = People.collection.aggregate(pipeline);
+				peopleAggregation = People.collection.aggregate(pipeline, options);
 			}
 
 			if (contentSearched === true) {
@@ -1684,6 +1697,10 @@ EventTC.addResolver({
 				// 	});
 
 				let pipeline = [];
+
+				let options = {
+					maxTimeMS: 60000
+				};
 
 				if (Object.keys(contentSearchBeta).length > 0) {
 					pipeline.push({
@@ -1740,7 +1757,7 @@ EventTC.addResolver({
 					}
 				});
 
-				contentAggregation = Content.collection.aggregate(pipeline);
+				contentAggregation = Content.collection.aggregate(pipeline, options);
 			}
 
 			eventsSearched = (Object.keys(query.filters).length === 1 && Object.keys(query.filters)[0] === 'tagFilters') || (contactsSearched === false && contentSearched === false && peopleSearched === false) || (Object.keys(contactPreLookupMatch).length === 0 && Object.keys(peoplePreLookupMatch).length === 0 && Object.keys(contentPreLookupMatch).length === 0 && Object.keys(contactPostLookupMatch).length === 0 && Object.keys(peoplePostLookupMatch).length === 0 && Object.keys(contentPostLookupMatch).length === 0);
@@ -1774,6 +1791,10 @@ EventTC.addResolver({
 				// 	});
 
 				let pipeline = [];
+
+				let options = {
+					maxTimeMS: 60000
+				};
 
 				if (Object.keys(eventSearchBeta).length > 0) {
 					pipeline.push({
@@ -1814,7 +1835,7 @@ EventTC.addResolver({
 					}
 				});
 
-				eventAggregation = Events.collection.aggregate(pipeline);
+				eventAggregation = Events.collection.aggregate(pipeline, options);
 			}
 
 			let aggregatedContacts = contactsSearched === true ? await contactAggregation.toArray() : [];
