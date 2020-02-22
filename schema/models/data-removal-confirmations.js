@@ -1,12 +1,15 @@
 /* @flow */
 
 import _ from 'lodash';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
+import gqlCompose from 'graphql-compose';
 import mongoose from 'mongoose';
 
-import uuid from '../../lib/util/uuid';
-import { ConnectionTC } from './connections';
-import { graphql } from 'graphql-compose';
+import uuid from '../../lib/util/uuid.js';
+import { ConnectionTC } from './connections.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+const { graphql } = gqlCompose;
 
 
 let checkType = new graphql.GraphQLObjectType({

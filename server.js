@@ -10,21 +10,26 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import expressPlayground from 'graphql-playground-middleware-express';
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
-import { PubSub } from 'graphql-subscriptions';
-import { execute, subscribe } from 'graphql';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
+import apolloServerExpress from 'apollo-server-express';
+import graphqlSubscriptions from 'graphql-subscriptions';
+import graphql from 'graphql';
+import subscriptionsTransportWs from 'subscriptions-transport-ws';
 import mongoose from 'mongoose';
 
-import csrf from './lib/middleware/csrf';
-import views from './lib/views';
-import cookieAuthorization from './lib/middleware/cookie-authorization';
-import keyAuthorization from './lib/middleware/key-authorization';
-import tokenAuthorization from './lib/middleware/token-authorization';
-import wsCookieAuthorization from './lib/middleware/ws-cookie-authorization';
-import meta from './lib/middleware/meta';
-import { crudAPI } from './schema';
-import { loadValidator } from './lib/validator';
+import csrf from './lib/middleware/csrf.js';
+import views from './lib/views/index.js';
+import cookieAuthorization from './lib/middleware/cookie-authorization.js';
+import keyAuthorization from './lib/middleware/key-authorization.js';
+import tokenAuthorization from './lib/middleware/token-authorization.js';
+import wsCookieAuthorization from './lib/middleware/ws-cookie-authorization.js';
+import meta from './lib/middleware/meta.js';
+import { crudAPI } from './schema/index.js';
+import { loadValidator } from './lib/validator.js';
+
+const { ApolloServer } = apolloServerExpress;
+const { PubSub } = graphqlSubscriptions;
+const { execute, subscribe } = graphql;
+const { SubscriptionServer } = subscriptionsTransportWs;
 
 const BITSCOOP_API_KEY = config.bitscoop.api_key;
 const MONGODB_URI = config.mongodb.address;
@@ -47,11 +52,13 @@ const opts = {
 
 const bitscoop = new BitScoop(BITSCOOP_API_KEY, config.bitscoop.arguments);
 
+let corsConfig = {
+	origin: config.cors.address,
+	credentials: config.cors.credentials,
+};
+
 server.use(
-	cors({
-		origin: config.cors.address,
-		credentials: config.cors.credentials,
-	})
+	cors(corsConfig)
 );
 
 mongoose.connect(MONGODB_URI, opts);
@@ -73,6 +80,23 @@ mongooseConnect.once('open', () => {
 	console.log(`MongoDB successfully connected to ${MONGODB_URI}`); //eslint-disable-line no-console
 });
 
+const apolloServer = new ApolloServer({
+	schema: crudAPI.schema,
+	tracing: true,
+	context: ({ req, res }) => ({
+		req: req,
+		res: res,
+	}) ,
+	playground: false,
+	path: '/gql',
+	formatError: error => ({
+		message: error.message,
+		locations: error.locations,
+		stack: error.stack ? error.stack.split('\n') : [],
+		path: error.path
+	})
+});
+
 loadValidator(config.validationSchemas)
 	.then(async function(validate) {
 		global.env = {
@@ -83,6 +107,7 @@ loadValidator(config.validationSchemas)
 
 		server.use(
 			crudAPI.uri,
+
 			meta,
 			bodyParser.json({
 				limit: '15MB'
@@ -91,33 +116,21 @@ loadValidator(config.validationSchemas)
 			tokenAuthorization,
 			keyAuthorization,
 			cookieAuthorization,
-			csrf.validate,
+			csrf.validate
+		);
 
-			graphqlExpress((req, res) => ({
-				schema: crudAPI.schema,
-				tracing: true,
-				context: {req, res},
-				formatError: error => ({
-					message: error.message,
-					locations: error.locations,
-					stack: error.stack ? error.stack.split('\n') : [],
-					path: error.path
-				})
-			})));
-
-
-		// http://localhost:3000/gql-i/
-		server.get(`${crudAPI.uri}-i`, graphiqlExpress({
-			endpointURL: crudAPI.uri,
-			subscriptionsEndpoint: 'wss://api.lifescope.io/subscriptions'
-		}));
+		apolloServer.applyMiddleware({
+			app: server,
+			path: '/gql',
+			cors: corsConfig,
+		});
 
 		// http://localhost:3000/gql-p/
 		server.get(`${crudAPI.uri}-p`, async (req, res, next) => {
 			let csrftoken, sessionid;
 
 			let cookie = req.headers.cookie;
-			let cookieSplit = cookie.split('; ');
+			let cookieSplit = cookie ? cookie.split('; '): [];
 
 			_.each(cookieSplit, function(cookie) {
 				let keyVal = cookie.split('=');
@@ -135,7 +148,7 @@ loadValidator(config.validationSchemas)
 				csrftoken = csrf.tokens.create(session.csrf_secret);
 			}
 
-			expressPlayground({
+			expressPlayground.default({
 				endpoint: crudAPI.uri,
 				headers: {
 					'X-CSRF-Token': csrftoken
@@ -161,11 +174,11 @@ loadValidator(config.validationSchemas)
 			views
 		);
 
-		server.listen(httpListenPort);
+		server.listen(httpListenPort, '0.0.0.0');
 
 		console.log('Lifescope API listening on: ' + httpListenPort + ' at ' + new Date()); //eslint-disable-line no-console
 
-		wsServer.listen(wsListenPort, function() {
+		wsServer.listen(wsListenPort, '0.0.0.0', function() {
 			console.log('WS Server running on ' + wsListenPort); //eslint-disable-line no-console
 
 			SubscriptionServer.create({

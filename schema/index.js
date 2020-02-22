@@ -1,6 +1,6 @@
 /* @flow */
 
-import crudSchema from './crud-schema';
+import crudSchema from './crud-schema.js';
 
 // export default {
 //   uri: '/gql',

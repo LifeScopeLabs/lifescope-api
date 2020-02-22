@@ -1,33 +1,34 @@
 /* global env */
 
-import { SchemaComposer } from 'graphql-compose';
-import { withFilter } from 'graphql-subscriptions';
+import gqlCompose from 'graphql-compose';
+import gqlSubscriptions from 'graphql-subscriptions';
 
-import restrictByScope from '../lib/middleware/restrict-by-scope'
-import restrictToUser from '../lib/middleware/restrict-to-user';
-import { ConnectionTC } from './models/connections';
-import { ContactTC } from './models/contacts';
-import { ContentTC } from './models/content';
-import { DataRemovalConfirmationsTC } from './models/data-removal-confirmations';
-import { EventTC } from './models/events';
-import { LocationTC } from './models/locations';
-import { LocationFileTC } from './models/location-files';
-import { OAuthAppTC } from './models/oauth-apps'
-import { OAuthTokenTC } from './models/oauth-tokens';
-import { PeopleTC } from './models/people';
-import { ProviderTC } from './models/providers';
-import { SearchTC } from './models/searches';
-import { TagTC } from './models/tags';
-// import { ThingTC } from './models/things';
+import restrictByScope from '../lib/middleware/restrict-by-scope.js';
+import restrictToUser from '../lib/middleware/restrict-to-user.js';
+import { ConnectionTC } from './models/connections.js';
+import { ContactTC } from './models/contacts.js';
+import { ContentTC } from './models/content.js';
+import { DataRemovalConfirmationsTC } from './models/data-removal-confirmations.js';
+import { EventTC } from './models/events.js';
+import { LocationTC } from './models/locations.js';
+import { LocationFileTC } from './models/location-files.js';
+import { OAuthAppTC } from './models/oauth-apps.js';
+import { OAuthTokenTC } from './models/oauth-tokens.js';
+import { PeopleTC } from './models/people.js';
+import { ProviderTC } from './models/providers.js';
+import { SearchTC } from './models/searches.js';
+import { TagTC } from './models/tags.js';
+// import { ThingTC } from './models/things.js';
 
-import { UserTC } from './models/users';
+import { UserTC } from './models/users.js';
+
+const { withFilter } = gqlSubscriptions;
+const { SchemaComposer } = gqlCompose;
 
 const GQC = new SchemaComposer();
 
-const {Resolver} = GQC;
-
 // create GraphQL Schema with all available resolvers
-GQC.rootQuery().addFields({
+GQC.Query.addFields({
 
 	providerOne: ProviderTC.getResolver('findOne'),
 	providerMany: ProviderTC.getResolver('findMany'),
@@ -37,8 +38,8 @@ GQC.rootQuery().addFields({
 
 	// sessionOne: SessionTC.getResolver('findOne'),
 
-	...restrictToUser(Resolver, {
-		...restrictByScope(Resolver, 'connections:read', {
+	...restrictToUser({
+		...restrictByScope('connections:read', {
 			connectionBrowserOne: ConnectionTC.getResolver('getBrowserConnection'),
 			connectionCount: ConnectionTC.getResolver('count'),
 			connectionMany: ConnectionTC.getResolver('findMany'),
@@ -48,64 +49,64 @@ GQC.rootQuery().addFields({
 			connectedOAuthProviderMany: ProviderTC.getResolver('connectedOAuthProviderMany'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'contacts:read', 'events:write', 'contacts:write'], {
+		...restrictByScope(['events:read', 'contacts:read', 'events:write', 'contacts:write'], {
 			contactCount: ContactTC.getResolver('count'),
 			contactOne: ContactTC.getResolver('findOne'),
 			contactMany: ContactTC.getResolver('findMany'),
 			contactUnpersoned: ContactTC.getResolver('unpersonedContacts'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'content:read', 'events:write', 'content:write'], {
+		...restrictByScope(['events:read', 'content:read', 'events:write', 'content:write'], {
 			contentCount: ContentTC.getResolver('count'),
 			contentFindByIdentifier: ContentTC.getResolver('findByIdentifier'),
 			contentOne: ContentTC.getResolver('findOne'),
 			contentMany: ContentTC.getResolver('findMany')
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'events:write'], {
+		...restrictByScope(['events:read', 'events:write'], {
 			eventCount: EventTC.getResolver('count'),
 			eventOne: EventTC.getResolver('findOne'),
 			eventMany: EventTC.getResolver('findMany')
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'locations:read', 'events:write', 'locations:write'], {
+		...restrictByScope(['events:read', 'locations:read', 'events:write', 'locations:write'], {
 			locationCount: LocationTC.getResolver('count'),
 			locationFindManyById: LocationTC.getResolver('findManyById'),
 		}),
 
-		...restrictByScope(Resolver, 'locationFiles:read', {
+		...restrictByScope('locationFiles:read', {
 			locationFileCount: LocationFileTC.getResolver('count'),
 		}),
 
-		...restrictByScope(Resolver, 'oauthApps:read', {
+		...restrictByScope('oauthApps:read', {
 			oauthAppMany: OAuthAppTC.getResolver('findMany'),
 			oauthAppOne: OAuthAppTC.getResolver('findOne'),
 
 			oauthAppAuthorizedMany: OAuthAppTC.getResolver('authorizedApps'),
 		}),
 
-		...restrictByScope(Resolver, ['people:read', 'people:write'], {
+		...restrictByScope(['people:read', 'people:write'], {
 			personCount: PeopleTC.getResolver('count'),
 			personMany: PeopleTC.getResolver('findMany'),
 			personOne: PeopleTC.getResolver('findOne')
 		}),
 
-		...restrictByScope(Resolver, 'searches:read', {
+		...restrictByScope('searches:read', {
 			searchCount: SearchTC.getResolver('count'),
 			searchMany: SearchTC.getResolver('findMany'),
 			searchOne: SearchTC.getResolver('findOne'),
 		}),
 
-		...restrictByScope(Resolver, 'tags:read', {
+		...restrictByScope('tags:read', {
 			tagCount: TagTC.getResolver('count'),
 			tagMany: TagTC.getResolver('findMany'),
 		}),
 
-		...restrictByScope(Resolver, 'user:read', {
+		...restrictByScope('user:read', {
 			userOne: UserTC.getResolver('findOne'),
 		}),
 
-		...restrictByScope(Resolver, 'basic', {
+		...restrictByScope('basic', {
 			userCounts: UserTC.getResolver('allCounts'),
 			userBasic: UserTC.getResolver('userBasic')
 		}),
@@ -118,19 +119,19 @@ GQC.rootQuery().addFields({
 	dataRemovalConfirmationCheck: DataRemovalConfirmationsTC.getResolver('check')
 });
 
-GQC.rootMutation().addFields({
-	...restrictToUser(Resolver, {
-		...restrictByScope(Resolver, 'connections', {
+GQC.Mutation.addFields({
+	...restrictToUser({
+		...restrictByScope('connections', {
 			connectionCreateBrowser: ConnectionTC.getResolver('createBrowserConnection'),
 			connectionPatch: ConnectionTC.getResolver('patchConnection'),
 			connectionEliminate: ConnectionTC.getResolver('eliminateConnection'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'contacts:read', 'events:write', 'contacts:write'], {
+		...restrictByScope(['events:read', 'contacts:read', 'events:write', 'contacts:write'], {
 			contactSearch: ContactTC.getResolver('searchContacts'),
 		}),
 
-		...restrictByScope(Resolver, ['contacts:write', 'events:write'], {
+		...restrictByScope(['contacts:write', 'events:write'], {
 			tagContact: ContactTC.getResolver('addTags'),
 			untagContact: ContactTC.getResolver('removeTags'),
 
@@ -138,11 +139,11 @@ GQC.rootMutation().addFields({
 			contactUnhide: ContactTC.getResolver('unhide'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'content:read', 'events:write', 'content:write'], {
+		...restrictByScope(['events:read', 'content:read', 'events:write', 'content:write'], {
 			contentSearch: ContentTC.getResolver('searchContent'),
 		}),
 
-		...restrictByScope(Resolver, 'content:write', {
+		...restrictByScope('content:write', {
 			tagContent: ContentTC.getResolver('addTags'),
 			untagContent: ContentTC.getResolver('removeTags'),
 
@@ -150,11 +151,11 @@ GQC.rootMutation().addFields({
 			contentUnhide: ContentTC.getResolver('unhide'),
 		}),
 
-		...restrictByScope(Resolver, ['events:read', 'events:write'], {
+		...restrictByScope(['events:read', 'events:write'], {
 			eventSearch: EventTC.getResolver('searchEvents'),
 		}),
 
-		...restrictByScope(Resolver, 'events:write', {
+		...restrictByScope('events:write', {
 			eventCreateMany: EventTC.getResolver('bulkUpload'),
 			tagEvent: EventTC.getResolver('addTags'),
 			untagEvent: EventTC.getResolver('removeTags'),
@@ -163,20 +164,20 @@ GQC.rootMutation().addFields({
 			eventUnhide: EventTC.getResolver('unhide'),
 		}),
 
-		...restrictByScope(Resolver, 'account', {
+		...restrictByScope('account', {
 			deleteAccount: UserTC.getResolver('deleteAccount'),
 		}),
 
-		...restrictByScope(Resolver, ['locations:write', 'events:write'], {
+		...restrictByScope(['locations:write', 'events:write'], {
 			locationRecordOne: LocationTC.getResolver('recordOne'),
 		}),
 
-		...restrictByScope(Resolver, 'locations:admin', {
+		...restrictByScope('locations:admin', {
 			trackedLocationsRemoveMany: LocationTC.getResolver('deleteTrackedLocations'),
 			uploadedLocationsRemoveMany: LocationTC.getResolver('deleteUploadedLocations'),
 		}),
 
-		...restrictByScope(Resolver, 'oauthApps:admin', {
+		...restrictByScope('oauthApps:admin', {
 			oauthAppDelete: OAuthAppTC.getResolver('deleteOne'),
 			oauthAppInitialize: OAuthAppTC.getResolver('initializeOne'),
 			oauthAppPatch: OAuthAppTC.getResolver('patchOne'),
@@ -188,11 +189,11 @@ GQC.rootMutation().addFields({
 			oauthTokenAuthorization: OAuthTokenTC.getResolver('authorization'),
 		}),
 
-		...restrictByScope(Resolver, ['people:read', 'people:write'], {
+		...restrictByScope(['people:read', 'people:write'], {
 			personSearch: PeopleTC.getResolver('searchPeople')
 		}),
 
-		...restrictByScope(Resolver, 'people:write', {
+		...restrictByScope('people:write', {
 			personCreate: PeopleTC.getResolver('create'),
 			personDelete: PeopleTC.getResolver('delete'),
 			personUpdate: PeopleTC.getResolver('update'),
@@ -204,21 +205,21 @@ GQC.rootMutation().addFields({
 			personUnhide: PeopleTC.getResolver('unhide'),
 		}),
 
-		...restrictByScope(Resolver, 'searches:read', {
+		...restrictByScope('searches:read', {
 			searchFind: SearchTC.getResolver('findSearch'),
 		}),
 
-		...restrictByScope(Resolver, 'searches:write', {
+		...restrictByScope('searches:write', {
 			searchDelete: SearchTC.getResolver('deleteSearch'),
 			searchPatch: SearchTC.getResolver('patchSearch'),
 			searchUpsert: SearchTC.getResolver('upsertSearch'),
 		}),
 
-		...restrictByScope(Resolver, 'tags:write', {
+		...restrictByScope('tags:write', {
 			tagUpdateSharing: TagTC.getResolver('updateSharing'),
 		}),
 
-		...restrictByScope(Resolver, 'user:write', {
+		...restrictByScope('user:write', {
 			userApiKeyUpdate: UserTC.getResolver('updateApiKey'),
 			userEmailUpdate: UserTC.getResolver('updateEmail'),
 			userLocationTrackingUpdate: UserTC.getResolver('updateLocationTracking'),
@@ -245,7 +246,7 @@ const filtered = (asyncIterator, filter) => withFilter(
 	filter,
 );
 
-GQC.rootSubscription().addFields({
+GQC.Subscription.addFields({
 	connectionUpdated: {
 		type: ConnectionTC.getResolver('findOne').getType(),
 		description: "Subscribe to connectionUpdated",

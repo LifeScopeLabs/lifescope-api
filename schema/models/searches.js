@@ -3,13 +3,16 @@
 // TODO: FIXXX
 // TODO: rename relative-number and since-exactly to get rid of -
 import _ from 'lodash';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import crypto from 'crypto';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import uuid from "../../lib/util/uuid";
-import sortDictionary from '../../lib/util/sort-dictionary';
+import uuid from '../../lib/util/uuid.js';
+import sortDictionary from '../../lib/util/sort-dictionary.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+
 
 export const SearchesSchema = new mongoose.Schema(
 	{

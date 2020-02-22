@@ -34,6 +34,23 @@ The first migration creates indices on each collection that LifeScope stores in 
 The second loads the LifeScope Providers into the database. 
 Make sure that you've replaced the remote_map_id's in the Providers with the BitScoop Map IDs you've created.
 
+
+#Containerize via Docker and run in a Kubernetes Cluster
+The LifeScope API can be run in a Kubernetes Cluster via containerizing the code with Docker.
+
+## Containerize the API with Docker
+After installing Docker on your machine, from the top level of this application run ```docker build -t lifescope-api:vX.Y.Z .```.
+X,Y, and Z should be the current version of the API, though it's not required that you tag the image with a version.
+
+Once the image is built, you can deploy it to Kubernetes via the scripts in the /kube directory.
+First 
+
+# Build and run in AWS Elastic Beanstalk (Deprecated)
+The LifeScope API can be bundled and run via AWS Elastic Beanstalk.
+NOTE: This was last successfully tested and run in version 3.5.3 of the API. Version 4.0.0 switched to using Node 12
+with its --experimental-modules support for ES6 imports, as well as switching to running it in production using
+Kubernetes. Some additional work may be needed to make the current iteration of the code work in this environment.
+
 ## Build and package the files
 Run 'npm run build'.
 When that's finished, run 'gulp bundle:ebs'.
@@ -71,4 +88,3 @@ Elastic Beanstalk should take a few minutes to set up everything for you.
 When it's done, you should be able to hit the URL followed by '/gql-i', and a GraphiQL interface should appear.
 
 
-# [Step 3: Production Build](https://github.com/LifeScopeLabs/lifescope-api/blob/master/setup/03-production-build.md)

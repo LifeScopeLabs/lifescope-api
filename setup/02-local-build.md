@@ -69,4 +69,8 @@ If you would like to run this locally while still having access to the public ve
 and change the 'server_name's in the nginx config to 'api.scopelife.io', etc. 
 
 ## Run API locally via nodemon
-Enter 'npm run start' to run the server using nodemon. 
+Enter 'NODE_ENV=dev node --experimental-modules server.js' to run the server.
+You must be running Node 12 or higher for this setup to work.
+
+
+# [Step 3: Production Build](https://github.com/LifeScopeLabs/lifescope-api/blob/master/setup/03-production-build.md)

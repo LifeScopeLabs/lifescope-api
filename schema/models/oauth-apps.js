@@ -3,15 +3,18 @@
 import crypto from 'crypto';
 
 import _ from 'lodash';
-import { TypeComposer, graphql } from 'graphql-compose';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import gqlCompose from 'graphql-compose';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import httpErrors from 'http-errors';
 import mongoose from 'mongoose';
 
-import { ConnectionTC } from './connections';
-import { OAuthTokenTC } from "./oauth-tokens";
-import { ProviderTC } from './providers';
-import uuid from '../../lib/util/uuid';
+import { ConnectionTC } from './connections.js';
+import { OAuthTokenTC } from './oauth-tokens.js';
+import { ProviderTC } from './providers.js';
+import uuid from '../../lib/util/uuid.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+const { schemaComposer, graphql } = gqlCompose;
 
 
 let urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/;
@@ -39,7 +42,7 @@ let authorizationLimitedType = new graphql.GraphQLObjectType({
 });
 
 
-let authorizedAppType = TypeComposer.create(`
+let authorizedAppType = schemaComposer.createObjectTC(`
 	type authorizedApps {
 		id: String,
 		description: String,

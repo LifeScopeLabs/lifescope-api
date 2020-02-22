@@ -3,11 +3,14 @@
 import crypto from 'crypto';
 
 import _ from 'lodash';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import httpErrors from 'http-errors';
 import mongoose from 'mongoose';
 
-import uuid from "../../lib/util/uuid";
+import uuid from '../../lib/util/uuid.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+
 
 export const TagsSchema = new mongoose.Schema(
 	{

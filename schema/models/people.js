@@ -3,16 +3,20 @@
 import _ from 'lodash';
 import config from 'config';
 import httpErrors from 'http-errors';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import moment from 'moment';
 import mongoose from 'mongoose';
-import { graphql } from 'graphql-compose';
+import gqlCompose from 'graphql-compose';
 
-import uuid from "../../lib/util/uuid";
-import { add as addTags, remove as removeTags } from './templates/tag';
-import { ContactTC } from "./contacts";
-import { TagTC } from "./tags";
-import { UserTC } from "./users";
+import uuid from '../../lib/util/uuid.js';
+import { add as addTags, remove as removeTags } from './templates/tag.js';
+import { ContactTC } from './contacts.js';
+import { TagTC } from './tags.js';
+import { UserTC } from './users.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+const { graphql } = gqlCompose;
+
 
 const AddressType = new graphql.GraphQLInputObjectType({
 	name: 'addressType',
@@ -233,7 +237,6 @@ export const PeopleSchema = new mongoose.Schema(
 		collection: 'people',
 	}
 );
-
 
 export const People = mongoose.model('People', PeopleSchema);
 

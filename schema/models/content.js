@@ -3,13 +3,16 @@
 import _ from 'lodash';
 import config from 'config';
 import httpErrors from 'http-errors';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import mongoose from 'mongoose';
 
-import uuid from "../../lib/util/uuid";
-import { add as addTags, remove as removeTags } from './templates/tag';
-import { TagTC } from "./tags";
-import { UserTC } from "./users";
+import uuid from '../../lib/util/uuid.js';
+import { add as addTags, remove as removeTags } from './templates/tag.js';
+import { TagTC } from './tags.js';
+import { UserTC } from './users.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+
 
 export const ContentSchema = new mongoose.Schema(
 	{

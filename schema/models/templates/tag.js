@@ -5,8 +5,8 @@ import _ from 'lodash';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 
-import uuid from '../../../lib/util/uuid';
-import { TagTC } from "../tags";
+import uuid from '../../../lib/util/uuid.js';
+import { TagTC } from '../tags.js';
 
 
 export const add = async function(req, args, TypeTC) {

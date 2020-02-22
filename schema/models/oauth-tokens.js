@@ -3,16 +3,19 @@
 import crypto from 'crypto';
 
 import _ from 'lodash';
-import { graphql } from 'graphql-compose';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import gqlCompose from 'graphql-compose';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import uuid from '../../lib/util/uuid';
-import { ConnectionTC } from './connections';
-import { OAuthAppTC } from "./oauth-apps";
-import { OAuthTokenSessionTC } from "./oauth-token-sessions";
+import uuid from '../../lib/util/uuid.js';
+import { ConnectionTC } from './connections.js';
+import { OAuthAppTC } from './oauth-apps.js';
+import { OAuthTokenSessionTC } from './oauth-token-sessions.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+const { graphql } = gqlCompose;
 
 
 let validScopes = [

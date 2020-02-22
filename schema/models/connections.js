@@ -1,22 +1,26 @@
 /* global env */
 
 import _ from 'lodash';
-import { graphql } from 'graphql-compose';
-import GraphQLJSON from 'graphql-type-json';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import gqlCompose from 'graphql-compose';
+import GraphQLTypeJSON from 'graphql-type-json';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import config from 'config';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
 import type from 'type-detect';
 
-import deleteConnection from '../../lib/util/delete-connection';
-import { AssociationSessionTC } from './association-sessions';
-import { ProviderTC } from './providers';
-import { UserTC } from './users';
-import { Create as CreateSession } from '../../lib/sessions';
+import deleteConnection from '../../lib/util/delete-connection.js';
+import { AssociationSessionTC } from './association-sessions.js';
+import { ProviderTC } from './providers.js';
+import { UserTC } from './users.js';
+import { Create as CreateSession } from '../../lib/sessions.js';
 
-import uuid from '../../lib/util/uuid';
+import uuid from '../../lib/util/uuid.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+const { graphql } = gqlCompose;
+const { GraphQLJSONObject } = GraphQLTypeJSON;
 
 
 let eliminateType = new graphql.GraphQLObjectType({
@@ -44,7 +48,7 @@ let patchType = new graphql.GraphQLObjectType({
 	name: 'patchConnection',
 	fields: {
 		connection: {
-			type: GraphQLJSON
+			type: GraphQLJSONObject
 		},
 		reauthorize: {
 			type: graphql.GraphQLBoolean

@@ -1,15 +1,18 @@
 /* global env */
 
 import _ from 'lodash';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import mongoose from 'mongoose';
-import { TypeComposer } from 'graphql-compose';
+import graphqlCompose from 'graphql-compose';
 
-import uuid from '../../lib/util/uuid';
-import { ConnectionTC } from "./connections";
+import uuid from '../../lib/util/uuid.js';
+import { ConnectionTC } from './connections.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+const { schemaComposer } = graphqlCompose;
 
 
-let hydratedProviderType = TypeComposer.create(`
+let hydratedProviderType = schemaComposer.createObjectTC(`
 	type hydratedProviderType {
 		id: String,
 		login: Boolean,
@@ -28,7 +31,7 @@ let hydratedProviderType = TypeComposer.create(`
 	}
 `);
 
-let providerWithMapType = TypeComposer.create(`
+let providerWithMapType = schemaComposer.createObjectTC(`
 	type providerWithMapType {
 		id: String,
 		auth_type: String,

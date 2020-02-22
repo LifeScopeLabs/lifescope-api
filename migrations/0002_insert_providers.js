@@ -4,8 +4,8 @@ import _ from 'lodash';
 import mongodb from 'mongodb';
 import config from 'config';
 
-import { find, readFile } from '../lib/util/fs';
-import uuid from '../lib/util/uuid';
+import { find, readFile } from '../lib/util/fs.js';
+import uuid from '../lib/util/uuid.js';
 
 
 (function() {

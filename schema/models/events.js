@@ -1,21 +1,23 @@
 /* global env */
 
 import _ from 'lodash';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import config from 'config';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import uuid from '../../lib/util/uuid';
+import uuid from '../../lib/util/uuid.js';
 
-import { Contacts, ContactTC } from './contacts';
-import { Content, ContentTC } from './content';
-import { add as addTags, remove as removeTags } from './templates/tag';
-import { LocationTC } from './locations';
-import { People, PeopleTC } from './people';
-import { TagTC } from './tags';
-import { UserTC } from './users';
+import { Contacts, ContactTC } from './contacts.js';
+import { Content, ContentTC } from './content.js';
+import { add as addTags, remove as removeTags } from './templates/tag.js';
+import { LocationTC } from './locations.js';
+import { People, PeopleTC } from './people.js';
+import { TagTC } from './tags.js';
+import { UserTC } from './users.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
 
 
 // let searchType = new graphql.GraphQLObjectType({
@@ -1514,7 +1516,8 @@ EventTC.addResolver({
 					$lookup: $contactEventLookup
 				},
 				{
-					$unwind: '$event'
+					$unwind: '$event',
+					preserveNullAndEmptyArrays: true
 				},
 				{
 					$lookup: $contactContentLookup
@@ -1615,7 +1618,8 @@ EventTC.addResolver({
 					$lookup: $peopleEventLookup
 				},
 				{
-					$unwind: '$event'
+					$unwind: '$event',
+					preserveNullAndEmptyArrays: true
 				},
 				{
 					$lookup: $peopleContentLookup
@@ -1715,7 +1719,8 @@ EventTC.addResolver({
 					$lookup: $contentEventLookup
 				},
 				{
-					$unwind: '$event'
+					$unwind: '$event',
+					preserveNullAndEmptyArrays: true
 				},
 				{
 					$lookup: $contentContactLookup

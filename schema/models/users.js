@@ -1,29 +1,32 @@
 /* @flow */
 
 import _ from 'lodash';
-import composeWithMongoose from 'graphql-compose-mongoose/node8';
+import graphqlComposeMongoose from 'graphql-compose-mongoose';
 import httpErrors from 'http-errors';
 import moment from 'moment';
 import mongoose from 'mongoose';
-import { graphql } from 'graphql-compose';
+import gqlCompose from 'graphql-compose';
 
-import deleteConnection from '../../lib/util/delete-connection';
-import uuid from '../../lib/util/uuid';
-import { ContactTC } from './contacts';
-import { ConnectionTC } from './connections';
-import { ContentTC } from './content';
-import { EmailUpdateRequestTC } from './email-update-request';
-import { EventTC } from './events';
-import { Locations, LocationTC } from './locations';
-import { SearchTC } from './searches';
-import { SessionTC } from './sessions';
-import { TagTC } from './tags';
-import { OAuthAppTC } from './oauth-apps';
-import { OAuthTokenTC } from './oauth-tokens';
-import { OAuthTokenSessionTC } from './oauth-token-sessions';
-import { PeopleTC } from './people';
-import { LocationFileTC } from './location-files';
-import EmailClient from '../../lib/extensions/mandrill/email-client';
+import deleteConnection from '../../lib/util/delete-connection.js';
+import uuid from '../../lib/util/uuid.js';
+import { ContactTC } from './contacts.js';
+import { ConnectionTC } from './connections.js';
+import { ContentTC } from './content.js';
+import { EmailUpdateRequestTC } from './email-update-request.js';
+import { EventTC } from './events.js';
+import { Locations, LocationTC } from './locations.js';
+import { SearchTC } from './searches.js';
+import { SessionTC } from './sessions.js';
+import { TagTC } from './tags.js';
+import { OAuthAppTC } from './oauth-apps.js';
+import { OAuthTokenTC } from './oauth-tokens.js';
+import { OAuthTokenSessionTC } from './oauth-token-sessions.js';
+import { PeopleTC } from './people.js';
+import { LocationFileTC } from './location-files.js';
+import EmailClient from '../../lib/extensions/mandrill/email-client.js';
+
+const { composeWithMongoose } = graphqlComposeMongoose;
+const { graphql } = gqlCompose;
 
 let emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
