@@ -6,31 +6,30 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: lifescope-api
+  name: lifescope
   namespace: lifescope
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lifescope-api
+  name: lifescope-app
   namespace: lifescope
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: lifescope-api
+      app: lifescope-app
   template:
     metadata:
       labels:
-        app: lifescope-api
+        app: lifescope-app
     spec:
       serviceAccountName: lifescope
       containers:
-        - name: lifescope-api
-          image: barankyle/lifescope-api:v4.0.0
+        - name: lifescope-app
+          image: barankyle/lifescope-app:v3.7.1
           ports:
-            - containerPort: 3000
-            - containerPort: 3001
+            - containerPort: 3002
           env:
             - name: NODE_ENV
               value: dev
@@ -40,20 +39,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: lifescope-api
+  name: lifescope-app
   namespace: lifescope
 spec:
   selector:
-    app: lifescope-api
+    app: lifescope-app
   ports:
     - name: api
       protocol: TCP
-      port: 3000
-      targetPort: 3000
-    - name: subscriptions
-      protocol: TCP
-      port: 3001
-      targetPort: 3001
+      port: 3002
+      targetPort: 3002
   type: ClusterIP
 ---
 apiVersion: v1
@@ -69,7 +64,7 @@ data:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-master
+  name: lifescope-app-ingress-master
   namespace: lifescope
   annotations:
     kubernetes.io/ingress.class: "nginx"
@@ -77,15 +72,15 @@ metadata:
 spec:
   tls:
     - hosts:
-        - api.lifescope.io
+        - dev.app.lifescope.io
       secretName: lifescope-secret
   rules:
-    - host: api.lifescope.io
+    - host: dev.app.lifescope.io
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-location-upload-minion
+  name: lifescope-app-ingress-location-minion
   namespace: lifescope
   annotations:
     kubernetes.io/ingress.class: "nginx"
@@ -93,32 +88,52 @@ metadata:
     nginx.org/client-max-body-size: "2000m"
 spec:
   rules:
-    - host: api.lifescope.io
+    - host: dev.app.lifescope.io
       http:
         paths:
           - backend:
               serviceName: lifescope-api
               servicePort: 3000
-            path: /locations/upload_file
+            path: /locations
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-main-minion
+  name: lifescope-app-ingress-main-minion
   namespace: lifescope
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: api.lifescope.io
+    - host: dev.app.lifescope.io
       http:
         paths:
           - backend:
               serviceName: lifescope-api
-              servicePort: 3001
-            path: /subscriptions
+              servicePort: 3000
+            path: /connections
           - backend:
               serviceName: lifescope-api
               servicePort: 3000
+            path: /email/confirm
+          - backend:
+              serviceName: lifescope-api
+              servicePort: 3000
+            path: /financials
+          - backend:
+              serviceName: lifescope-api
+              servicePort: 3000
+            path: /login/exchange-code
+          - backend:
+              serviceName: lifescope-api
+              servicePort: 3000
+            path: /logout
+          - backend:
+              serviceName: lifescope-api
+              servicePort: 3000
+            path: /signup/exchange-code
+          - backend:
+              serviceName: lifescope-app
+              servicePort: 3002
             path: /
