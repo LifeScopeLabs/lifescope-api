@@ -15,7 +15,7 @@ metadata:
   name: lifescope-app
   namespace: lifescope
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: lifescope-app
@@ -27,7 +27,7 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-app
-          image: barankyle/lifescope-app:v3.7.1
+          image: barankyle/lifescope-app:v3.7.3-dev
           ports:
             - containerPort: 3002
           env:
@@ -72,10 +72,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - dev.app.lifescope.io
+        - app.dev.lifescope.io
       secretName: lifescope-secret
   rules:
-    - host: dev.app.lifescope.io
+    - host: app.dev.lifescope.io
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -88,7 +88,7 @@ metadata:
     nginx.org/client-max-body-size: "2000m"
 spec:
   rules:
-    - host: dev.app.lifescope.io
+    - host: app.dev.lifescope.io
       http:
         paths:
           - backend:
@@ -106,7 +106,7 @@ metadata:
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: dev.app.lifescope.io
+    - host: app.dev.lifescope.io
       http:
         paths:
           - backend:

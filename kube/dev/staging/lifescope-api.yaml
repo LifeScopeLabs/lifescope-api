@@ -27,7 +27,7 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-api
-          image: barankyle/lifescope-api:v4.0.1
+          image: barankyle/lifescope-api:v4.0.2
           ports:
             - containerPort: 3000
             - containerPort: 3001
@@ -77,10 +77,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - dev.api.lifescope.io
+        - api.dev.lifescope.io
       secretName: lifescope-secret
   rules:
-    - host: dev.api.lifescope.io
+    - host: api.dev.lifescope.io
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -93,7 +93,7 @@ metadata:
     nginx.org/client-max-body-size: "2000m"
 spec:
   rules:
-    - host: dev.api.lifescope.io
+    - host: api.dev.lifescope.io
       http:
         paths:
           - backend:
@@ -111,7 +111,7 @@ metadata:
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: dev.api.lifescope.io
+    - host: api.dev.lifescope.io
       http:
         paths:
           - backend:

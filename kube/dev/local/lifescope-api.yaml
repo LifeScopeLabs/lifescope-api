@@ -27,7 +27,7 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-api
-          image: barankyle/lifescope-api:v4.0.1
+          image: barankyle/lifescope-api:v4.0.2
           ports:
             - containerPort: 3000
             - containerPort: 3001
