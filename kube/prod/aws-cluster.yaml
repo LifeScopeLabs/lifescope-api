@@ -1,0 +1,16 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: lifescope-production
+  region: us-east-1
+  version: "1.14"
+
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3a.medium
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 4
+
+availabilityZones: ["us-east-1a", "us-east-1b"]

@@ -27,13 +27,13 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-api
-          image: barankyle/lifescope-api:v4.0.2
+          image: barankyle/lifescope-api:v4.0.4
           ports:
             - containerPort: 3000
             - containerPort: 3001
           env:
             - name: NODE_ENV
-              value: dev
+              value: production
           imagePullPolicy: IfNotPresent
       dnsPolicy: Default
 ---
@@ -50,6 +50,17 @@ spec:
       protocol: TCP
       port: 3000
       targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lifescope-api-ws
+  namespace: lifescope
+spec:
+  selector:
+    app: lifescope-api
+  ports:
     - name: subscriptions
       protocol: TCP
       port: 3001
@@ -109,6 +120,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
+    nginx.org/websocket-services: "lifescope-api-ws"
 spec:
   rules:
     - host: api.lifescope.io
@@ -118,6 +130,20 @@ spec:
               serviceName: lifescope-api
               servicePort: 3001
             path: /subscriptions
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: lifescope-api-ingress-main-minion
+  namespace: lifescope
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/mergeable-ingress-type: "minion"
+spec:
+  rules:
+    - host: api.lifescope.io
+      http:
+        paths:
           - backend:
               serviceName: lifescope-api
               servicePort: 3000

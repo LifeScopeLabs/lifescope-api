@@ -23,9 +23,10 @@ The config file should look like this:
 Run npm install or yarn install (npm or yarn must already be installed).
 
 ## Run migrations
-NOTE: If you've already done this while setting up the app, you can skip this entire step here.
+NOTE: If you've already done this while setting up the app, you can skip this entire step.
 
-You'll need to run the two migrations in the migrations folder via 'NODE_ENV=local babel-node migrations/<name>.js' (or NODE_ENV=dev, or whatever you named your config file).
+You'll need to run the two migrations in the migrations folder via 'NODE_ENV=local node --experimental-modules migrations/<name>.js' (or NODE_ENV=dev, or whatever you named your config file).
+You must be running Node 12 or higher for this command to work.
 The first migration creates indices on each collection that LifeScope stores in the database.
 The second loads the LifeScope Providers into the database. 
 Make sure that you've replaced the remote_map_id's in the Providers with the BitScoop Map IDs you've created.
@@ -33,11 +34,11 @@ Make sure that you've replaced the remote_map_id's in the Providers with the Bit
 ## Edit hostfile and run local nginx config
 NOTE: If you've already done this while setting up the app, you can skip this entire step here.
 
-You'll need to edit your hostfile to redirect traffic to *.lifescope.io to your local servers.
+You'll need to edit your hostfile to redirect traffic to *.dev.lifescope.io to your local servers.
 On Linux and Mac, run 'sudo gedit /etc/hosts', then add a line
 
 ```
-127.0.0.1 api.lifescope.io app.lifescope.io xr.lifescope.io nxr.lifescope.io
+127.0.0.1 api.dev.lifescope.io app.dev.lifescope.io xr.dev.lifescope.io nxr.dev.lifescope.io
 ```
 
 Make sure to save this.
@@ -59,14 +60,6 @@ This will run nginx configured to redirect traffic to the four subdomains we add
 The nginx configuration forces SSL using some self-signed certificates found in the cert/ directory.
 You will need to hit all of those URLs in a browser and accept the fact that they're not backed by a valid Cert Authority in order for traffic to get through. 
 
-Note that you will be unable to access the public instances of LifeScope while this is running, as traffic to those lifescope subdomains is being re-routed to localhost.
-If you would like to run this locally while still having access to the public version, replace the domain in both hostfile and the nginx configuration with something else, e.g.
-
-```
-127.0.0.1 api.scopelife.io app.scopelife.io xr.scopelife.io nxr.scopelife.io
-``` 
-
-and change the 'server_name's in the nginx config to 'api.scopelife.io', etc. 
 
 ## Run API locally via nodemon
 Enter 'NODE_ENV=dev node --experimental-modules server.js' to run the server.

@@ -1516,8 +1516,10 @@ EventTC.addResolver({
 					$lookup: $contactEventLookup
 				},
 				{
-					$unwind: '$event',
-					preserveNullAndEmptyArrays: true
+					$unwind: {
+						path: '$event',
+						preserveNullAndEmptyArrays: true
+					},
 				},
 				{
 					$lookup: $contactContentLookup
@@ -1618,8 +1620,10 @@ EventTC.addResolver({
 					$lookup: $peopleEventLookup
 				},
 				{
-					$unwind: '$event',
-					preserveNullAndEmptyArrays: true
+					$unwind: {
+						path: '$event',
+						preserveNullAndEmptyArrays: true
+					},
 				},
 				{
 					$lookup: $peopleContentLookup
@@ -1635,7 +1639,7 @@ EventTC.addResolver({
 				},
 				{
 					$unwind: {
-						path: '$hydratedLoation',
+						path: '$hydratedLocation',
 						preserveNullAndEmptyArrays: true
 					}
 				},
@@ -1719,8 +1723,11 @@ EventTC.addResolver({
 					$lookup: $contentEventLookup
 				},
 				{
-					$unwind: '$event',
-					preserveNullAndEmptyArrays: true
+					$unwind: {
+						path: '$event',
+						preserveNullAndEmptyArrays: true
+					},
+
 				},
 				{
 					$lookup: $contentContactLookup
@@ -1895,25 +1902,33 @@ EventTC.addResolver({
 			else {
 				if (aggregatedContacts.length > 0) {
 					_.each(aggregatedContacts, function(contact) {
-						eventIds.push(contact.event._id);
+						if (contact.event && contact.event._id) {
+							eventIds.push(contact.event._id);
+						}
 					});
 				}
 
 				if (aggregatedContent.length > 0) {
 					_.each(aggregatedContent, function(content) {
-						eventIds.push(content.event._id);
+						if (content.event && content.event._id) {
+							eventIds.push(content.event._id);
+						}
 					});
 				}
 
 				if (aggregatedEvents.length > 0) {
 					_.each(aggregatedEvents, function(event) {
-						eventIds.push(event._id);
+						if (event && event._id) {
+							eventIds.push(event._id);
+						}
 					});
 				}
 
 				if (aggregatedPeople.length > 0) {
 					_.each(aggregatedPeople, function(person) {
-						eventIds.push(person.event._id);
+						if (person.event && person.event._id) {
+							eventIds.push(person.event._id);
+						}
 					});
 				}
 

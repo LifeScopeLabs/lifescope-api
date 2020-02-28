@@ -1,6 +1,8 @@
-# Building and running LifeScope API locally
+# Building and running LifeScope API in a cloud production environment
 Once you have a MongoDB cluster running and have set up a BitScoop account, created maps for all of the services, and saved the credentials for that service in its respective Map, you have everything you need to run the API.
-The API server was designed to be uploaded and run via AWS Elastic Beanstalk.
+The API server was designed to be uploaded and run via Kubernetes. To date it has only been tested on AWS' Elastic Kubernetes Service (and locally on minikube).
+All further instructions will assume AWS technologies since we can speak to them; using another cloud provider should
+work similarly, just with appropriate deviations to account for how Google/Microsoft/etc. clouds work in practice. 
 
 ## Create config file
 You'll need to create a new file in the config folder called production.json.
@@ -21,7 +23,8 @@ The config file should look like this:
 ```
 
 ## Obtain SSL certificate
-IF you want your server to be secure, you'll need to purchase a domain name and then register the domain or subdomain that you want to use for LifeScope with Amazon Certificate Manager.
+IF you want your server to be secure, you'll need to purchase a domain name and then register the domain or subdomain 
+that you want to use for LifeScope with Amazon Certificate Manager.
 
 ## Install node_modules
 Run npm install or yarn install (npm or yarn must already be installed).
@@ -29,21 +32,66 @@ Run npm install or yarn install (npm or yarn must already be installed).
 ## Run migrations
 NOTE: If you've already done this while setting up the app, you can skip this entire step here.
 
-You'll need to run the two migrations in the migrations folder via 'NODE_ENV=production babel-node migrations/<name>.js'.
+You'll need to run the two migrations in the migrations folder via 'NODE_ENV=production node --experimental-modules migrations/<name>.js'.
 The first migration creates indices on each collection that LifeScope stores in the database.
 The second loads the LifeScope Providers into the database. 
 Make sure that you've replaced the remote_map_id's in the Providers with the BitScoop Map IDs you've created.
 
 
-#Containerize via Docker and run in a Kubernetes Cluster
-The LifeScope API can be run in a Kubernetes Cluster via containerizing the code with Docker.
+#Set up DockerHub account, containerize API via Docker, and run in a Kubernetes Cluster
+The LifeScope API can be run in a Kubernetes Cluster via containerizing the code with Docker and uploading the image to DockerHub.
+
+## Set up DockerHub account and install Docker on your machine
+This guide will not cover how to set up a DockerHub account or a local copy of Docker since the instructions provided 
+by the makers of those services are more than sufficient.
+Once you've created a DockerHub account, you'll need to make two public repositories, most easily named ```lifescope-api```
+and ```lifescope-app```. If you use different names, you'll have to change the image names in the various .yaml files
+in the /kube/* directories.
 
 ## Containerize the API with Docker
-After installing Docker on your machine, from the top level of this application run ```docker build -t lifescope-api:vX.Y.Z .```.
+After installing Docker on your machine, from the top level of this application run ```docker build -t <DockerHub username>/lifescope-api:vX.Y.Z .```.
 X,Y, and Z should be the current version of the API, though it's not required that you tag the image with a version.
 
-Once the image is built, you can deploy it to Kubernetes via the scripts in the /kube directory.
-First 
+You'll then need to push this image to DockerHub so that the Kubernetes deployment can get the proper image.
+Within prod/lifescope-api.yaml, you'll see a few instances of an image name that points to an image name, something along
+the lines of lifescope/lifescope-api:v4.0.0. Each instance of this will need to be changed to <DockerHub username>/<public repo name>:<version name>.
+For example, if your username is 'cookiemonstar' and you're building v4.5.2 of the API, you'd change the 'image' field 
+wherever it occurs in prod/lifescope-api.yaml to ```cookiemonstar/lifescope-api:v4.5.2```.
+This should match everything following the '-t' in the build command.
+
+Once the image is built, you can push it to DockerHub by running ```docker push <imagename>```, e.g. ```docker push cookiemonstar/lifescope-api:v4.5.2```.
+You're now ready to deploy the Kubernetes cluster
+
+## Deploy Kubernetes cluster
+This guide is copied almost verbatim in lifescope-app, so if you've already set up that, you can skip straight to
+running the lifescope-api script.
+
+### Install eksctl and create Fargate cluster
+Refer to [this guide](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html) for how to set up
+eksctl and use it to provision a Fargate cluster.
+
+### Run Nginx script and provision DNS routing to Load Balancer
+
+From the top level of this repo, run ```kubectl apply -f kube/prod/nginx.yaml```.
+This will install nginx in your K8s cluster. After a minute or so the Load Balancer that is set up will have provisioned
+an external IP, which you can get by running ```kubectl get service -n nginx-ingress``` and looking in the column 'EXTERNAL-IP'.
+
+This external IP will need to be used in a few places.
+
+First, go to [AWS Route53 -> Hosted zones](https://console.aws.amazon.com/route53/home?#hosted-zones:).
+Create a Hosted Zone for the top-level domain you're using.
+Within that, create a Record Set. The Name can be left blank, Type should be 'A - IPv4 address', set Alias to 'Yes',
+and under Alias Target enter 'dualstack.<external-IP>' (if you click on the text box for Alias Target, a prompt scrollable box
+should pop up with various resources you have in AWS; the Load Balancer for Nginx should be under 'ELB Classic load balancers'
+and if clicked on it should autocomplete everything properly). Click Create when this is all entered.
+
+Next, you'll need to make two CNAMEs with your domain registrar from 'app' and 'api' to the external IP.
+
+### Run API K8s script
+
+From the top level of this repo, run ```kubectl apply -f kube/prod/lifescope-api.yaml```.
+
+If this ran properly, you should be able to go to api.<domain>/gql-p and see the GraphQL Playground running. 
 
 # Build and run in AWS Elastic Beanstalk (Deprecated)
 The LifeScope API can be bundled and run via AWS Elastic Beanstalk.

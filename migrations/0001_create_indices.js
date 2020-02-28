@@ -1,7 +1,7 @@
 'use strict';
 
-const mongodb = require('mongodb');
-const config = require('config');
+import mongodb from 'mongodb';
+import config from 'config';
 
 
 (function() {
