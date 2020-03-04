@@ -27,14 +27,29 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-app
-          image: barankyle/lifescope-app:v3.7.4-dev
+          image: barankyle/lifescope-app:v3.7.5-dev
           ports:
             - containerPort: 3002
           env:
             - name: NODE_ENV
               value: dev
+          volumeMounts:
+              - mountPath: "/usr/src/lifescope-app/config/tmp"
+                name: lifescope-app-dev-config
+                readOnly: true
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - cp /usr/src/lifescope-app/config/tmp/dev.json /usr/src/lifescope-app/config/dev.json
           imagePullPolicy: IfNotPresent
       dnsPolicy: Default
+      volumes:
+        - name: lifescope-app-dev-config
+          secret:
+            secretName: lifescope-app-dev-config
 ---
 apiVersion: v1
 kind: Service
@@ -45,7 +60,7 @@ spec:
   selector:
     app: lifescope-app
   ports:
-    - name: api
+    - name: app
       protocol: TCP
       port: 3002
       targetPort: 3002

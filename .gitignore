@@ -3,7 +3,6 @@ logs
 *.log
 npm-debug.log*
 dist/
-config/prod.json
 config/local.json
 config/dev.json
 config/prod.json

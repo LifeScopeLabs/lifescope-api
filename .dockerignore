@@ -1,2 +1,6 @@
 node_modules
 dist
+config/local.json
+config/dev.json
+config/prod.json
+config/production.json

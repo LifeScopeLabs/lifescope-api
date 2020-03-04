@@ -87,6 +87,28 @@ and if clicked on it should autocomplete everything properly). Click Create when
 
 Next, you'll need to make two CNAMEs with your domain registrar from 'app' and 'api' to the external IP.
 
+### Create 'lifescope' namespace
+
+Run the following command to create a namespace called 'lifescope' in the Kubernetes cluster:
+```kubectl apply -f kube/prod/lifescope-namespace.yaml```
+
+### Create appropriate secret config
+
+The config files containing credentials for development and production environments are intentionally not committed.
+They are also ignored by Docker when building the image so that they don't end up in a publicly-available image.
+In order to get these files into the Kubernetes environment, you must package them into a Secret.
+This Secret must be created manually instead of being part of the overall deployment in kube/**/lifescope-api.yaml
+and must be applied before running the deployment script.
+
+Your config files should be located in the config/ directory, e.g. config/dev.json or config/production.json.
+Run the following command to create the secret:
+```kubectl create secret generic lifescope-api-dev-config -n lifescope --from-file=config/dev.json```
+or
+```kubectl create secret generic lifescope-api-prod-config -n lifescope --from-file=config/production.json```
+
+The later deployment script expects those exact names, so if you want to call them something else, you'll have to
+change kube/**/lifescope-api.yaml.
+
 ### Run API K8s script
 
 From the top level of this repo, run ```kubectl apply -f kube/prod/lifescope-api.yaml```.
