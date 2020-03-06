@@ -27,7 +27,7 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-app
-          image: lifescopelabs/lifescope-app:v3.7.5-dev
+          image: lifescopelabs/lifescope-app:v3.8.0-dev
           ports:
             - containerPort: 3002
           env:
