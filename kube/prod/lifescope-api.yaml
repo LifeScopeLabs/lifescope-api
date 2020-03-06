@@ -27,7 +27,7 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-api
-          image: barankyle/lifescope-api:v4.0.5
+          image: lifescopelabs/lifescope-api:v4.0.5
           ports:
             - containerPort: 3000
             - containerPort: 3001
@@ -46,11 +46,11 @@ spec:
                   - -c
                   - cp /usr/src/lifescope-api/config/tmp/production.json /usr/src/lifescope-api/config/production.json
           imagePullPolicy: IfNotPresent
-          dnsPolicy: Default
-          volumes:
-            - name: lifescope-api-prod-config
-              secret:
-                secretName: lifescope-api-prod-config
+      dnsPolicy: Default
+      volumes:
+        - name: lifescope-api-prod-config
+          secret:
+            secretName: lifescope-api-prod-config
 ---
 apiVersion: v1
 kind: Service
@@ -130,7 +130,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-main-minion
+  name: lifescope-api-ingress-ws-minion
   namespace: lifescope
   annotations:
     kubernetes.io/ingress.class: "nginx"
@@ -142,7 +142,7 @@ spec:
       http:
         paths:
           - backend:
-              serviceName: lifescope-api
+              serviceName: lifescope-api-ws
               servicePort: 3001
             path: /subscriptions
 ---

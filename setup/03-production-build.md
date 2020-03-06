@@ -68,7 +68,9 @@ running the lifescope-api script.
 
 ### Install eksctl and create Fargate cluster
 Refer to [this guide](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html) for how to set up
-eksctl and use it to provision a Fargate cluster.
+eksctl.
+
+To provision the Fargate cluster, run ```eksctl create cluster -f kube/prod/aws-cluster.yaml```
 
 ### Run Nginx script and provision DNS routing to Load Balancer
 
