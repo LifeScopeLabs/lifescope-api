@@ -15,7 +15,7 @@ metadata:
   name: lifescope-api
   namespace: lifescope
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: lifescope-api
@@ -27,7 +27,7 @@ spec:
       serviceAccountName: lifescope
       containers:
         - name: lifescope-api
-          image: lifescopelabs/lifescope-api:v4.0.5
+          image: lifescopelabs/lifescope-api:v4.0.6
           ports:
             - containerPort: 3000
             - containerPort: 3001
@@ -35,9 +35,9 @@ spec:
             - name: NODE_ENV
               value: dev
           volumeMounts:
-              - mountPath: "/usr/src/lifescope-api/config/tmp"
-                name: lifescope-api-dev-config
-                readOnly: true
+            - mountPath: "/usr/src/lifescope-api/config/tmp"
+              name: lifescope-api-dev-config
+              readOnly: true
           lifecycle:
             postStart:
               exec:
@@ -46,11 +46,11 @@ spec:
                   - -c
                   - cp /usr/src/lifescope-api/config/tmp/dev.json /usr/src/lifescope-api/config/dev.json
           imagePullPolicy: IfNotPresent
-          dnsPolicy: Default
-          volumes:
-            - name: lifescope-api-dev-config
-              secret:
-                secretName: lifescope-api-dev-config
+      dnsPolicy: Default
+      volumes:
+        - name: lifescope-api-dev-config
+          secret:
+            secretName: lifescope-api-dev-config
 ---
 apiVersion: v1
 kind: Service

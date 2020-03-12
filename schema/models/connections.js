@@ -58,7 +58,9 @@ let patchType = new graphql.GraphQLObjectType({
 
 const extensionProviderMap = {
 	Chrome: 'bff10113c2c4437391c1dfc8699d024f',
-	Firefox: '0f9b3f89b5bf411185a73016933c34df'
+	chrome: 'bff10113c2c4437391c1dfc8699d024f',
+	Firefox: '0f9b3f89b5bf411185a73016933c34df',
+	firefox: '0f9b3f89b5bf411185a73016933c34df'
 };
 
 const financialProviderId = 'd2b24c35ffbb47d694ec7a2951247c88';
@@ -729,6 +731,12 @@ ConnectionTC.addResolver({
 		browser: 'String!'
 	},
 	resolve: async function({args, context}) {
+		let providerId = extensionProviderMap[args.browser];
+
+		if (providerId == null) {
+			throw new httpErrors(400, 'Invalid browser name');
+		}
+
 		let provider = await ProviderTC.getResolver('findOne').resolve({
 			args: {
 				filter: {

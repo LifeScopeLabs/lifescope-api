@@ -12,74 +12,58 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lifescope-api
+  name: lifescope-embed
   namespace: lifescope
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: lifescope-api
+      app: lifescope-embed
   template:
     metadata:
       labels:
-        app: lifescope-api
+        app: lifescope-embed
     spec:
       serviceAccountName: lifescope
       containers:
-        - name: lifescope-api
-          image: lifescopelabs/lifescope-api:v4.0.6
+        - name: lifescope-embed
+          image: lifescopelabs/lifescope-embed:v1.1.0-dev
           ports:
-            - containerPort: 3000
-            - containerPort: 3001
+            - containerPort: 8061
           env:
             - name: NODE_ENV
               value: dev
           volumeMounts:
-            - mountPath: "/usr/src/lifescope-api/config/tmp"
-              name: lifescope-api-dev-config
-              readOnly: true
+              - mountPath: "/usr/src/lifescope-embed/tmp"
+                name: lifescope-embed-dev-config
+                readOnly: true
           lifecycle:
             postStart:
               exec:
                 command:
                   - /bin/sh
                   - -c
-                  - cp /usr/src/lifescope-api/config/tmp/dev.json /usr/src/lifescope-api/config/dev.json
+                  - cp /usr/src/lifescope-embed/tmp/config.dev.js /usr/src/lifescope-embed/config.dev.js
           imagePullPolicy: IfNotPresent
       dnsPolicy: Default
       volumes:
-        - name: lifescope-api-dev-config
+        - name: lifescope-embed-dev-config
           secret:
-            secretName: lifescope-api-dev-config
+            secretName: lifescope-embed-dev-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: lifescope-api
+  name: lifescope-embed
   namespace: lifescope
 spec:
   selector:
-    app: lifescope-api
+    app: lifescope-embed
   ports:
-    - name: api
+    - name: lifescope-embed
       protocol: TCP
-      port: 3000
-      targetPort: 3000
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: lifescope-api-ws
-  namespace: lifescope
-spec:
-  selector:
-    app: lifescope-api
-  ports:
-    - name: subscriptions
-      protocol: TCP
-      port: 3001
-      targetPort: 3001
+      port: 8061
+      targetPort: 8061
   type: ClusterIP
 ---
 apiVersion: v1
@@ -95,7 +79,7 @@ data:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-master
+  name: lifescope-embed-ingress-master
   namespace: lifescope
   annotations:
     kubernetes.io/ingress.class: "nginx"
@@ -103,63 +87,25 @@ metadata:
 spec:
   tls:
     - hosts:
-        - api.dev.lifescope.io
+        - embed.dev.lifescope.io
       secretName: lifescope-secret
   rules:
-    - host: api.dev.lifescope.io
+    - host: embed.dev.lifescope.io
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-location-upload-minion
-  namespace: lifescope
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/client-max-body-size: "2000m"
-spec:
-  rules:
-    - host: api.dev.lifescope.io
-      http:
-        paths:
-          - backend:
-              serviceName: lifescope-api
-              servicePort: 3000
-            path: /locations/upload_file
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: lifescope-api-ingress-ws-minion
-  namespace: lifescope
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/websocket-services: "lifescope-api-ws"
-spec:
-  rules:
-    - host: api.dev.lifescope.io
-      http:
-        paths:
-          - backend:
-              serviceName: lifescope-api-ws
-              servicePort: 3001
-            path: /subscriptions
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: lifescope-api-ingress-main-minion
+  name: lifescope-embed-ingress-main-minion
   namespace: lifescope
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: api.dev.lifescope.io
+    - host: embed.dev.lifescope.io
       http:
         paths:
           - backend:
-              serviceName: lifescope-api
-              servicePort: 3000
+              serviceName: lifescope-embed
+              servicePort: 8061
             path: /

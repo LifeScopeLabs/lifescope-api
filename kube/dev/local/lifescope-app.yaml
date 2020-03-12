@@ -87,10 +87,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - app.lifescope.io
+        - app.dev.lifescope.io
       secretName: lifescope-secret
   rules:
-    - host: app.lifescope.io
+    - host: app.dev.lifescope.io
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -103,7 +103,7 @@ metadata:
     nginx.org/client-max-body-size: "2000m"
 spec:
   rules:
-    - host: app.lifescope.io
+    - host: app.dev.lifescope.io
       http:
         paths:
           - backend:
@@ -121,7 +121,7 @@ metadata:
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: app.lifescope.io
+    - host: app.dev.lifescope.io
       http:
         paths:
           - backend:

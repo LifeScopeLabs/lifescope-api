@@ -2044,7 +2044,7 @@ EventTC.addResolver({
 
 
 function MongoEvent(data) {
-	this.connection_id = uuid(data.connection_id_string).buffer;
+	this.connection_id = uuid(data.connection_id_string);
 	this.contact_interaction_type = data.contact_interaction_type;
 	this.context = data.context;
 	this.datetime = new Date(data.datetime);
