@@ -213,7 +213,7 @@ metadata:
   namespace: nginx-ingress
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: ssl
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:103947711118:certificate/e1cd39c3-15c4-4510-a471-34edfc21a6af
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:103947711118:certificate/a4f4f27b-a2fe-40d5-a6ad-0fa0346f6feb
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
 spec:
   type: LoadBalancer

@@ -43,7 +43,7 @@ spec:
                 command:
                   - /bin/sh
                   - -c
-                  - cp /usr/src/lifescope-embed/tmp/config.prod.js /usr/src/lifescope-embed/config.production.js
+                  - cp /usr/src/lifescope-embed/tmp/config.production.js /usr/src/lifescope-embed/config.production.js
           imagePullPolicy: IfNotPresent
       dnsPolicy: Default
       volumes:
