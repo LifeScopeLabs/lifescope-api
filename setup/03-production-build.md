@@ -4,6 +4,11 @@ The API server was designed to be uploaded and run via Kubernetes. To date it ha
 All further instructions will assume AWS technologies since we can speak to them; using another cloud provider should
 work similarly, just with appropriate deviations to account for how Google/Microsoft/etc. clouds work in practice. 
 
+## Location of Kubernetes scripts
+
+This guide references Kubernetes configuration scripts. 
+These scripts are all located in [a separate repository](https://github.com/lifescopelabs/lifescope-kubernetes).
+
 ## Create config file
 You'll need to create a new file in the config folder called production.json.
 The gitignore contains this filename, so there's no chance of accidentally committing it.
@@ -48,7 +53,12 @@ Once you've created a DockerHub account, you'll need to make two public reposito
 and ```lifescope-app```. If you use different names, you'll have to change the image names in the various .yaml files
 in the /kube/* directories.
 
-## Containerize the API with Docker
+## Containerize the API with Docker (optional)
+
+*LifeScope has a Docker Hub account with repositories for images of each of the applications that make up the service.
+The Kubernetes scripts are coded to pull specific versions from the official repos.
+If you want to pull from a repo you control, do the following:*
+
 After installing Docker on your machine, from the top level of this application run ```docker build -t <DockerHub username>/lifescope-api:vX.Y.Z .```.
 X,Y, and Z should be the current version of the API, though it's not required that you tag the image with a version.
 
@@ -60,7 +70,7 @@ wherever it occurs in prod/lifescope-api.yaml to ```cookiemonstar/lifescope-api:
 This should match everything following the '-t' in the build command.
 
 Once the image is built, you can push it to DockerHub by running ```docker push <imagename>```, e.g. ```docker push cookiemonstar/lifescope-api:v4.5.2```.
-You're now ready to deploy the Kubernetes cluster
+You're now ready to deploy the Kubernetes cluster.
 
 ## Deploy Kubernetes cluster
 This guide is copied almost verbatim in lifescope-app, so if you've already set up that, you can skip straight to
