@@ -28,8 +28,13 @@ The config file should look like this:
 ```
 
 ## Obtain SSL certificate
-IF you want your server to be secure, you'll need to purchase a domain name and then register the domain or subdomain 
+IF you want your server to be secure, you'll need to purchase a domain name and then register the domain or subdomain(s) 
 that you want to use for LifeScope with Amazon Certificate Manager.
+
+When you have the certificate from ACM, make note of its ARN.
+Look in the production Nginx config for the Service that will be set up.
+Look for the field metadata -> annotations -> service.beta.kubernetes.io/aws-load-balancer-ssl-cert
+You will need to replace the value here with the ARN of the certificate you generated.
 
 ## Install node_modules
 Run npm install or yarn install (npm or yarn must already be installed).
@@ -46,12 +51,17 @@ Make sure that you've replaced the remote_map_id's in the Providers with the Bit
 #Set up DockerHub account, containerize API via Docker, and run in a Kubernetes Cluster
 The LifeScope API can be run in a Kubernetes Cluster via containerizing the code with Docker and uploading the image to DockerHub.
 
-## Set up DockerHub account and install Docker on your machine
+## Set up DockerHub account and install Docker on your machine (optional)
+*LifeScope has a Docker Hub account with repositories for images of each of the applications that make up the service.
+The Kubernetes scripts are coded to pull specific versions from the official repos.
+If you're just pulling the official images, you don't need to set up your own Hub or repositories therein.*
+
 This guide will not cover how to set up a DockerHub account or a local copy of Docker since the instructions provided 
 by the makers of those services are more than sufficient.
-Once you've created a DockerHub account, you'll need to make two public repositories, most easily named ```lifescope-api```
-and ```lifescope-app```. If you use different names, you'll have to change the image names in the various .yaml files
-in the /kube/* directories.
+Once you've created a DockerHub account, you'll need to make public repositories for each of the lifescope services you
+want to run. At the very least, you'll want to run lifescope-api and lifescope-app, and the Docker Hubs for those are 
+most easily named ```lifescope-api```and ```lifescope-app```. If you use different names, you'll have to change the 
+image names in the Kubernetes config files for each repo in the lifescope-kubernetes sub-directories for those services.
 
 ## Containerize the API with Docker (optional)
 
@@ -63,10 +73,10 @@ After installing Docker on your machine, from the top level of this application 
 X,Y, and Z should be the current version of the API, though it's not required that you tag the image with a version.
 
 You'll then need to push this image to DockerHub so that the Kubernetes deployment can get the proper image.
-Within prod/lifescope-api.yaml, you'll see a few instances of an image name that points to an image name, something along
-the lines of lifescope/lifescope-api:v4.0.0. Each instance of this will need to be changed to <DockerHub username>/<public repo name>:<version name>.
+Within lifescope-kubernetes/lifescope-api/overlays/production/production.yaml, you'll see a few instances of an image name that points to an image name, something along
+the lines of lifescopelabs/lifescope-api:v4.0.0. Each instance of this will need to be changed to <DockerHub username>/<public repo name>:<version name>.
 For example, if your username is 'cookiemonstar' and you're building v4.5.2 of the API, you'd change the 'image' field 
-wherever it occurs in prod/lifescope-api.yaml to ```cookiemonstar/lifescope-api:v4.5.2```.
+wherever it occurs in overlays/production/lifescope-api.yaml to ```cookiemonstar/lifescope-api:v4.5.2```.
 This should match everything following the '-t' in the build command.
 
 Once the image is built, you can push it to DockerHub by running ```docker push <imagename>```, e.g. ```docker push cookiemonstar/lifescope-api:v4.5.2```.
@@ -80,11 +90,12 @@ running the lifescope-api script.
 Refer to [this guide](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html) for how to set up
 eksctl.
 
-To provision the Fargate cluster, run ```eksctl create cluster -f kube/prod/aws-cluster.yaml```
+The script to provision the Fargate cluster is located in the lifescope-kubernetes repo.
+To provision the Fargate cluster, from the top level of lifescope-kubernetes run ```eksctl create cluster -f aws-fargate/production/aws-cluster.yaml```.
 
-### Run Nginx script and provision DNS routing to Load Balancer
+### Run Nginx Kustomize config and provision DNS routing to Load Balancer
 
-From the top level of this repo, run ```kubectl apply -f kube/prod/nginx.yaml```.
+From the top level of the lifescope-kubernetes repo, run ```kubectl apply -k lifescope-nginx/overlays/production```.
 This will install nginx in your K8s cluster. After a minute or so the Load Balancer that is set up will have provisioned
 an external IP, which you can get by running ```kubectl get service -n nginx-ingress``` and looking in the column 'EXTERNAL-IP'.
 
@@ -97,33 +108,15 @@ and under Alias Target enter 'dualstack.<external-IP>' (if you click on the text
 should pop up with various resources you have in AWS; the Load Balancer for Nginx should be under 'ELB Classic load balancers'
 and if clicked on it should autocomplete everything properly). Click Create when this is all entered.
 
-Next, you'll need to make two CNAMEs with your domain registrar from 'app' and 'api' to the external IP.
+Next, you'll need to make CNAMEs with your domain registrar from 'app', 'api', and any other lifescope services you're
+setting up (embed, xr, nxr) to the external IP.
 
-### Create 'lifescope' namespace
+### Run API Kustomize script
 
-Run the following command to create a namespace called 'lifescope' in the Kubernetes cluster:
-```kubectl apply -f kube/prod/lifescope-namespace.yaml```
+*Before running this, make sure that you have the production.json file from the config folder in lifescope-kubernetes/lifescope-api/overlays/production
+(or dev.json in lifescope-kubernetes/lifescope-api/base if you're setting up a staging environment)*
 
-### Create appropriate secret config
-
-The config files containing credentials for development and production environments are intentionally not committed.
-They are also ignored by Docker when building the image so that they don't end up in a publicly-available image.
-In order to get these files into the Kubernetes environment, you must package them into a Secret.
-This Secret must be created manually instead of being part of the overall deployment in kube/**/lifescope-api.yaml
-and must be applied before running the deployment script.
-
-Your config files should be located in the config/ directory, e.g. config/dev.json or config/production.json.
-Run the following command to create the secret:
-```kubectl create secret generic lifescope-api-dev-config -n lifescope --from-file=config/dev.json```
-or
-```kubectl create secret generic lifescope-api-prod-config -n lifescope --from-file=config/production.json```
-
-The later deployment script expects those exact names, so if you want to call them something else, you'll have to
-change kube/**/lifescope-api.yaml.
-
-### Run API K8s script
-
-From the top level of this repo, run ```kubectl apply -f kube/prod/lifescope-api.yaml```.
+From the top level of the lifescope-kubernetes repo, run ```kubectl apply -k lifescope-api/overlays/production```.
 
 If this ran properly, you should be able to go to api.<domain>/gql-p and see the GraphQL Playground running. 
 
