@@ -1,5 +1,6 @@
 # Building and running LifeScope API in a cloud production environment
-Once you have a MongoDB cluster running and have set up a BitScoop account, created maps for all of the services, and saved the credentials for that service in its respective Map, you have everything you need to run the API.
+Once you have a MongoDB cluster running and have set up a BitScoop account, created maps for all of the services, and 
+saved the credentials for that service in its respective Map, you have everything you need to run the API.
 The API server was designed to be uploaded and run via Kubernetes. To date it has only been tested on AWS' Elastic Kubernetes Service (and locally on minikube).
 All further instructions will assume AWS technologies since we can speak to them; using another cloud provider should
 work similarly, just with appropriate deviations to account for how Google/Microsoft/etc. clouds work in practice. 
@@ -48,52 +49,56 @@ The second loads the LifeScope Providers into the database.
 Make sure that you've replaced the remote_map_id's in the Providers with the BitScoop Map IDs you've created.
 
 
-#Set up DockerHub account, containerize API via Docker, and run in a Kubernetes Cluster
-The LifeScope API can be run in a Kubernetes Cluster via containerizing the code with Docker and uploading the image to DockerHub.
+## Containerize API via Docker and run in a Kubernetes Cluster
+The LifeScope API can be run in a Kubernetes Cluster via containerizing the code with Docker.
 
-## Set up DockerHub account and install Docker on your machine (optional)
+Containerized builds of the codebase can be found on LifeScope Labs' Docker hub, ```lifescopelabs/lifescope-api:vX.Y.Z```.
+If you want to build your own, you will need to build an image locally and push to a Docker Hub you control. 
+
+### Set up Docker Hub account and install Docker on your machine (optional)
 *LifeScope has a Docker Hub account with repositories for images of each of the applications that make up the service.
 The Kubernetes scripts are coded to pull specific versions from the official repos.
 If you're just pulling the official images, you don't need to set up your own Hub or repositories therein.*
 
-This guide will not cover how to set up a DockerHub account or a local copy of Docker since the instructions provided 
+This guide will not cover how to set up a Docker Hub account or a local copy of Docker since the instructions provided 
 by the makers of those services are more than sufficient.
-Once you've created a DockerHub account, you'll need to make public repositories for each of the lifescope services you
+Once you've created a Docker Hub account, you'll need to make public repositories for each of the lifescope services you
 want to run. At the very least, you'll want to run lifescope-api and lifescope-app, and the Docker Hubs for those are 
 most easily named ```lifescope-api```and ```lifescope-app```. If you use different names, you'll have to change the 
 image names in the Kubernetes config files for each repo in the lifescope-kubernetes sub-directories for those services.
 
-## Containerize the API with Docker (optional)
+### Containerize the API with Docker (optional)
 
 *LifeScope has a Docker Hub account with repositories for images of each of the applications that make up the service.
 The Kubernetes scripts are coded to pull specific versions from the official repos.
 If you want to pull from a repo you control, do the following:*
 
-After installing Docker on your machine, from the top level of this application run ```docker build -t <DockerHub username>/lifescope-api:vX.Y.Z .```.
+After installing Docker on your machine, from the top level of this application run ```docker build -t <Docker Hub username>/lifescope-api:vX.Y.Z .```.
 X,Y, and Z should be the current version of the API, though it's not required that you tag the image with a version.
 
-You'll then need to push this image to DockerHub so that the Kubernetes deployment can get the proper image.
+You'll then need to push this image to Docker Hub so that the Kubernetes deployment can get the proper image.
 Within lifescope-kubernetes/lifescope-api/overlays/production/production.yaml, you'll see a few instances of an image name that points to an image name, something along
-the lines of lifescopelabs/lifescope-api:v4.0.0. Each instance of this will need to be changed to <DockerHub username>/<public repo name>:<version name>.
+the lines of lifescopelabs/lifescope-api:v4.0.0. Each instance of this will need to be changed to <Docker Hub username>/<public repo name>:<version name>.
 For example, if your username is 'cookiemonstar' and you're building v4.5.2 of the API, you'd change the 'image' field 
-wherever it occurs in overlays/production/lifescope-api.yaml to ```cookiemonstar/lifescope-api:v4.5.2```.
+wherever it occurs in overlays/production/production.yaml to ```cookiemonstar/lifescope-api:v4.5.2```.
 This should match everything following the '-t' in the build command.
 
-Once the image is built, you can push it to DockerHub by running ```docker push <imagename>```, e.g. ```docker push cookiemonstar/lifescope-api:v4.5.2```.
+Once the image is built, you can push it to Docker Hub by running ```docker push <imagename>```, e.g. ```docker push cookiemonstar/lifescope-api:v4.5.2```.
 You're now ready to deploy the Kubernetes cluster.
 
-## Deploy Kubernetes cluster
+### Deploy Kubernetes cluster
 This guide is copied almost verbatim in lifescope-app, so if you've already set up that, you can skip straight to
 running the lifescope-api script.
 
-### Install eksctl and create Fargate cluster
+#### Install eksctl and create Fargate cluster
 Refer to [this guide](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html) for how to set up
 eksctl.
 
 The script to provision the Fargate cluster is located in the lifescope-kubernetes repo.
-To provision the Fargate cluster, from the top level of lifescope-kubernetes run ```eksctl create cluster -f aws-fargate/production/aws-cluster.yaml```.
+To provision the Fargate cluster, from the top level of lifescope-kubernetes run 
+```eksctl create cluster -f aws-fargate/production/aws-cluster.yaml```.
 
-### Run Nginx Kustomize config and provision DNS routing to Load Balancer
+#### Run Nginx Kustomize config and provision DNS routing to Load Balancer
 
 From the top level of the lifescope-kubernetes repo, run ```kubectl apply -k lifescope-nginx/overlays/production```.
 This will install nginx in your K8s cluster. After a minute or so the Load Balancer that is set up will have provisioned
@@ -111,10 +116,12 @@ and if clicked on it should autocomplete everything properly). Click Create when
 Next, you'll need to make CNAMEs with your domain registrar from 'app', 'api', and any other lifescope services you're
 setting up (embed, xr, nxr) to the external IP.
 
-### Run API Kustomize script
+#### Run API Kustomize script
 
-*Before running this, make sure that you have the production.json file from the config folder in lifescope-kubernetes/lifescope-api/overlays/production
-(or dev.json in lifescope-kubernetes/lifescope-api/base if you're setting up a staging environment)*
+*Before running this, make sure that you have the dev.json file from the config folder in lifescope-kubernetes/lifescope-api/base
+and the production.json file from the config folder in lifescope-kubernetes/lifescope-api/overlays/production.
+dev.json won't be used, but due to a deficiency in Kustomize as of writing this it's impossible to tell it to ignore the 
+base instruction of secretizing dev.json.*
 
 From the top level of the lifescope-kubernetes repo, run ```kubectl apply -k lifescope-api/overlays/production```.
 
