@@ -1,373 +1,445 @@
 {
-  "version": "1.0",
-  "name": "Facebook",
-  "url": "https://graph.facebook.com/v2.12",
-  "tags": [
-	"media",
-	"social"
-  ],
-  "auth": {
-	"type": "oauth2",
-	"redirect_url": "https://app.lifescope.io/connections/complete",
-	"authorization_url": "https://www.facebook.com/dialog/oauth",
-	"access_token": "https://graph.facebook.com/oauth/access_token",
-	"signature": "parameter",
-	"auth_key": "***INSERT AUTH KEY HERE ***",
-	"auth_secret": "***INSERT AUTH SECRET HERE***"
-  },
-  "meta": {
-	"uniqueness_location": "id",
-	"default_name_location": "name",
-	"endpoint": {
-	  "route": "/me",
-	  "parameters": {
-		"fields": "id,name"
-	  },
-	  "model": {
-		"key": "id",
-		"fields": {
-		  "id": "string",
-		  "name": "string"
-		}
-	  }
-	}
-  },
-  "endpoints": {
-	"UserProfile": {
-	  "GET": {
-		"method": "GET",
-		"route": {
-		  "data": "",
-		  "path": "/me"
-		}
-	  }
+	"version": "1.0",
+	"name": "Facebook",
+	"url": "https://graph.facebook.com/v6.0",
+	"tags": [
+		"media",
+		"social"
+	],
+	"auth": {
+		"type": "oauth2",
+		"redirect_url": "https://app.lifescope.io/connections/complete",
+		"authorization_url": "https://www.facebook.com/dialog/oauth",
+		"access_token": "https://graph.facebook.com/oauth/access_token",
+		"signature": "parameter",
+		"auth_key": "***INSERT AUTH KEY HERE ***",
+		"auth_secret": "***INSERT AUTH SECRET HERE***"
 	},
-	"UserFeed": {
-	  "GET": {
-		"method": "GET",
-		"scopes": [
-		  "user_posts"
-		],
-		"route": {
-		  "data": "data",
-		  "path": "/me/feed"
-		},
-		"parameters": {
-		  "fields": "{{ parameters.fields }}",
-		  "until": "{{ parameters.until }}",
-		  "since": "{{ parameters.since }}",
-		  "limit": "{{ parameters.limit }}",
-		  "__paging_token": "{{ parameters.paging_token }}",
-		  "with": {
-			"value": "{{ parameters.with }}"
-		  }
-		},
-		"model": {
-		  "key": "id",
-		  "fields": {
-			"id": "string",
-			"datetime": {
-			  "source": "created_time",
-			  "type": "datetime"
+	"meta": {
+		"uniqueness_location": "id",
+		"default_name_location": "name",
+		"endpoint": {
+			"route": "/me",
+			"parameters": {
+				"fields": "id,name"
 			},
-			"description": "string",
-			"from": {
-			  "type": "embedded",
-			  "fields": {
-				"id": "string",
-				"coverPhoto": {
-				  "type": "embedded",
-				  "source": "picture",
-				  "fields": {
-					"data": {
-					  "type": "embedded",
-					  "fields": {
-						"url": "string"
-					  }
-					}
-				  }
-				},
-				"email": "email",
-				"first_name": "string",
-				"gender": "string",
-				"last_name": "string",
-				"locale": "string",
-				"name": "string",
-				"picture": {
-				  "type": "embedded",
-				  "source": "picture",
-				  "fields": {
-					"data": {
-					  "type": "embedded",
-					  "fields": {
-						"url": "string"
-					  }
-					}
-				  }
-				},
-				"short_name": "string"
-			  }
-			},
-			"icon": "string",
-			"link": "string",
-			"message": "string",
-			"message_tags": {
-			  "many": true,
-			  "type": "embedded",
-			  "fields": {
-				"id": "string",
-				"name": "string",
-				"type": "string"
-			  }
-			},
-			"name": "string",
-			"object_id": "string",
-			"parent_post": "string",
-			"permalink_url": "string",
-			"picture": "string",
-			"photo": {
-			  "type": "related",
-			  "ref": "Photo",
-			  "reverse": {
-				"identifier": "{{ model.object_id }}",
-				"parameters": {
-				  "fields": "{{ parameters.related_photo_fields }}"
-				}
-			  }
-			},
-			"video": {
-			  "type": "related",
-			  "ref": "Video",
-			  "reverse": {
-				"identifier": "{{ model.object_id }}",
-				"parameters": {
-				  "fields": "{{ parameters.related_video_fields }}"
-				}
-			  }
-			},
-			"place": "base",
-			"properties": {
-			  "type": "embedded",
-			  "many": true,
-			  "fields": {
-				"name": "string",
-				"text": "string",
-				"href": "string"
-			  }
-			},
-			"source": "string",
-			"status_type": "string",
-			"to": {
-			  "type": "embedded",
-			  "many": true,
-			  "fields": {
-				"id": "string",
-				"coverPhoto": {
-				  "type": "embedded",
-				  "source": "picture",
-				  "fields": {
-					"source": "string"
-				  }
-				},
-				"email": "email",
-				"first_name": "string",
-				"gender": "string",
-				"last_name": "string",
-				"locale": "string",
-				"name": "string",
-				"picture": {
-				  "type": "embedded",
-				  "source": "picture",
-				  "fields": {
-					"data": {
-					  "type": "embedded",
-					  "fields": {
-						"url": "string"
-					  }
-					}
-				  }
-				},
-				"short_name": "string"
-			  }
-			},
-			"type": "string",
-			"updated_time": "datetime",
-			"with_tags": "base"
-		  }
-		}
-	  }
-	},
-	"UserFeedPage": {
-	  "GET": {
-		"method": "GET",
-		"scopes": [
-		  "user_posts"
-		],
-		"route": {
-		  "data": "",
-		  "path": "/me/feed"
-		},
-		"parameters": {
-		  "fields": "{{ parameters.fields }}",
-		  "until": "{{ parameters.until }}",
-		  "since": "{{ parameters.since }}",
-		  "limit": "{{ parameters.limit }}",
-		  "__paging_token": "{{ parameters.paging_token }}",
-		  "with": {
-			"value": "{{ parameters.with }}"
-		  }
-		}
-	  }
-	},
-	"User": {
-	  "GET": {
-		"method": "GET",
-		"route": "/{{ identifier }}",
-		"collection": false,
-		"parameters": {
-		  "fields": "{{ parameters.fields }}"
-		}
-	  }
-	},
-	"Photo": {
-	  "GET": {
-		"method": "GET",
-		"route": "/{{ identifier }}",
-		"collection": false,
-		"parameters": {
-		  "fields": "{{ parameters.fields }}"
-		},
-		"responses": {
-		  "200": {
 			"model": {
-			  "key": "id",
-			  "fields": {
-				"id": "string",
-				"from": {
-				  "type": "embedded",
-				  "fields": {
+				"key": "id",
+				"fields": {
 					"id": "string",
-					"coverPhoto": {
-					  "type": "embedded",
-					  "source": "picture",
-					  "fields": {
-						"source": "string"
-					  }
-					},
-					"email": "email",
-					"first_name": "string",
-					"gender": "string",
-					"last_name": "string",
-					"locale": "string",
-					"name": "string",
-					"picture": {
-					  "type": "embedded",
-					  "source": "picture",
-					  "fields": {
-						"data": {
-						  "type": "embedded",
-						  "fields": {
-							"url": "string"
-						  }
-						}
-					  }
-					},
-					"short_name": "string"
-				  }
-				},
-				"images": {
-				  "many": true,
-				  "type": "embedded",
-				  "fields": {
-					"source": "string"
-				  }
-				},
-				"link": "string",
-				"name": "string",
-				"picture": "string"
-			  }
+					"name": "string"
+				}
 			}
-		  },
-		  "400": {
-			"recast": 204
-		  },
-		  "404": {
-			"recast": 204
-		  }
 		}
-	  }
 	},
-	"Video": {
-	  "GET": {
-		"method": "GET",
-		"route": "/{{ identifier }}",
-		"collection": false,
-		"parameters": {
-		  "fields": "{{ parameters.fields }}"
-		},
-		"responses": {
-		  "200": {
-			"model": {
-			  "key": "id",
-			  "fields": {
-				"id": "string",
-				"content_tags": {
-				  "type": "string",
-				  "many": true
-				},
-				"datetime": {
-				  "type": "date",
-				  "source": "created_time"
-				},
-				"description": "string",
-				"embed_html": "string",
-				"from": {
-				  "type": "embedded",
-				  "fields": {
-					"id": "string",
-					"coverPhoto": {
-					  "type": "embedded",
-					  "source": "picture",
-					  "fields": {
-						"source": "string"
-					  }
-					},
-					"email": "email",
-					"first_name": "string",
-					"gender": "string",
-					"last_name": "string",
-					"locale": "string",
-					"name": "string",
-					"picture": {
-					  "type": "embedded",
-					  "source": "picture",
-					  "fields": {
-						"data": {
-						  "type": "embedded",
-						  "fields": {
-							"url": "string"
-						  }
-						}
-					  }
-					},
-					"short_name": "string"
-				  }
-				},
-				"permalink_url": "string",
-				"picture": "string",
-				"source": "string",
-				"title": "string"
-			  }
+	"endpoints": {
+		"UserProfile": {
+			"GET": {
+				"method": "GET",
+				"route": {
+					"data": "",
+					"path": "/me"
+				}
 			}
-		  },
-		  "400": {
-			"recast": 204
-		  },
-		  "404": {
-			"recast": 204
-		  }
+		},
+		"UserFeed": {
+			"GET": {
+				"method": "GET",
+				"scopes": [
+					"user_posts"
+				],
+				"route": {
+					"data": "data",
+					"path": "/me/feed"
+				},
+				"parameters": {
+					"fields": "{{ parameters.fields }}",
+					"until": "{{ parameters.until }}",
+					"since": "{{ parameters.since }}",
+					"limit": "{{ parameters.limit }}",
+					"__paging_token": "{{ parameters.paging_token }}",
+					"with": {
+						"value": "{{ parameters.with }}"
+					}
+				},
+				"model": {
+					"key": "id",
+					"fields": {
+						"id": "string",
+						"datetime": {
+							"source": "created_time",
+							"type": "datetime"
+						},
+						"description": "string",
+						"from": {
+							"type": "embedded",
+							"fields": {
+								"id": "string",
+								"coverPhoto": {
+									"type": "embedded",
+									"source": "picture",
+									"fields": {
+										"data": {
+											"type": "embedded",
+											"fields": {
+												"url": "string"
+											}
+										}
+									}
+								},
+								"email": "email",
+								"first_name": "string",
+								"gender": "string",
+								"last_name": "string",
+								"locale": "string",
+								"name": "string",
+								"picture": {
+									"type": "embedded",
+									"source": "picture",
+									"fields": {
+										"data": {
+											"type": "embedded",
+											"fields": {
+												"url": "string"
+											}
+										}
+									}
+								},
+								"short_name": "string"
+							}
+						},
+						"icon": "string",
+						"link": "string",
+						"message": "string",
+						"message_tags": {
+							"many": true,
+							"type": "embedded",
+							"fields": {
+								"id": "string",
+								"name": "string",
+								"type": "string"
+							}
+						},
+						"name": "string",
+						"object_id": "string",
+						"parent_post": "string",
+						"permalink_url": "string",
+						"picture": "string",
+						"photo": {
+							"type": "related",
+							"ref": "Photo",
+							"reverse": {
+								"identifier": "{{ model.object_id }}",
+								"parameters": {
+									"fields": "{{ parameters.related_photo_fields }}"
+								}
+							}
+						},
+						"video": {
+							"type": "related",
+							"ref": "Video",
+							"reverse": {
+								"identifier": "{{ model.object_id }}",
+								"parameters": {
+									"fields": "{{ parameters.related_video_fields }}"
+								}
+							}
+						},
+						"place": "base",
+						"properties": {
+							"type": "embedded",
+							"many": true,
+							"fields": {
+								"name": "string",
+								"text": "string",
+								"href": "string"
+							}
+						},
+						"source": "string",
+						"status_type": "string",
+						"to": {
+							"type": "embedded",
+							"many": true,
+							"fields": {
+								"id": "string",
+								"coverPhoto": {
+									"type": "embedded",
+									"source": "picture",
+									"fields": {
+										"source": "string"
+									}
+								},
+								"email": "email",
+								"first_name": "string",
+								"gender": "string",
+								"last_name": "string",
+								"locale": "string",
+								"name": "string",
+								"picture": {
+									"type": "embedded",
+									"source": "picture",
+									"fields": {
+										"data": {
+											"type": "embedded",
+											"fields": {
+												"url": "string"
+											}
+										}
+									}
+								},
+								"short_name": "string"
+							}
+						},
+						"type": "string",
+						"updated_time": "datetime",
+						"with_tags": "base"
+					}
+				}
+			}
+		},
+		"UserFeedPage": {
+			"GET": {
+				"method": "GET",
+				"scopes": [
+					"user_posts"
+				],
+				"route": {
+					"data": "",
+					"path": "/me/feed"
+				},
+				"parameters": {
+					"fields": "{{ parameters.fields }}",
+					"until": "{{ parameters.until }}",
+					"since": "{{ parameters.since }}",
+					"limit": "{{ parameters.limit }}",
+					"__paging_token": "{{ parameters.paging_token }}",
+					"with": {
+						"value": "{{ parameters.with }}"
+					}
+				}
+			}
+		},
+		"User": {
+			"GET": {
+				"method": "GET",
+				"route": "/{{ identifier }}",
+				"collection": false,
+				"parameters": {
+					"fields": "{{ parameters.fields }}"
+				}
+			}
+		},
+		"Photo": {
+			"GET": {
+				"method": "GET",
+				"route": "/{{ identifier }}",
+				"collection": false,
+				"parameters": {
+					"fields": "{{ parameters.fields }}"
+				},
+				"responses": {
+					"200": {
+						"model": {
+							"key": "id",
+							"fields": {
+								"id": "string",
+								"from": {
+									"type": "embedded",
+									"fields": {
+										"id": "string",
+										"coverPhoto": {
+											"type": "embedded",
+											"source": "picture",
+											"fields": {
+												"source": "string"
+											}
+										},
+										"email": "email",
+										"first_name": "string",
+										"gender": "string",
+										"last_name": "string",
+										"locale": "string",
+										"name": "string",
+										"picture": {
+											"type": "embedded",
+											"source": "picture",
+											"fields": {
+												"data": {
+													"type": "embedded",
+													"fields": {
+														"url": "string"
+													}
+												}
+											}
+										},
+										"short_name": "string"
+									}
+								},
+								"images": {
+									"many": true,
+									"type": "embedded",
+									"fields": {
+										"source": "string"
+									}
+								},
+								"link": "string",
+								"name": "string",
+								"picture": "string"
+							}
+						}
+					},
+					"400": {
+						"recast": 204
+					},
+					"404": {
+						"recast": 204
+					}
+				}
+			}
+		},
+		"Video": {
+			"GET": {
+				"method": "GET",
+				"route": "/{{ identifier }}",
+				"collection": false,
+				"parameters": {
+					"fields": "{{ parameters.fields }}"
+				},
+				"responses": {
+					"200": {
+						"model": {
+							"key": "id",
+							"fields": {
+								"id": "string",
+								"content_tags": {
+									"type": "string",
+									"many": true
+								},
+								"datetime": {
+									"type": "date",
+									"source": "created_time"
+								},
+								"description": "string",
+								"embed_html": "string",
+								"from": {
+									"type": "embedded",
+									"fields": {
+										"id": "string",
+										"coverPhoto": {
+											"type": "embedded",
+											"source": "picture",
+											"fields": {
+												"source": "string"
+											}
+										},
+										"email": "email",
+										"first_name": "string",
+										"gender": "string",
+										"last_name": "string",
+										"locale": "string",
+										"name": "string",
+										"picture": {
+											"type": "embedded",
+											"source": "picture",
+											"fields": {
+												"data": {
+													"type": "embedded",
+													"fields": {
+														"url": "string"
+													}
+												}
+											}
+										},
+										"short_name": "string"
+									}
+								},
+								"permalink_url": "string",
+								"picture": "string",
+								"source": "string",
+								"title": "string"
+							}
+						}
+					},
+					"400": {
+						"recast": 204
+					},
+					"404": {
+						"recast": 204
+					}
+				}
+			}
+		},
+		"UserFriends": {
+			"GET": {
+				"method": "GET",
+				"scopes": [
+					"email",
+					"user_friends",
+					"user_link",
+					"user_location"
+				],
+				"route": {
+					"data": "data",
+					"path": "/me/friends"
+				},
+				"parameters": {
+					"fields": "{{ parameters.fields }}",
+					"limit": "{{ parameters.limit }}"
+				},
+				"model": {
+					"key": "id",
+					"fields": {
+						"id": "string",
+						"location": {
+							"type": "object",
+							"fields": {
+								"location": {
+									"type": "object",
+									"fields": {
+										"city": "string",
+										"country": "string",
+										"state": "string",
+										"zip": "string"
+									}
+								}
+							}
+						},
+						"email": "string",
+						"first_name": "string",
+						"last_name": "string",
+						"link": "string",
+						"middle_name": "string",
+						"name": "string",
+						"picture": {
+							"type": "object",
+							"fields": {
+								"data": {
+									"type": "object",
+									"fields": {
+										"url": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"UserFriendsPage": {
+			"GET": {
+				"method": "GET",
+				"scopes": [
+					"user_friends"
+				],
+				"route": {
+					"data": "paging",
+					"path": "/me/friends"
+				},
+				"parameters": {
+					"fields": "{{ parameters.fields }}",
+					"limit": "{{ parameters.limit }}"
+				}
+			}
 		}
-	  }
 	}
-  }
 }

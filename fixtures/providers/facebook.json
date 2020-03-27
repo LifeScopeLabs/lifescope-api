@@ -12,12 +12,11 @@
       "population": "*"
     },
 
-    "events": {
-      "name": "Facebook Events",
-      "description": "Events you have RSVP'd for on Facebook",
+    "friends": {
+      "name": "Facebook Friends",
+      "description": "Facebook friends (who are also LifeScope users)",
       "enabled_by_default": true,
-      "mapping": "UserEvents",
-      "population": "*"
+      "mapping": "UserFriends"
     }
   },
 
