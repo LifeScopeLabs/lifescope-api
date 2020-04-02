@@ -560,6 +560,118 @@
           }
         }
       }
+    },
+    "Contacts": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Contacts.Read",
+          "Contacts.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "data": "value",
+            "path": "/me/contacts"
+          }
+        },
+        "model": {
+          "key": "id",
+          "fields": {
+            "id": "string",
+            "birthday": "string",
+            "businessAddress": {
+              "type": "object",
+              "fields": {
+                "street": "string",
+                "city": "string",
+                "state": "string",
+                "countryOrRegion": "string",
+                "postalCode": "string"
+              }
+            },
+            "businessHomePage": "string",
+            "businessPhones": {
+              "type": "string",
+              "many": true
+            },
+            "companyName": "string",
+            "displayName": "string",
+            "emailAddresses": {
+              "type": "object",
+              "many": true,
+              "fields": {
+                "name": "string",
+                "address": "string"
+              }
+            },
+            "givenName": "string",
+            "homeAddress": {
+              "type": "object",
+              "fields": {
+                "street": "string",
+                "city": "string",
+                "state": "string",
+                "countryOrRegion": "string",
+                "postalCode": "string"
+              }
+            },
+            "homePhones": {
+              "type": "string",
+              "many": true
+            },
+            "imAddresses": {
+              "type": "string",
+              "many": true
+            },
+            "middleName": "string",
+            "mobilePhone": "string",
+            "officeLocation": "string",
+            "personalNotes": "string",
+            "surname": "string"
+          }
+        }
+      }
+    },
+    "ContactsPage": {
+      "GET": {
+        "method": "GET",
+        "scopes": [
+          "Contacts.Read",
+          "Contacts.Read.Shared"
+        ],
+        "parameters": {
+          "$skip": "{{ parameters.skip }}",
+          "$top": "{{ parameters.top }}",
+          "$select": "{{ parameters.select }}",
+          "$expand": "{{ parameters.expand }}"
+        },
+        "single": false,
+        "collection": {
+          "route": {
+            "path": "/me/contacts"
+          }
+        },
+        "model": {
+          "key": "context",
+          "fields": {
+            "context": {
+              "type": "string",
+              "source": "@odata.context"
+            },
+            "nextLink": {
+              "type": "string",
+              "source": "@odata.nextLink"
+            }
+          }
+        }
+      }
     }
   }
 }

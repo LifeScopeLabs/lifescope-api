@@ -24,6 +24,13 @@
       "enabled_by_default": true,
       "mapping": "DriveDelta",
       "population": "*"
+    },
+
+    "contacts": {
+      "name": "Contacts",
+      "description": "Your Contacts from Outlook",
+      "enabled_by_default": true,
+      "mapping": "Contacts"
     }
   },
 
